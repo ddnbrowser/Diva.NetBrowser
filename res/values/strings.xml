@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DIVA.NET Browser</string>
+    <string name="ok">OK</string>
+    <string name="cancel">キャンセル</string>
+    <string name="account_input_title">ログイン</string>
+    <string name="access_code">アクセスコード:</string>
+    <string name="password">パスワード：</string>
+    <string name="item_sort">ソート</string>
+    <string name="item_update_all">全件更新</string>
+    <string name="item_update_selction">1件更新</string>
+    <string name="item_sort_by_difficulty">難易度</string>
+    <string name="item_sort_by_score">スコア</string>
+    <string name="item_sort_by_achievement">達成率</string>
+    <string name="item_sort_by_clear_status">クリア状況</string>
+    <string name="item_sort_by_trial_status">トライアル状況</string>
+    <string name="message_downloading">プレイデータの取得中...</string>
+    <string name="message_updating">プレイデータの更新中...</string>
+    <string name="message_loading">プレイデータの読み込み中...</string>
+</resources>

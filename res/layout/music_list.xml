@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent" android:layout_height="fill_parent">
+  <TableLayout android:id="@+id/TableLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent">
+    <TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content" android:layout_width="fill_parent">
+      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="[プレイヤー名] " android:textColor="#00FFFF"></TextView>
+      <TextView android:layout_height="wrap_content" android:id="@+id/player_name" android:text="あなたのなまえ" android:layout_width="fill_parent" android:layout_weight="1"></TextView>
+    </TableRow>
+    <TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content" android:layout_width="fill_parent">
+      <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="[LEVEL/RANK]" android:textColor="#00FFFF"></TextView>
+      <TextView android:layout_height="wrap_content" android:id="@+id/level_rank" android:layout_width="fill_parent" android:layout_weight="1" android:text="Lv 127 フーガ"></TextView>
+    </TableRow>
+  </TableLayout>
+  <ListView android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1" android:id="@id/android:list"></ListView><RelativeLayout android:layout_width="fill_parent" android:layout_weight="1" android:layout_height="fill_parent" android:id="@id/android:empty"><TextView android:text="楽曲情報がありません。" android:layout_weight="1" android:layout_centerInParent="true" android:layout_height="wrap_content" android:layout_width="wrap_content"/></RelativeLayout>
+  
+  <LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_gravity="bottom" android:layout_width="fill_parent">
+    <Button android:layout_height="wrap_content" android:id="@+id/button_easy" android:text="EASY" android:layout_weight="1" android:layout_width="fill_parent"></Button>
+    <Button android:layout_height="wrap_content" android:layout_weight="1" android:text="NORMAL" android:id="@+id/button_normal" android:layout_width="fill_parent"></Button>
+    <Button android:layout_height="wrap_content" android:id="@+id/button_hard" android:text="HARD" android:layout_weight="1" android:layout_width="fill_parent"></Button>
+    <Button android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="fill_parent" android:text="EXTREME" android:id="@+id/button_extreme"></Button>
+  
+</LinearLayout>
+
+
+</LinearLayout>

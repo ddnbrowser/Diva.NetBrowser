@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="trial_labels"><item>NO CLEAR</item>
+<item>C-TRIAL</item>
+<item>G-TRIAL</item>
+<item>COMPLETE</item>
+</string-array>
+</resources>

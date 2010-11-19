@@ -555,7 +555,7 @@ public class MusicListActivity extends ListActivity {
 					int res = (rhs_clear - rhs_trial) - (lhs_clear - lhs_trial);
 					if (res != 0)
 						return res;
-					res = rhs_clear - lhs_clear;
+					res = lhs_trial - rhs_trial;
 					if (res != 0)
 						return res;
 					return lhs.records[m_difficulty].difficulty - rhs.records[m_difficulty].difficulty;

@@ -22,15 +22,27 @@ import org.apache.http.message.BasicNameValuePair;
 import android.net.Uri;
 
 public class Service {
+	private static final int LOGIN_DURATION = 3*60*1000;
+
 	private DefaultHttpClient m_client = new DefaultHttpClient();
 	private URI m_url;
 	private String m_access_code;
 	private String m_password;
+	private long m_lastAccess;
 
 	public Service(URI url, String access_code, String password) {
 		m_url = url;
 		m_access_code = access_code;
 		m_password = password;
+		m_lastAccess = 0;
+	}
+
+	private void access() {
+		m_lastAccess = System.currentTimeMillis();
+	}
+
+	public boolean isLogin() {
+		return System.currentTimeMillis() - m_lastAccess < LOGIN_DURATION;
 	}
 
 	public PlayRecord login() throws LoginFailedException {
@@ -48,6 +60,7 @@ public class Service {
 			HttpResponse response = m_client.execute(request);
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 				throw new LoginFailedException();
+			access();
 			return Parser.parseMenuPage(response.getEntity().getContent());
 		}
 		catch (Exception e) {
@@ -71,6 +84,7 @@ public class Service {
 		if (list.isEmpty())
 			throw new NoLoginException();
 
+		access();
 		record.musics = list;
 	}
 
@@ -79,6 +93,7 @@ public class Service {
 		HttpGet request = new HttpGet(url);
 		try {
 			HttpResponse response = m_client.execute(request);
+			access();
 			Parser.parseInfoPage(response.getEntity().getContent(), music);
 		}
 		catch (ParseException e) {

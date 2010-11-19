@@ -356,8 +356,16 @@ public class MusicListActivity extends ListActivity {
 		protected PlayRecord doInBackground(MusicInfo... args) {
 			final MusicInfo music = args[0];
 			try {
-				PlayRecord record = m_service.login();
-				m_service.update(music);
+				PlayRecord record = null;
+				if (!m_service.isLogin())
+					record = m_service.login();
+				try {
+					m_service.update(music);
+				}
+				catch (NoLoginException e) {
+					record = m_service.login();
+					m_service.update(music);
+				}
 				m_store.update(music);
 				return record;
 			}

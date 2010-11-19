@@ -21,13 +21,16 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -80,6 +83,7 @@ public class MusicListActivity extends ListActivity {
 			m_buttons[i].setEnabled(d != difficulty);
 
 		}
+		getListView().setOnTouchListener(new OnTouchListener());
 
 		String access_code = m_preferences.getString("access_code", null);
 		if (access_code == null) {
@@ -251,6 +255,28 @@ public class MusicListActivity extends ListActivity {
 
 		String password = m_preferences.getString("password", "");
 		new PlayRecordDownloader().execute(access_code, password);
+	}
+
+	private class OnTouchListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
+		private GestureDetector m_detector;
+
+		public OnTouchListener() {
+			m_detector = new GestureDetector(MusicListActivity.this, this);
+		}
+
+		public boolean onTouch(View view, MotionEvent event) {
+			return m_detector.onTouchEvent(event);
+		}
+
+		@Override
+		public boolean onDoubleTap(MotionEvent e) {
+			int position = getListView().pointToPosition((int)e.getX(), (int)e.getY());
+			if (position != AdapterView.INVALID_POSITION) {
+				new PlayRecordUpdater().execute(m_adapter.getItem(position));
+				return true;
+			}
+			return super.onDoubleTap(e);
+		}
 	}
 
 	private class PlayRecordDownloader extends AsyncTask<String, Integer, PlayRecord> {

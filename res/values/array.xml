@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string-array name="trial_labels"><item>NO CLEAR</item>
+<string-array name="trial_labels">
+<item>NO CLEAR</item>
 <item>C-TRIAL</item>
 <item>G-TRIAL</item>
 <item>COMPLETE</item>
 </string-array>
+<string-array name="rank_names">
+<item>エチュード</item>
+<item>プレリュード</item>
+<item>バラード</item>
+<item>カンタータ</item>
+<item>ノクターン</item>
+<item>セレナーデ</item>
+<item>ロンド</item>
+<item>ワルツ</item>
+<item>カンツォーナ</item>
+<item>メヌエット</item>
+<item>マーチ</item>
+<item>ララバイ</item>
+<item>カッサシオン</item>
+<item>フーガ</item>
+</string-array>
+<integer-array name="rank_points">
+<item>200</item>
+<item>200</item>
+<item>200</item>
+</integer-array>
 </resources>

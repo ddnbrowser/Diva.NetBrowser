@@ -61,7 +61,9 @@ public class MusicListActivity extends ListActivity {
 		m_adapter = new MusicAdapter(this, difficulty);
 		setListAdapter(m_adapter);
 
-		setPlayRecord(new PlayRecord());
+		m_player_name.setText("");
+		m_level_rank.setText("");
+
 		m_buttons = new View[] {
 				findViewById(R.id.button_easy),
 				findViewById(R.id.button_normal),
@@ -171,12 +173,13 @@ public class MusicListActivity extends ListActivity {
 	}
 
 	public void setPlayRecord(PlayRecord record, List<MusicInfo> music) {
-		m_player_name.setText(record.player_name);
-		m_level_rank.setText(record.level_rank);
 		if (music != null)
 			m_adapter.setData(music);
 		else
 			m_adapter.notifyDataSetChanged();
+
+		m_player_name.setText(record.player_name);
+		m_level_rank.setText(arrangeRankText(record.level_rank));
 	}
 
 	public void setDifficulty(int difficulty) {
@@ -184,6 +187,40 @@ public class MusicListActivity extends ListActivity {
 		m_preferences.edit().putInt("difficulty", difficulty).commit();
 		for (int i = 0; i < m_buttons.length; ++i)
 			m_buttons[i].setEnabled(i != difficulty);
+	}
+
+	private String arrangeRankText(String level_rank) {
+		final int[] rank_points = getResources().getIntArray(R.array.rank_points);
+
+		int point = rankPoint();
+		int rank = 0;
+		while (rank < rank_points.length && point >= rank_points[rank])
+			point -= rank_points[rank++];
+		rank += point/150;
+		point %= 150;
+
+		int next = point - (rank < rank_points.length ? rank_points[rank] : 150);
+		String name = rankName(rank);
+		if (level_rank.lastIndexOf(name) >= 0)
+			return String.format("%s (%dpts)", level_rank, next);
+		else
+			return String.format("%s\n(%s / %dpts)", level_rank, name, next);
+	}
+
+	private int rankPoint() {
+		int point = 0;
+		for (MusicInfo m: m_adapter.getData())
+			point += m.rankPoint();
+		return point;
+	}
+
+	private String rankName(int rank) {
+		final String[] rank_names = getResources().getStringArray(R.array.rank_names);
+		int max_rank = rank_names.length - 1;
+		if (rank <= max_rank)
+			return rank_names[rank];
+		else
+			return String.format("%s+%d", rank_names[max_rank], rank-max_rank);
 	}
 
 	private void inputAccountInformation() {
@@ -369,6 +406,10 @@ public class MusicListActivity extends ListActivity {
 		public void setData(List<MusicInfo> music) {
 			m_musics = music;
 			setDifficulty(m_difficulty);
+		}
+
+		public List<MusicInfo> getData() {
+			return m_musics;
 		}
 
 		public void setDifficulty(int difficulty) {

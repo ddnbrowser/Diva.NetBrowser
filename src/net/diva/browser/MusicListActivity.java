@@ -2,7 +2,6 @@ package net.diva.browser;
 
 import java.net.URI;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 import net.diva.browser.db.LocalStore;
@@ -125,7 +124,7 @@ public class MusicListActivity extends ListActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		final long now = new Date().getTime();
+		final long now = System.currentTimeMillis();
 		boolean enable = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
 		menu.findItem(MENU_UPDATE).setEnabled(enable);
 		menu.findItem(m_adapter.sortOrder()).setChecked(true);
@@ -312,7 +311,7 @@ public class MusicListActivity extends ListActivity {
 				m_preferences.edit()
 					.putString("access_code", access_code)
 					.putString("password", password)
-					.putLong("last_updated", new Date().getTime())
+					.putLong("last_updated", System.currentTimeMillis())
 					.commit();
 				return record;
 			}

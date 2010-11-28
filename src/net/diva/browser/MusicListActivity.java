@@ -8,6 +8,7 @@ import net.diva.browser.db.LocalStore;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.Service;
+import net.diva.browser.util.ReverseComparator;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -133,15 +134,16 @@ public class MusicListActivity extends ListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
 		switch (item.getGroupId()) {
 		case MENU_GROUP_SORT:
-			m_adapter.sortBy(item.getItemId());
+			m_adapter.sortBy(id);
 			return true;
 		default:
 			break;
 		}
 
-		switch (item.getItemId()) {
+		switch (id) {
 		case MENU_UPDATE:
 			updateAll();
 			break;
@@ -418,7 +420,8 @@ public class MusicListActivity extends ListActivity {
 
 		private List<MusicInfo> m_musics;
 		private int m_difficulty;
-		private int m_sortBy;
+		private int m_sortOrder;
+		private boolean m_reverseOrder;
 
 		public MusicAdapter(Context context, int difficulty) {
 			super(context, LIST_ITEM_ID);
@@ -433,7 +436,8 @@ public class MusicListActivity extends ListActivity {
 			};
 
 			m_difficulty = difficulty;
-			m_sortBy = 0;
+			m_sortOrder = 0;
+			m_reverseOrder = false;
 		}
 
 		public void setData(List<MusicInfo> music) {
@@ -453,7 +457,7 @@ public class MusicListActivity extends ListActivity {
 				if (music.records[m_difficulty] != null)
 					add(music);
 			}
-			sortBy(m_sortBy);
+			sortBy(m_sortOrder, m_reverseOrder);
 			setNotifyOnChange(true);
 			notifyDataSetChanged();
 		}
@@ -490,57 +494,68 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		public int sortOrder() {
-			return m_sortBy;
+			return m_sortOrder;
 		}
 
 		public void sortBy(int order) {
-			switch (order) {
-			case MENU_SORT_BY_DIFFICULTY:
-				sortByDifficulty();
-				break;
-			case MENU_SORT_BY_SCORE:
-				sortByScore();
-				break;
-			case MENU_SORT_BY_ACHIEVEMENT:
-				sortByAchievement();
-				break;
-			case MENU_SORT_BY_CLEAR_STATUS:
-				sortByClearStatus();
-				break;
-			case MENU_SORT_BY_TRIAL_STATUS:
-				sortByTrialStatus();
-				break;
-			}
-
-			m_sortBy = order;
+			sortBy(order, order == m_sortOrder && !m_reverseOrder);
 		}
 
-		private void sortByDifficulty() {
-			sort(new Comparator<MusicInfo>() {
+		public void sortBy(int order, boolean reverse) {
+			Comparator<MusicInfo> cmp = null;
+			switch (order) {
+			case MENU_SORT_BY_DIFFICULTY:
+				cmp = byDifficulty();
+				break;
+			case MENU_SORT_BY_SCORE:
+				cmp = byScore();
+				break;
+			case MENU_SORT_BY_ACHIEVEMENT:
+				cmp = byAchievement();
+				break;
+			case MENU_SORT_BY_CLEAR_STATUS:
+				cmp = byClearStatus();
+				break;
+			case MENU_SORT_BY_TRIAL_STATUS:
+				cmp = byTrialStatus();
+				break;
+			default:
+				return;
+			}
+			if (reverse)
+				cmp = new ReverseComparator<MusicInfo>(cmp);
+
+			sort(cmp);
+			m_sortOrder = order;
+			m_reverseOrder = reverse;
+		}
+
+		private Comparator<MusicInfo> byDifficulty() {
+			return new Comparator<MusicInfo>() {
 				public int compare(MusicInfo lhs, MusicInfo rhs) {
 					return lhs.records[m_difficulty].difficulty - rhs.records[m_difficulty].difficulty;
 				}
-			});
+			};
 		}
 
-		private void sortByScore() {
-			sort(new Comparator<MusicInfo>() {
+		private Comparator<MusicInfo> byScore() {
+			return new Comparator<MusicInfo>() {
 				public int compare(MusicInfo lhs, MusicInfo rhs) {
 					return lhs.records[m_difficulty].high_score - rhs.records[m_difficulty].high_score;
 				}
-			});
+			};
 		}
 
-		private void sortByAchievement() {
-			sort(new Comparator<MusicInfo>() {
+		private Comparator<MusicInfo> byAchievement() {
+			return new Comparator<MusicInfo>() {
 				public int compare(MusicInfo lhs, MusicInfo rhs) {
 					return lhs.records[m_difficulty].achievement - rhs.records[m_difficulty].achievement;
 				}
-			});
+			};
 		}
 
-		private void sortByClearStatus() {
-			sort(new Comparator<MusicInfo>() {
+		private Comparator<MusicInfo> byClearStatus() {
+			return new Comparator<MusicInfo>() {
 				public int compare(MusicInfo lhs, MusicInfo rhs) {
 					int res = lhs.records[m_difficulty].clear_status
 							- rhs.records[m_difficulty].clear_status;
@@ -548,11 +563,11 @@ public class MusicListActivity extends ListActivity {
 						return res;
 					return lhs.records[m_difficulty].difficulty - rhs.records[m_difficulty].difficulty;
 				}
-			});
+			};
 		}
 
-		private void sortByTrialStatus() {
-			sort(new Comparator<MusicInfo>() {
+		private Comparator<MusicInfo> byTrialStatus() {
+			return new Comparator<MusicInfo>() {
 				public int compare(MusicInfo lhs, MusicInfo rhs) {
 					final int lhs_clear = lhs.records[m_difficulty].clear_status;
 					final int rhs_clear = rhs.records[m_difficulty].clear_status;
@@ -567,7 +582,7 @@ public class MusicListActivity extends ListActivity {
 						return res;
 					return lhs.records[m_difficulty].difficulty - rhs.records[m_difficulty].difficulty;
 				}
-			});
+			};
 		}
 	}
 }

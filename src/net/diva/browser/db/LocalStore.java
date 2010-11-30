@@ -125,6 +125,10 @@ public class LocalStore extends ContextWrapper {
 			db.close();
 		}
 
+		update(record);
+	}
+
+	public void update(PlayRecord record) {
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 		editor.putString("player_name", record.player_name);
 		editor.putString("level_rank", record.level_rank);

@@ -368,6 +368,8 @@ public class MusicListActivity extends ListActivity {
 					m_service.update(music);
 				}
 				m_store.update(music);
+				if (record != null)
+					m_store.update(record);
 				return record;
 			}
 			catch (LoginFailedException e) {

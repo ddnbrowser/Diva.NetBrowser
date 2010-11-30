@@ -2,14 +2,17 @@
 <LinearLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   android:layout_height="wrap_content" android:orientation="horizontal" android:layout_width="fill_parent">
-<ImageView android:id="@+id/cover_art" android:layout_height="48dip" android:layout_width="48dip" android:layout_margin="3dip" android:background="@drawable/pv_012"></ImageView>
-<LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:orientation="vertical"><LinearLayout android:id="@+id/LinearLayout02" android:layout_width="wrap_content" android:layout_height="wrap_content"><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/difficulty" android:text="★8"></TextView>
-<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/clear_status" android:background="@drawable/clear2"></ImageView>
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/trial_status" android:text="C-TRIAL"></TextView>
-</LinearLayout><TextView android:layout_height="wrap_content" android:text="ワールドイズマイン" android:layout_width="fill_parent" android:maxLines="1" android:id="@+id/music_title"></TextView>
-<LinearLayout android:id="@+id/LinearLayout03" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_width="fill_parent">
-<TextView android:layout_height="wrap_content" android:id="@+id/high_score" android:layout_width="fill_parent" android:maxLines="1" android:layout_weight="1" android:text="スコア: 378260pts"></TextView><TextView android:layout_height="wrap_content" android:id="@+id/achivement" android:layout_width="fill_parent" android:maxLines="1" android:layout_weight="1" android:text="達成率: 89.91%"></TextView>
-</LinearLayout>
-</LinearLayout>
-
+	<ImageView android:id="@+id/cover_art" android:layout_height="48dip" android:layout_width="48dip" android:layout_margin="3dip" android:background="@drawable/pv_012"></ImageView>
+	<LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:orientation="vertical">
+		<LinearLayout android:id="@+id/LinearLayout02" android:layout_width="wrap_content" android:layout_height="wrap_content">
+			<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/difficulty" android:text="★8"></TextView>
+			<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/clear_status" android:background="@drawable/clear2"></ImageView>
+			<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/trial_status" android:text="C-TRIAL"></TextView>
+		</LinearLayout>
+		<TextView android:layout_height="wrap_content" android:text="ワールドイズマイン" android:layout_width="fill_parent" android:maxLines="1" android:id="@+id/music_title" android:ellipsize="end"></TextView>
+		<LinearLayout android:id="@+id/LinearLayout03" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_width="fill_parent">
+			<TextView android:layout_height="wrap_content" android:id="@+id/high_score" android:layout_width="fill_parent" android:maxLines="1" android:layout_weight="1" android:text="スコア: 378260pts" android:ellipsize="end"></TextView>
+			<TextView android:layout_height="wrap_content" android:id="@+id/achivement" android:layout_width="fill_parent" android:maxLines="1" android:layout_weight="1" android:text="達成率: 89.91%" android:ellipsize="end"></TextView>
+		</LinearLayout>
+	</LinearLayout>
 </LinearLayout>

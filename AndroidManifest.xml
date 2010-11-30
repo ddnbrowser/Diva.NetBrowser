@@ -4,7 +4,7 @@
       android:versionCode="102" android:versionName="1.2">
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".MusicListActivity"
-                  android:label="@string/app_name" android:screenOrientation="portrait">
+                  android:label="@string/app_name" android:screenOrientation="user" android:configChanges="keyboardHidden|orientation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

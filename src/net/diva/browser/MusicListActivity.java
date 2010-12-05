@@ -48,6 +48,8 @@ public class MusicListActivity extends ListActivity {
 	private Service m_service;
 	private LocalStore m_store;
 
+	private PlayRecord m_record;
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -178,6 +180,8 @@ public class MusicListActivity extends ListActivity {
 	}
 
 	public void setPlayRecord(PlayRecord record, List<MusicInfo> music) {
+		m_record = record;
+
 		if (music != null)
 			m_adapter.setData(music);
 		else
@@ -368,9 +372,13 @@ public class MusicListActivity extends ListActivity {
 					m_service.update(music);
 				}
 				m_store.update(music);
-				if (record != null)
+				if (record == null)
+					return m_record;
+				else {
 					m_store.update(record);
-				return record;
+					record.musics = m_record.musics;
+					return record;
+				}
 			}
 			catch (LoginFailedException e) {
 				e.printStackTrace();

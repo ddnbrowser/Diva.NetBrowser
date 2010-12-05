@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
-      android:versionName="1.3" android:versionCode="103">
+      android:versionCode="104" android:versionName="1.4">
     <application android:icon="@drawable/icon" android:label="@string/app_name">
         <activity android:name=".MusicListActivity"
                   android:label="@string/app_name" android:screenOrientation="user" android:configChanges="keyboardHidden|orientation">

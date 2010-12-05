@@ -218,7 +218,7 @@ public class MusicListActivity extends ListActivity {
 
 	private int rankPoint() {
 		int point = 0;
-		for (MusicInfo m: m_adapter.getData())
+		for (MusicInfo m: m_record.musics)
 			point += m.rankPoint();
 		return point;
 	}
@@ -453,10 +453,6 @@ public class MusicListActivity extends ListActivity {
 		public void setData(List<MusicInfo> music) {
 			m_musics = music;
 			setDifficulty(m_difficulty);
-		}
-
-		public List<MusicInfo> getData() {
-			return m_musics;
 		}
 
 		public void setDifficulty(int difficulty) {

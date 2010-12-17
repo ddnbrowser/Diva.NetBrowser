@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="@string/item_update_all" android:icon="@drawable/ic_menu_refresh" android:id="@+id/item_update"></item>
+    <item android:title="@string/item_sort" android:icon="@drawable/android:ic_menu_sort_by_size" android:id="@+id/item_sort">
+        <menu>
+            <group android:id="@+id/group_sort" android:checkableBehavior="single">
+                <item android:id="@+id/item_sort_by_difficulty" android:title="@string/item_sort_by_difficulty"></item>
+                <item android:id="@+id/item_sort_by_score" android:title="@string/item_sort_by_score"></item>
+                <item android:id="@+id/item_sort_by_achievement" android:title="@string/item_sort_by_achievement"></item>
+                <item android:id="@+id/item_sort_by_clear_status" android:title="@string/item_sort_by_clear_status"></item>
+                <item android:id="@+id/item_sort_by_trial_status" android:title="@string/item_sort_by_trial_status"></item>
+            </group>
+        </menu>
+    </item>
+</menu>

@@ -26,7 +26,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -97,31 +96,9 @@ public class MusicListActivity extends ListActivity {
 		new PlayRecordLoader().execute(access_code);
 	}
 
-	private static final int MENU_UPDATE = Menu.FIRST;
-	private static final int MENU_CANCEL = Menu.FIRST + 1;
-
-	private static final int MENU_SORT_BY_DIFFICULTY = Menu.FIRST + 1;
-	private static final int MENU_SORT_BY_SCORE = Menu.FIRST + 2;
-	private static final int MENU_SORT_BY_ACHIEVEMENT = Menu.FIRST + 3;
-	private static final int MENU_SORT_BY_CLEAR_STATUS = Menu.FIRST + 4;
-	private static final int MENU_SORT_BY_TRIAL_STATUS = Menu.FIRST + 5;
-
-	private static final int MENU_GROUP_SORT = Menu.FIRST;
-
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, MENU_UPDATE, 0, R.string.item_update_all)
-			.setIcon(R.drawable.ic_menu_refresh);
-
-		SubMenu sort = menu.addSubMenu(R.string.item_sort)
-			.setIcon(android.R.drawable.ic_menu_sort_by_size);
-		sort.add(MENU_GROUP_SORT, MENU_SORT_BY_DIFFICULTY, 0, R.string.item_sort_by_difficulty);
-		sort.add(MENU_GROUP_SORT, MENU_SORT_BY_SCORE, 0, R.string.item_sort_by_score);
-		sort.add(MENU_GROUP_SORT, MENU_SORT_BY_ACHIEVEMENT, 0, R.string.item_sort_by_achievement);
-		sort.add(MENU_GROUP_SORT, MENU_SORT_BY_CLEAR_STATUS, 0, R.string.item_sort_by_clear_status);
-		sort.add(MENU_GROUP_SORT, MENU_SORT_BY_TRIAL_STATUS, 0, R.string.item_sort_by_trial_status);
-		sort.setGroupCheckable(MENU_GROUP_SORT, true, true);
-
+		getMenuInflater().inflate(R.menu.list_options, menu);
 		return true;
 	}
 
@@ -129,8 +106,10 @@ public class MusicListActivity extends ListActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		final long now = System.currentTimeMillis();
 		boolean enable = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
-		menu.findItem(MENU_UPDATE).setEnabled(enable);
-		menu.findItem(m_adapter.sortOrder()).setChecked(true);
+		menu.findItem(R.id.item_update).setEnabled(enable);
+		MenuItem sort = menu.findItem(m_adapter.sortOrder());
+		if (sort != null)
+			sort.setChecked(true);
 		return true;
 	}
 
@@ -138,7 +117,7 @@ public class MusicListActivity extends ListActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		switch (item.getGroupId()) {
-		case MENU_GROUP_SORT:
+		case R.id.group_sort:
 			m_adapter.sortBy(id);
 			return true;
 		default:
@@ -146,7 +125,7 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		switch (id) {
-		case MENU_UPDATE:
+		case R.id.item_update:
 			updateAll();
 			break;
 		default:
@@ -159,15 +138,14 @@ public class MusicListActivity extends ListActivity {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		menu.add(0, MENU_UPDATE, 0, R.string.item_update_selction);
-		menu.add(0, MENU_CANCEL, 0, R.string.cancel);
+		getMenuInflater().inflate(R.menu.list_context, menu);
 	}
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-		case MENU_UPDATE:
+		case R.id.item_update:
 			new PlayRecordUpdater().execute(m_adapter.getItem(info.position));
 			return true;
 		default:
@@ -510,19 +488,19 @@ public class MusicListActivity extends ListActivity {
 		public void sortBy(int order, boolean reverse) {
 			Comparator<MusicInfo> cmp = null;
 			switch (order) {
-			case MENU_SORT_BY_DIFFICULTY:
+			case R.id.item_sort_by_difficulty:
 				cmp = byDifficulty();
 				break;
-			case MENU_SORT_BY_SCORE:
+			case R.id.item_sort_by_score:
 				cmp = byScore();
 				break;
-			case MENU_SORT_BY_ACHIEVEMENT:
+			case R.id.item_sort_by_achievement:
 				cmp = byAchievement();
 				break;
-			case MENU_SORT_BY_CLEAR_STATUS:
+			case R.id.item_sort_by_clear_status:
 				cmp = byClearStatus();
 				break;
-			case MENU_SORT_BY_TRIAL_STATUS:
+			case R.id.item_sort_by_trial_status:
 				cmp = byTrialStatus();
 				break;
 			default:

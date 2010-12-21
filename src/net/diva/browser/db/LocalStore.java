@@ -1,8 +1,5 @@
 package net.diva.browser.db;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +9,6 @@ import net.diva.browser.MusicInfo;
 import net.diva.browser.PlayRecord;
 import net.diva.browser.Ranking;
 import net.diva.browser.ScoreRecord;
-import net.diva.browser.service.ServiceClient;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
@@ -20,8 +16,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
@@ -165,29 +159,6 @@ public class LocalStore extends ContextWrapper {
 			db.endTransaction();
 			db.close();
 		}
-	}
-
-	public File getCoverartPath(MusicInfo music) {
-		return getFileStreamPath(new File(music.coverart).getName());
-	}
-
-
-	public void cacheCoverart(MusicInfo music, ServiceClient service) {
-		File cache = getCoverartPath(music);
-		if (cache.exists())
-			return;
-
-		try {
-			FileOutputStream out = new FileOutputStream(cache);
-			service.download(music.coverart, out);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public Drawable getCoverart(MusicInfo music) {
-		return new BitmapDrawable(getCoverartPath(music).getAbsolutePath());
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {

@@ -1,5 +1,11 @@
 package net.diva.browser;
 
+import java.io.File;
+
+import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+
 
 public class MusicInfo {
 	private static final int[] STATUS_POINTS = new int[] { 0, 1, 4, 6 };
@@ -27,5 +33,13 @@ public class MusicInfo {
 				max = point;
 		}
 		return max;
+	}
+
+	public File getCoverArtPath(Context context) {
+		return context.getFileStreamPath(new File(coverart).getName());
+	}
+
+	public Drawable getCoverArt(Context context) {
+		return new BitmapDrawable(getCoverArtPath(context).getAbsolutePath());
 	}
 }

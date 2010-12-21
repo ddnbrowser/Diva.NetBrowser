@@ -10,8 +10,9 @@ import java.util.Map;
 
 import net.diva.browser.MusicInfo;
 import net.diva.browser.PlayRecord;
+import net.diva.browser.Ranking;
 import net.diva.browser.ScoreRecord;
-import net.diva.browser.service.Service;
+import net.diva.browser.service.ServiceClient;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
@@ -25,13 +26,13 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 1;
+	private static final int VERSION = 2;
 
 	private static LocalStore m_instance;
 
 	public static LocalStore instance(Context context) {
 		if (m_instance == null)
-			m_instance = new LocalStore(context);
+			m_instance = new LocalStore(context.getApplicationContext());
 		return m_instance;
 	}
 
@@ -82,6 +83,7 @@ public class LocalStore extends ContextWrapper {
 				ScoreTable.TRIAL_STATUS,
 				ScoreTable.HIGH_SCORE,
 				ScoreTable.ACHIEVEMENT,
+				ScoreTable.RANKING,
 		}, null, null, null, null, null);
 		try {
 			while (cs.moveToNext()) {
@@ -91,6 +93,7 @@ public class LocalStore extends ContextWrapper {
 				score.trial_status = cs.getInt(4);
 				score.high_score = cs.getInt(5);
 				score.achievement = cs.getInt(6);
+				score.ranking = cs.isNull(7) ? -1 : cs.getInt(7);
 
 				MusicInfo music = id2music.get(cs.getString(0));
 				if (music != null)
@@ -149,12 +152,27 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public void update(List<Ranking> list) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			ScoreTable.clearRanking(db);
+			for (Ranking entry: list)
+				ScoreTable.update(db, entry);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	public File getCoverartPath(MusicInfo music) {
 		return getFileStreamPath(new File(music.coverart).getName());
 	}
 
 
-	public void cacheCoverart(MusicInfo music, Service service) {
+	public void cacheCoverart(MusicInfo music, ServiceClient service) {
 		File cache = getCoverartPath(music);
 		if (cache.exists())
 			return;
@@ -185,6 +203,12 @@ public class LocalStore extends ContextWrapper {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			switch (oldVersion) {
+			case 1:
+				ScoreTable.addRankingColumns(db);
+			default:
+				break;
+			}
 		}
 	}
 }

@@ -13,4 +13,5 @@
             </group>
         </menu>
     </item>
+<item android:title="@string/item_settings" android:icon="@drawable/android:ic_menu_preferences" android:id="@+id/item_settings"></item>
 </menu>

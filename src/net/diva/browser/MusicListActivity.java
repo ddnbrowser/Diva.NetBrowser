@@ -1,19 +1,19 @@
 package net.diva.browser;
 
-import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
 
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
-import net.diva.browser.service.Service;
+import net.diva.browser.service.ServiceClient;
 import net.diva.browser.util.ReverseComparator;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -36,15 +36,13 @@ import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MusicListActivity extends ListActivity {
-	private static final URI URL = URI.create("http://project-diva-ac.net/divanet/");
-
 	private TextView m_player_name;
 	private TextView m_level_rank;
 	private View m_buttons[];
 	private MusicAdapter m_adapter;
 
 	private SharedPreferences m_preferences;
-	private Service m_service;
+	private ServiceClient m_service;
 	private LocalStore m_store;
 
 	private PlayRecord m_record;
@@ -91,7 +89,7 @@ public class MusicListActivity extends ListActivity {
 			inputAccountInformation();
 			return;
 		}
-		m_service = new Service(URL, access_code, m_preferences.getString("password", ""));
+		m_service = new ServiceClient(access_code, m_preferences.getString("password", ""));
 
 		new PlayRecordLoader().execute(access_code);
 	}
@@ -128,6 +126,11 @@ public class MusicListActivity extends ListActivity {
 		case R.id.item_update:
 			updateAll();
 			break;
+		case R.id.item_settings: {
+			Intent intent = new Intent(this, SettingsActivity.class);
+			startActivityForResult(intent, R.id.item_settings);
+		}
+			break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -150,6 +153,21 @@ public class MusicListActivity extends ListActivity {
 			return true;
 		default:
 			return super.onContextItemSelected(item);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case R.id.item_settings:
+			if (m_preferences.getBoolean("download_rankin", false))
+				DownloadRankingService.reserve(this);
+			else
+				DownloadRankingService.cancel(this);
+			break;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+			break;
 		}
 	}
 
@@ -278,7 +296,7 @@ public class MusicListActivity extends ListActivity {
 		protected PlayRecord doInBackground(String... args) {
 			final String access_code = args[0];
 			final String password = args[1];
-			Service service = new Service(URL, access_code, password);
+			ServiceClient service = new ServiceClient(access_code, password);
 			try {
 				PlayRecord record = service.login();
 				service.update(record);
@@ -471,6 +489,7 @@ public class MusicListActivity extends ListActivity {
 				setText(view, R.id.difficulty, "★%d", score.difficulty);
 				setImage(view, R.id.clear_status, m_clear_icons[score.clear_status]);
 				setText(view, R.id.trial_status, m_trial_labels[score.trial_status]);
+				setText(view, R.id.ranking, score.isRankIn() ? "%d位" : "", score.ranking);
 				setText(view, R.id.high_score, "スコア: %dpts", score.high_score);
 				setText(view, R.id.achivement, "達成率: %d.%02d%%", score.achievement/100, score.achievement%100);
 			}

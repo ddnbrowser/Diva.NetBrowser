@@ -2,12 +2,15 @@ package net.diva.browser.service;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.diva.browser.MusicInfo;
 import net.diva.browser.PlayRecord;
+import net.diva.browser.Ranking;
 import net.diva.browser.ScoreRecord;
 
 public final class Parser {
@@ -43,12 +46,12 @@ public final class Parser {
 		return record;
 	}
 
-	private static final Pattern RE_MUSIC = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/\\d+\">(.+)</a>");
+	private static final Pattern RE_MUSIC_TITLE = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/\\d+\">(.+)</a>");
 	private static final Pattern RE_NEXT = Pattern.compile("<a href=\"(.+)\">次へ</a>");
 
 	public static String parseListPage(InputStream content, List<MusicInfo> list) {
 		String body = read(content);
-		Matcher m = RE_MUSIC.matcher(body);
+		Matcher m = RE_MUSIC_TITLE.matcher(body);
 		while (m.find())
 			list.add(new MusicInfo(m.group(1), m.group(2)));
 
@@ -110,5 +113,74 @@ public final class Parser {
 		music.coverart = m.group(1);
 		for (int i = 0; i < DIFFICULTIES.length; ++i)
 			music.records[i] = parseScore(m, DIFFICULTIES[i]);
+	}
+
+	private static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\">(.+)</a>");
+
+	public static String parseRankingList(InputStream content, List<Ranking> list) throws ParseException {
+		String body = read(content);
+		Matcher m = RE_RANKING_TITLE.matcher(body);
+		int last = m.regionEnd();
+		for (MatchResult r = m.find() ? m.toMatchResult() : null; r != null; ) {
+			String id = r.group(1);
+			String title = r.group(2);
+			int start = r.end();
+
+			m = m.usePattern(RE_RANKING_TITLE);
+			m.region(start, last);
+			if (m.find()) {
+				r = m.toMatchResult();
+				m.region(start, r.start());
+			}
+			else {
+				r = null;
+			}
+
+			for (int rank = 3; rank > 1; --rank) {
+				Ranking entry = parseRankIn(m, DIFFICULTIES[rank]);
+				if (entry != null) {
+					entry.id = id;
+					entry.title = title;
+					entry.rank = rank;
+					list.add(entry);
+				}
+			}
+		}
+
+		m = m.usePattern(RE_NEXT);
+		return m.find() ? m.group(1) : null;
+	}
+
+	private static final Pattern RE_RANKIN_SCORE = Pattern.compile(">(\\d+)</");
+	private static final Pattern RE_RANKIN_DATE = Pattern.compile(">(\\d+/\\d+/\\d+)</");
+	private static final Pattern RE_RANKING = Pattern.compile(">(\\d+)位</");
+	private static final SimpleDateFormat RANKING_DATE = new SimpleDateFormat("yy/MM/dd");
+
+	private static String find(Matcher m, Pattern pattern, int group) throws ParseException {
+		int from = m.end();
+		m.usePattern(pattern);
+		if (!m.find(from))
+			throw new ParseException();
+		return m.group(group);
+	}
+
+	private static Ranking parseRankIn(Matcher m, String difficulty) throws ParseException {
+		Pattern RE_DIFFICULTY = Pattern.compile(Pattern.quote(difficulty));
+		m = m.usePattern(RE_DIFFICULTY);
+		if (!m.find())
+			return null;
+		Ranking entry = new Ranking();
+		try {
+			entry.score = Integer.valueOf(find(m, RE_RANKIN_SCORE, 1));
+			entry.date = RANKING_DATE.parse(find(m, RE_RANKIN_DATE, 1)).getTime();
+			entry.ranking = Integer.valueOf(find(m, RE_RANKING, 1));
+		}
+		catch (ParseException e) {
+			throw e;
+		}
+		catch (Exception e) {
+			throw new ParseException(e);
+		}
+		return entry;
 	}
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="translucent">#AA000000</color>
+    <style name="Theme.Translucent" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@color/translucent</item>
+    </style>
+</resources>

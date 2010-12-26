@@ -263,11 +263,33 @@ public class MusicListActivity extends ListActivity {
 			return m_detector.onTouchEvent(event);
 		}
 
+		private MusicInfo getItem(MotionEvent e) {
+			int position = getListView().pointToPosition((int)e.getX(), (int)e.getY());
+			if (position != AdapterView.INVALID_POSITION)
+				return m_adapter.getItem(position);
+			else
+				return null;
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			MusicInfo music = getItem(e);
+			if (music != null) {
+				Intent i = new Intent(getApplicationContext(), MusicDetailActivity.class);
+				i.putExtra("id", music.id);
+				i.putExtra("title", music.title);
+				i.putExtra("coverart", music.getCoverArtPath(getApplicationContext()).getAbsolutePath());
+				startActivity(i);
+				return true;
+			}
+			return super.onSingleTapConfirmed(e);
+		}
+
 		@Override
 		public boolean onDoubleTap(MotionEvent e) {
-			int position = getListView().pointToPosition((int)e.getX(), (int)e.getY());
-			if (position != AdapterView.INVALID_POSITION) {
-				new PlayRecordUpdater().execute(m_adapter.getItem(position));
+			MusicInfo music = getItem(e);
+			if (music != null) {
+				new PlayRecordUpdater().execute(music);
 				return true;
 			}
 			return super.onDoubleTap(e);

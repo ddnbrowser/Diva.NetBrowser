@@ -10,6 +10,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".MusicDetailActivity" android:theme="@style/Theme.Translucent"></activity>
         <activity android:name=".SettingsActivity"></activity>
         <receiver android:name=".DdNBrowserReceiver">
             <intent-filter>

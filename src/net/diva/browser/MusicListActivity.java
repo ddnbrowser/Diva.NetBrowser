@@ -15,6 +15,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -120,8 +121,11 @@ public class MusicListActivity extends ListActivity {
 		case R.id.item_update:
 			updateAll();
 			break;
+		case R.id.item_news:
+			openPage("/divanet/menu/news/");
+			break;
 		case R.id.item_settings: {
-			Intent intent = new Intent(this, SettingsActivity.class);
+			Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
 			startActivityForResult(intent, R.id.item_settings);
 		}
 			break;
@@ -144,6 +148,9 @@ public class MusicListActivity extends ListActivity {
 		switch (item.getItemId()) {
 		case R.id.item_update:
 			new PlayRecordUpdater().execute(m_adapter.getItem(info.position));
+			return true;
+		case R.id.item_ranking:
+			openPage(String.format("/divanet/ranking/summary/%s/0", m_adapter.getItem(info.position).id));
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -250,6 +257,19 @@ public class MusicListActivity extends ListActivity {
 
 		String password = m_preferences.getString("password", "");
 		new PlayRecordDownloader().execute(access_code, password);
+	}
+
+	private void openPage(String relative) {
+		Intent intent = new Intent(
+				Intent.ACTION_VIEW, Uri.parse(DdN.url(relative)),
+				getApplicationContext(), WebBrowseActivity.class);
+		try {
+			intent.putExtra("cookies", m_service.cookies());
+			startActivity(intent);
+		}
+		catch (LoginFailedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private class OnTouchListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {

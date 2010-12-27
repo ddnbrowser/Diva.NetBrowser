@@ -7,6 +7,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.diva.browser.DdN;
 import net.diva.browser.MusicInfo;
 import net.diva.browser.PlayRecord;
 import net.diva.browser.Ranking;
@@ -14,16 +15,17 @@ import net.diva.browser.Ranking;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.net.Uri;
 
 public class ServiceClient {
-	private static final URI BASE_URL = URI.create("http://project-diva-ac.net/divanet/");
 	private static final int LOGIN_DURATION = 3*60*1000;
 
 	private DefaultHttpClient m_client = new DefaultHttpClient();
@@ -45,11 +47,22 @@ public class ServiceClient {
 		return System.currentTimeMillis() - m_lastAccess < LOGIN_DURATION;
 	}
 
+	public String cookies() throws LoginFailedException {
+		if (!isLogin())
+			login();
+
+		StringBuilder builder = new StringBuilder();
+		CookieStore store = m_client.getCookieStore();
+		for (Cookie cookie: store.getCookies())
+			builder.append(String.format("; %s=%s", cookie.getName(), cookie.getValue()));
+		return builder.substring(2).toString();
+	}
+
 	public PlayRecord login() throws LoginFailedException {
-		Uri url = Uri.parse(BASE_URL.resolve("/divanet/login/").toString()).buildUpon().scheme("https").build();
+		Uri url = Uri.parse(DdN.URL.resolve("/divanet/login/").toString()).buildUpon().scheme("https").build();
 		HttpPost request = new HttpPost(url.toString());
 		try {
-			request.setHeader("Referer", BASE_URL.toString());
+			request.setHeader("Referer", DdN.URL.toString());
 			request.setHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0)");
 			request.setHeader("Cache-Control", "no-cache");
 
@@ -72,7 +85,7 @@ public class ServiceClient {
 		List<MusicInfo> list = new ArrayList<MusicInfo>();
 		String path = "/divanet/pv/list/0/0";
 		while (path != null) {
-			HttpGet request = new HttpGet(BASE_URL.resolve(path));
+			HttpGet request = new HttpGet(DdN.URL.resolve(path));
 			try {
 				HttpResponse response = m_client.execute(request);
 				path = Parser.parseListPage(response.getEntity().getContent(), list);
@@ -89,7 +102,7 @@ public class ServiceClient {
 	}
 
 	public void update(MusicInfo music) throws NoLoginException {
-		URI url = BASE_URL.resolve(String.format("/divanet/pv/info/%s/0/0", music.id));
+		URI url = DdN.URL.resolve(String.format("/divanet/pv/info/%s/0/0", music.id));
 		HttpGet request = new HttpGet(url);
 		try {
 			HttpResponse response = m_client.execute(request);
@@ -105,7 +118,7 @@ public class ServiceClient {
 	}
 
 	public void download(String path, OutputStream out) throws IOException {
-		URI url = BASE_URL.resolve(path);
+		URI url = DdN.URL.resolve(path);
 		HttpGet request = new HttpGet(url);
 		HttpResponse response = m_client.execute(request);
 		InputStream in = response.getEntity().getContent();
@@ -118,7 +131,7 @@ public class ServiceClient {
 		List<Ranking> list = new ArrayList<Ranking>();
 		String path = "/divanet/ranking/list/0";
 		while (path != null) {
-			HttpGet request = new HttpGet(BASE_URL.resolve(path));
+			HttpGet request = new HttpGet(DdN.URL.resolve(path));
 			HttpResponse response = m_client.execute(request);
 			path = Parser.parseRankingList(response.getEntity().getContent(), list);
 		}

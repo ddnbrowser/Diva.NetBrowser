@@ -21,6 +21,8 @@
     <string name="item_sort_by_achievement">達成率</string>
     <string name="item_sort_by_clear_status">クリア状況</string>
     <string name="item_sort_by_trial_status">トライアル状況</string>
+    <string name="item_news">ニュース</string>
+    <string name="item_ranking">ランキング表示</string>
     <string name="message_downloading">プレイデータの取得中...</string>
     <string name="message_updating">プレイデータの更新中...</string>
     <string name="message_loading">プレイデータの読み込み中...</string>

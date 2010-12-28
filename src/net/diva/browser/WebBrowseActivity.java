@@ -5,7 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class WebBrowseActivity extends Activity {
 	private WebView m_view;
@@ -14,6 +16,8 @@ public class WebBrowseActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		m_view = new WebView(this);
+		m_view.setWebViewClient(new WebViewClient());
+		m_view.setWebChromeClient(new WebChromeClient());
 		setContentView(m_view);
 
 		Intent intent = getIntent();
@@ -27,5 +31,4 @@ public class WebBrowseActivity extends Activity {
 
 		m_view.loadUrl(intent.getDataString());
 	}
-
 }

@@ -5,14 +5,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import net.diva.browser.DdN.Account;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;
-import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -79,14 +78,14 @@ public class MusicListActivity extends ListActivity {
 		}
 		getListView().setOnTouchListener(new OnTouchListener());
 
-		String access_code = m_preferences.getString("access_code", null);
-		if (access_code == null) {
-			inputAccountInformation();
+		DdN.Account account = DdN.Account.load(m_preferences);
+		if (account == null) {
+			DdN.Account.input(this, new PlayRecordDownloader());
 			return;
 		}
-		m_service = new ServiceClient(access_code, m_preferences.getString("password", ""));
+		m_service = DdN.getServiceClient(account);
 
-		new PlayRecordLoader().execute(access_code);
+		new PlayRecordLoader().execute(account);
 	}
 
 	@Override
@@ -229,47 +228,24 @@ public class MusicListActivity extends ListActivity {
 			return String.format("%s+%d", rank_names[max_rank], rank-max_rank);
 	}
 
-	private void inputAccountInformation() {
-		final View view = getLayoutInflater().inflate(R.layout.account_input, null);
-		final TextView access_code = (TextView)view.findViewById(R.id.edit_access_code);
-		final TextView password = (TextView)view.findViewById(R.id.edit_password);
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setView(view)
-		.setTitle(R.string.account_input_title)
-		.setNegativeButton(R.string.cancel, null)
-		.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				new PlayRecordDownloader().execute(
-						access_code.getText().toString(),
-						password.getText().toString());
-			}
-		})
-		.show();
-	}
-
 	private void updateAll() {
-		String access_code = m_preferences.getString("access_code", null);
-		if (access_code == null) {
-			inputAccountInformation();
+		PlayRecordDownloader task = new PlayRecordDownloader();
+
+		DdN.Account account = DdN.Account.load(m_preferences);
+		if (account == null) {
+			DdN.Account.input(this, task);
 			return;
 		}
 
-		String password = m_preferences.getString("password", "");
-		new PlayRecordDownloader().execute(access_code, password);
+		task.execute(account);
 	}
 
 	private void openPage(String relative) {
 		Intent intent = new Intent(
 				Intent.ACTION_VIEW, Uri.parse(DdN.url(relative)),
 				getApplicationContext(), WebBrowseActivity.class);
-		try {
-			intent.putExtra("cookies", m_service.cookies());
-			startActivity(intent);
-		}
-		catch (LoginFailedException e) {
-			e.printStackTrace();
-		}
+		intent.putExtra("cookies", m_service.cookies());
+		startActivity(intent);
 	}
 
 	private class OnTouchListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
@@ -316,7 +292,7 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	private class PlayRecordDownloader extends AsyncTask<String, Integer, PlayRecord> {
+	private class PlayRecordDownloader extends AsyncTask<DdN.Account, Integer, PlayRecord> {
 		private ProgressDialog m_progress;
 
 		public void cacheCoverart(MusicInfo music, ServiceClient service) {
@@ -343,10 +319,9 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		@Override
-		protected PlayRecord doInBackground(String... args) {
-			final String access_code = args[0];
-			final String password = args[1];
-			ServiceClient service = new ServiceClient(access_code, password);
+		protected PlayRecord doInBackground(DdN.Account... args) {
+			final Account account = args[0];
+			ServiceClient service = DdN.getServiceClient(account);
 			try {
 				PlayRecord record = service.login();
 				service.update(record);
@@ -360,11 +335,10 @@ public class MusicListActivity extends ListActivity {
 
 				m_service = service;
 				m_store.insert(record);
-				m_preferences.edit()
-					.putString("access_code", access_code)
-					.putString("password", password)
-					.putLong("last_updated", System.currentTimeMillis())
-					.commit();
+				SharedPreferences.Editor editor = m_preferences.edit();
+				account.putTo(editor);
+				editor.putLong("last_updated", System.currentTimeMillis());
+				editor.commit();
 				return record;
 			}
 			catch (LoginFailedException e) {
@@ -443,7 +417,7 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	private class PlayRecordLoader extends AsyncTask<String, Void, PlayRecord> {
+	private class PlayRecordLoader extends AsyncTask<DdN.Account, Void, PlayRecord> {
 		private ProgressDialog m_progress;
 
 		@Override
@@ -455,8 +429,8 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		@Override
-		protected PlayRecord doInBackground(String... args) {
-			return m_store.load(args[0]);
+		protected PlayRecord doInBackground(DdN.Account... args) {
+			return m_store.load(args[0].access_code);
 		}
 
 		@Override

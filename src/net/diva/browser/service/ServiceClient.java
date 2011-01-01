@@ -39,7 +39,7 @@ public class ServiceClient {
 		m_lastAccess = 0;
 	}
 
-	private void access() {
+	public void access() {
 		m_lastAccess = System.currentTimeMillis();
 	}
 
@@ -47,9 +47,9 @@ public class ServiceClient {
 		return System.currentTimeMillis() - m_lastAccess < LOGIN_DURATION;
 	}
 
-	public String cookies() throws LoginFailedException {
+	public String cookies() {
 		if (!isLogin())
-			login();
+			return null;
 
 		StringBuilder builder = new StringBuilder();
 		CookieStore store = m_client.getCookieStore();

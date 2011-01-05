@@ -81,7 +81,10 @@ public class WebBrowseActivity extends Activity {
 
 		@Override
 		protected void onPostExecute(String[] args) {
-			displayPage(args[0], args[1]);
+			if (args == null)
+				finish();
+			else
+				displayPage(args[0], args[1]);
 		}
 	}
 }

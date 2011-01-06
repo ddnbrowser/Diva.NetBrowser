@@ -106,7 +106,7 @@ public final class Parser {
 
 	public static void parseInfoPage(InputStream content, MusicInfo music) throws ParseException {
 		String body = read(content);
-		Pattern RE_COVERART = Pattern.compile(Pattern.quote(music.title) + "<br></br><img src=\"(.+)\"");
+		Pattern RE_COVERART = Pattern.compile(Pattern.quote(music.title) + "<br>.*?<img src=\"(.+?)\"", Pattern.DOTALL);
 		Matcher m = RE_COVERART.matcher(body);
 		if (!m.find())
 			throw new ParseException();

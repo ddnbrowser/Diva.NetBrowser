@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
   xmlns:android="http://schemas.android.com/apk/res/android">
-<PreferenceCategory android:title="@string/category_ranking"><CheckBoxPreference android:key="download_rankin" android:title="@string/download_rankin" android:summary="@string/summary_download_rankin"></CheckBoxPreference>
-<CheckBoxPreference android:key="notify_ranking_updated" android:title="@string/notify_ranking_updated" android:dependency="download_rankin" android:summary="@string/summary_notify_ranking_updated"></CheckBoxPreference>
-</PreferenceCategory>
+    <PreferenceCategory android:title="@string/category_ranking">
+        <CheckBoxPreference android:key="download_rankin" android:title="@string/download_rankin" android:summary="@string/summary_download_rankin"></CheckBoxPreference>
+        <CheckBoxPreference android:key="notify_ranking_updated" android:title="@string/notify_ranking_updated" android:dependency="download_rankin" android:summary="@string/summary_notify_ranking_updated"></CheckBoxPreference>
+    </PreferenceCategory>
 </PreferenceScreen>

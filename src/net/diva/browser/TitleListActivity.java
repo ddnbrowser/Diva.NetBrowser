@@ -26,6 +26,7 @@ import android.widget.TextView;
 public class TitleListActivity extends ListActivity {
 	private ListView m_view;
 	private TitleAdapter m_adapter;
+	private LocalStore m_store;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +34,7 @@ public class TitleListActivity extends ListActivity {
 		setContentView(R.layout.title_list);
 		m_view = getListView();
 		m_view.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		m_store = LocalStore.instance(this);
 
 		findViewById(R.id.button_ok).setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
@@ -52,12 +54,21 @@ public class TitleListActivity extends ListActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		return super.onCreateOptionsMenu(menu);
+		getMenuInflater().inflate(R.menu.title_list_options, menu);
+		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+		case R.id.item_update:
+			new TitleDownloader().execute();
+			break;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+
+		return true;
 	}
 
 	private String selectedId() {
@@ -131,7 +142,7 @@ public class TitleListActivity extends ListActivity {
 
 				service.setTitle(title_id);
 				record.title_id = title_id;
-				LocalStore.instance(getApplicationContext()).update(record);
+				m_store.update(record);
 				DdN.setPlayRecord(record);
 				return Boolean.TRUE;
 			}
@@ -151,6 +162,49 @@ public class TitleListActivity extends ListActivity {
 				setResult(RESULT_OK);
 				finish();
 			}
+		}
+	}
+
+	private class TitleDownloader extends AsyncTask<Void, Void, Boolean> {
+		private ProgressDialog m_progress;
+
+		@Override
+		protected void onPreExecute() {
+			m_progress = new ProgressDialog(TitleListActivity.this);
+			m_progress.setMessage(getString(R.string.message_updating));
+			m_progress.setIndeterminate(true);
+			m_progress.show();
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			try {
+				ServiceClient service = DdN.getServiceClient();
+				PlayRecord record = DdN.getPlayRecord();
+				if (!service.isLogin()) {
+					record = DdN.setPlayRecord(service.login());
+					m_store.update(record);
+				}
+
+				List<NameValuePair> titles = service.getTitles();
+				m_store.updateTitles(titles);
+				DdN.setTitles(titles);
+				return Boolean.TRUE;
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			catch (LoginFailedException e) {
+				e.printStackTrace();
+			}
+			return Boolean.FALSE;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			m_progress.dismiss();
+			if (result)
+				refresh();
 		}
 	}
 }

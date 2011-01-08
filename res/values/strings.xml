@@ -25,8 +25,9 @@
     <string name="item_game_settings">ゲーム設定</string>
     <string name="item_tool_settings">ツール設定</string>
     <string name="item_ranking">ランキング表示</string>
+    <string name="item_update">更新</string>
     <string name="message_downloading">プレイデータの取得中...</string>
-    <string name="message_updating">プレイデータの更新中...</string>
+    <string name="message_updating">更新中...</string>
     <string name="message_loading">プレイデータの読み込み中...</string>
     <string name="message_login_processing">ログイン中...</string>
     <string name="message_set_title">称号を設定しています...</string>

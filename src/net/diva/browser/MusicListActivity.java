@@ -123,9 +123,14 @@ public class MusicListActivity extends ListActivity {
 		case R.id.item_news:
 			openPage("/divanet/menu/news/");
 			break;
-		case R.id.item_settings: {
+		case R.id.item_game_settings: {
+			Intent intent = new Intent(getApplicationContext(), GameSettingsActivity.class);
+			startActivityForResult(intent, R.id.item_game_settings);
+		}
+			break;
+		case R.id.item_tool_settings: {
 			Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-			startActivityForResult(intent, R.id.item_settings);
+			startActivityForResult(intent, R.id.item_tool_settings);
 		}
 			break;
 		default:
@@ -159,7 +164,11 @@ public class MusicListActivity extends ListActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case R.id.item_settings:
+		case R.id.item_game_settings:
+			if (resultCode == RESULT_OK)
+				setPlayRecord(DdN.getPlayRecord());
+			break;
+		case R.id.item_tool_settings:
 			if (m_preferences.getBoolean("download_rankin", false))
 				DownloadRankingService.reserve(this);
 			else

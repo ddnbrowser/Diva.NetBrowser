@@ -42,6 +42,12 @@ public class DdN extends Application {
 		return m_service;
 	}
 
+	private PlayRecord setPlayRecord_(PlayRecord record) {
+		if (m_record != null && record.musics == null)
+			record.musics = m_record.musics;
+		return m_record = record;
+	}
+
 	public static String url(String relative) {
 		return DdN.URL.resolve(relative).toString();
 	}
@@ -58,9 +64,12 @@ public class DdN extends Application {
 		return m_instance == null ? null : m_instance.m_record;
 	}
 
-	public static void setPlayRecord(PlayRecord record) {
-		if (m_instance != null)
-			m_instance.m_record = record;
+	public static PlayRecord setPlayRecord(PlayRecord record) {
+		return m_instance != null ? m_instance.setPlayRecord_(record) : null;
+	}
+
+	public static List<NameValuePair> getTitles() {
+		return m_instance == null ? null : m_instance.m_titles;
 	}
 
 	public static void setTitles(List<NameValuePair> titles) {

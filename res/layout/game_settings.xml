@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent" android:layout_height="fill_parent" android:orientation="vertical">
+    <TextView android:layout_height="wrap_content" android:text="@string/category_title" android:layout_width="fill_parent" style="?android:attr/listSeparatorTextViewStyle"></TextView>
+	<include android:id="@+id/title_item" layout="@layout/setting_item" />
+</LinearLayout>

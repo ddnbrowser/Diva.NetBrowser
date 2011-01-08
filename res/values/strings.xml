@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="button_change">変更</string>
     <string name="notification_ranking_updated">ランキング情報を更新しました</string>
     <string name="summary_notify_ranking_updated">ランクイン情報を更新した時にステータスバーで通知します。</string>
     <string name="notify_ranking_updated">更新を通知</string>
     <string name="summary_download_rankin">有効にするとランクイン情報を定期的に取得します。</string>
     <string name="download_rankin">ランクイン情報を取得</string>
     <string name="category_ranking">ランキング</string>
-    <string name="item_settings">設定</string>
     <string name="app_name">DIVA.NET Browser</string>
     <string name="ok">OK</string>
     <string name="cancel">キャンセル</string>
@@ -22,9 +22,14 @@
     <string name="item_sort_by_clear_status">クリア状況</string>
     <string name="item_sort_by_trial_status">トライアル状況</string>
     <string name="item_news">ニュース</string>
+    <string name="item_game_settings">ゲーム設定</string>
+    <string name="item_tool_settings">ツール設定</string>
     <string name="item_ranking">ランキング表示</string>
     <string name="message_downloading">プレイデータの取得中...</string>
     <string name="message_updating">プレイデータの更新中...</string>
     <string name="message_loading">プレイデータの読み込み中...</string>
     <string name="message_login_processing">ログイン中...</string>
+    <string name="message_set_title">称号を設定しています...</string>
+    <string name="category_title">称号設定</string>
+    <string name="description_title">設定中の称号</string>
 </resources>

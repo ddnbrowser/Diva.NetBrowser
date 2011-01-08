@@ -152,4 +152,16 @@ public class ServiceClient {
 		access();
 		return titles;
 	}
+
+	private void postTo(String relative) throws IOException {
+		HttpPost request = new HttpPost(DdN.URL.resolve(relative));
+		HttpResponse response = m_client.execute(request);
+		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+			throw new IOException();
+		access();
+	}
+
+	public void setTitle(String title_id) throws IOException {
+		postTo(String.format("/divanet/title/update/%s", title_id));
+	}
 }

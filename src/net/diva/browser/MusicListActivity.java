@@ -41,8 +41,6 @@ public class MusicListActivity extends ListActivity {
 	private ServiceClient m_service;
 	private LocalStore m_store;
 
-	private PlayRecord m_record;
-
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -178,7 +176,7 @@ public class MusicListActivity extends ListActivity {
 	}
 
 	public void setPlayRecord(PlayRecord record, List<MusicInfo> music) {
-		m_record = record;
+		DdN.setPlayRecord(record);
 
 		if (music != null)
 			m_adapter.setData(music);
@@ -400,10 +398,10 @@ public class MusicListActivity extends ListActivity {
 				}
 				m_store.update(music);
 				if (record == null)
-					return m_record;
+					return DdN.getPlayRecord();
 				else {
 					m_store.update(record);
-					record.musics = m_record.musics;
+					record.musics = DdN.getPlayRecord().musics;
 					return record;
 				}
 			}

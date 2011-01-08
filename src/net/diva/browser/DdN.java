@@ -25,6 +25,8 @@ public class DdN extends Application {
 	private static DdN m_instance;
 
 	private ServiceClient m_service;
+
+	private PlayRecord m_record;
 	private List<NameValuePair> m_titles;
 
 	@Override
@@ -50,6 +52,15 @@ public class DdN extends Application {
 
 	public static ServiceClient getServiceClient() {
 		return getServiceClient(Account.load(PreferenceManager.getDefaultSharedPreferences(m_instance)));
+	}
+
+	public static PlayRecord getPlayRecord() {
+		return m_instance == null ? null : m_instance.m_record;
+	}
+
+	public static void setPlayRecord(PlayRecord record) {
+		if (m_instance != null)
+			m_instance.m_record = record;
 	}
 
 	public static void setTitles(List<NameValuePair> titles) {

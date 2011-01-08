@@ -5,6 +5,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.http.NameValuePair;
+
 import net.diva.browser.DdN.Account;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.service.LoginFailedException;
@@ -183,8 +185,13 @@ public class MusicListActivity extends ListActivity {
 		else
 			m_adapter.notifyDataSetChanged();
 
+		String title = DdN.getTitle(record.title_id);
+		if (title == null) {
+			title = "取得中...";
+			new TitleDownloader().execute(record);
+		}
 		m_player_name.setText(record.player_name);
-		m_level_rank.setText(arrangeRankText(record.level_rank));
+		m_level_rank.setText(rankText(record, title));
 	}
 
 	public void setDifficulty(int difficulty) {
@@ -194,10 +201,10 @@ public class MusicListActivity extends ListActivity {
 			m_buttons[i].setEnabled(i != difficulty);
 	}
 
-	private String arrangeRankText(String level_rank) {
+	private String rankText(PlayRecord record, String title) {
 		final int[] rank_points = getResources().getIntArray(R.array.rank_points);
 
-		int point = rankPoint();
+		int point = rankPoint(record);
 		int rank = 0;
 		while (rank < rank_points.length && point >= rank_points[rank])
 			point -= rank_points[rank++];
@@ -206,15 +213,15 @@ public class MusicListActivity extends ListActivity {
 
 		int next = point - (rank < rank_points.length ? rank_points[rank] : 150);
 		String name = rankName(rank);
-		if (level_rank.lastIndexOf(name) >= 0)
-			return String.format("%s (%dpts)", level_rank, next);
+		if (name.equals(title))
+			return String.format("%s %s (%dpts)", record.level, title, next);
 		else
-			return String.format("%s\n(%s / %dpts)", level_rank, name, next);
+			return String.format("%s %s\n(%s / %dpts)", record.level, title, name, next);
 	}
 
-	private int rankPoint() {
+	private int rankPoint(PlayRecord record) {
 		int point = 0;
-		for (MusicInfo m: m_record.musics)
+		for (MusicInfo m: record.musics)
 			point += m.rankPoint();
 		return point;
 	}
@@ -430,6 +437,7 @@ public class MusicListActivity extends ListActivity {
 
 		@Override
 		protected PlayRecord doInBackground(DdN.Account... args) {
+			DdN.setTitles(m_store.getTitles());
 			return m_store.load(args[0].access_code);
 		}
 
@@ -438,6 +446,41 @@ public class MusicListActivity extends ListActivity {
 			if (result != null)
 				setPlayRecord(result);
 			m_progress.dismiss();
+		}
+	}
+
+	private class TitleDownloader extends AsyncTask<PlayRecord, Void, String> {
+		@Override
+		protected String doInBackground(PlayRecord... params) {
+			PlayRecord record = null;
+			try {
+				if (m_service.isLogin())
+					record = params[0];
+				else {
+					record = m_service.login();
+					record.musics = params[0].musics;
+					m_store.update(record);
+				}
+
+				List<NameValuePair> titles = m_service.getTitles();
+				m_store.updateTitles(titles);
+				DdN.setTitles(titles);
+				String title = DdN.getTitle(record.title_id);
+				if (title != null)
+					return rankText(record, title);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			catch (LoginFailedException e) {
+				e.printStackTrace();
+			}
+			return rankText(record, "取得失敗");
+		}
+
+		@Override
+		protected void onPostExecute(String result) {
+			m_level_rank.setText(result);
 		}
 	}
 }

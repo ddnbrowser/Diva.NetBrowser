@@ -8,6 +8,9 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import net.diva.browser.MusicInfo;
 import net.diva.browser.PlayRecord;
 import net.diva.browser.Ranking;
@@ -30,7 +33,7 @@ public final class Parser {
 	}
 
 	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\].*<br>\\s*(.+)<br>");
-	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/RANK\\].*<br>\\s*(.+)<br>");
+	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/RANK\\].*<br>\\s*(.+)<br>\\s*<img src=\"/divanet/img/title/(\\w+)\"><br>");
 
 	public static PlayRecord parseMenuPage(InputStream content) throws ParseException {
 		PlayRecord record = new PlayRecord();
@@ -42,7 +45,8 @@ public final class Parser {
 		m = m.usePattern(RE_LEVEL);
 		if (!m.find())
 			throw new ParseException();
-		record.level_rank = m.group(1);
+		record.level = m.group(1);
+		record.title_id = m.group(2);
 		return record;
 	}
 
@@ -182,5 +186,17 @@ public final class Parser {
 			throw new ParseException(e);
 		}
 		return entry;
+	}
+
+	private static final Pattern RE_TITLE_NAME = Pattern.compile("<a href=\"/divanet/title/confirm/(\\w+)/\\d+\">(.+)</a>");
+
+	public static String parseTitleList(InputStream content, List<NameValuePair> titles) {
+		String body = read(content);
+		Matcher m = RE_TITLE_NAME.matcher(body);
+		while (m.find())
+			titles.add(new BasicNameValuePair(m.group(1), m.group(2)));
+
+		m = m.usePattern(RE_NEXT);
+		return m.find() ? m.group(1) : null;
 	}
 }

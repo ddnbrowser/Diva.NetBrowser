@@ -139,4 +139,17 @@ public class ServiceClient {
 		access();
 		return list;
 	}
+
+	public List<NameValuePair> getTitles() throws IOException {
+		List<NameValuePair> titles = new ArrayList<NameValuePair>();
+		String path = "/divanet/title/list/0";
+		while (path != null) {
+			HttpGet request = new HttpGet(DdN.URL.resolve(path));
+			HttpResponse response = m_client.execute(request);
+			path = Parser.parseTitleList(response.getEntity().getContent(), titles);
+		}
+
+		access();
+		return titles;
+	}
 }

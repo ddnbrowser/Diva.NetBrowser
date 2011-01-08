@@ -1,8 +1,12 @@
 package net.diva.browser;
 
 import java.net.URI;
+import java.util.List;
 
 import net.diva.browser.service.ServiceClient;
+
+import org.apache.http.NameValuePair;
+
 import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
@@ -21,6 +25,7 @@ public class DdN extends Application {
 	private static DdN m_instance;
 
 	private ServiceClient m_service;
+	private List<NameValuePair> m_titles;
 
 	@Override
 	public void onCreate() {
@@ -45,6 +50,23 @@ public class DdN extends Application {
 
 	public static ServiceClient getServiceClient() {
 		return getServiceClient(Account.load(PreferenceManager.getDefaultSharedPreferences(m_instance)));
+	}
+
+	public static void setTitles(List<NameValuePair> titles) {
+		if (m_instance != null)
+			m_instance.m_titles = titles;
+	}
+
+	public static String getTitle(String id) {
+		if (id == null || m_instance == null)
+			return null;
+
+		for (NameValuePair pair: m_instance.m_titles) {
+			if (pair.getName().equals(id))
+				return pair.getValue();
+		}
+
+		return null;
 	}
 
 	public static class Account {

@@ -1,9 +1,12 @@
-package net.diva.browser;
+package net.diva.browser.settings;
 
 import java.io.IOException;
 import java.util.List;
 
+import net.diva.browser.DdN;
+import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 

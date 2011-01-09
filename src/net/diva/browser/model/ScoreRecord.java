@@ -1,4 +1,4 @@
-package net.diva.browser;
+package net.diva.browser.model;
 
 public class ScoreRecord {
 	public int difficulty;

@@ -14,7 +14,7 @@
         <activity android:name=".WebBrowseActivity" android:configChanges="keyboardHidden|orientation"></activity>
         <activity android:name=".GameSettingsActivity"></activity>
         <activity android:name=".SettingsActivity"></activity>
-        <activity android:name=".TitleListActivity"></activity>
+        <activity android:name=".settings.TitleListActivity"></activity>
         <receiver android:name=".DdNBrowserReceiver">
             <intent-filter>
                 <action android:name="net.diva.browser.action.DOWNLOAD_RANKING"></action>

@@ -1,7 +1,7 @@
 package net.diva.browser.db;
 
-import net.diva.browser.Ranking;
-import net.diva.browser.ScoreRecord;
+import net.diva.browser.model.Ranking;
+import net.diva.browser.model.ScoreRecord;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.Ranking;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.service.ServiceClient;

@@ -6,6 +6,8 @@ package net.diva.browser;
 import java.util.Comparator;
 import java.util.List;
 
+import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.util.ReverseComparator;
 import android.content.Context;
 import android.content.res.Resources;

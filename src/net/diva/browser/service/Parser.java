@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import net.diva.browser.MusicInfo;
-import net.diva.browser.PlayRecord;
-import net.diva.browser.Ranking;
-import net.diva.browser.ScoreRecord;
+import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.PlayRecord;
+import net.diva.browser.model.Ranking;
+import net.diva.browser.model.ScoreRecord;
 
 public final class Parser {
 	private Parser() {}

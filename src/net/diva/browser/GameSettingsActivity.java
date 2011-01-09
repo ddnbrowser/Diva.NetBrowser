@@ -1,4 +1,6 @@
 package net.diva.browser;
+import net.diva.browser.model.PlayRecord;
+import net.diva.browser.settings.TitleListActivity;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;

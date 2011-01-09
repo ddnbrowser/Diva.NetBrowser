@@ -8,9 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
-import net.diva.browser.MusicInfo;
-import net.diva.browser.PlayRecord;
-import net.diva.browser.Ranking;
+import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.PlayRecord;
+import net.diva.browser.model.Ranking;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;

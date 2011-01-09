@@ -9,6 +9,8 @@ import org.apache.http.NameValuePair;
 
 import net.diva.browser.DdN.Account;
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;

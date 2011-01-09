@@ -1,6 +1,6 @@
 package net.diva.browser.db;
 
-import net.diva.browser.MusicInfo;
+import net.diva.browser.model.MusicInfo;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;

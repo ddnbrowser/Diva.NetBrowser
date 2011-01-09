@@ -123,6 +123,12 @@ public class MusicListActivity extends ListActivity {
 		case R.id.item_news:
 			openPage("/divanet/menu/news/");
 			break;
+		case R.id.item_contest:
+			openPage("/divanet/contest/info/");
+			break;
+		case R.id.item_statistics:
+			openPage("/divanet/pv/statistics/");
+			break;
 		case R.id.item_game_settings: {
 			Intent intent = new Intent(getApplicationContext(), GameSettingsActivity.class);
 			startActivityForResult(intent, R.id.item_game_settings);

@@ -21,7 +21,10 @@
     <string name="item_sort_by_achievement">達成率</string>
     <string name="item_sort_by_clear_status">クリア状況</string>
     <string name="item_sort_by_trial_status">トライアル状況</string>
+    <string name="item_open_web">DIVA.NET</string>
     <string name="item_news">ニュース</string>
+    <string name="item_contest">コンテスト情報</string>
+    <string name="item_statistics">クリア統計情報</string>
     <string name="item_game_settings">ゲーム設定</string>
     <string name="item_tool_settings">ツール設定</string>
     <string name="item_ranking">ランキング表示</string>

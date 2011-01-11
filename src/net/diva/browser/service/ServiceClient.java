@@ -26,7 +26,7 @@ import org.apache.http.message.BasicNameValuePair;
 import android.net.Uri;
 
 public class ServiceClient {
-	private static final int LOGIN_DURATION = 3*60*1000;
+	private static final int LOGIN_DURATION = 5*60*1000;
 
 	private DefaultHttpClient m_client = new DefaultHttpClient();
 	private String m_access_code;

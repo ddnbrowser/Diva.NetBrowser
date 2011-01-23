@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
+import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
@@ -153,6 +154,23 @@ public class ServiceClient {
 		return titles;
 	}
 
+	public List<ModuleGroup> getModules() throws IOException {
+		HttpGet request = new HttpGet(DdN.URL.resolve("/divanet/module/"));
+		HttpResponse response = m_client.execute(request);
+		List<ModuleGroup> modules = Parser.parseModuleIndex(response.getEntity().getContent());
+		for (ModuleGroup group: modules) {
+			String path = String.format("/divanet/module/list/%d/0", group.id);
+			while (path != null) {
+				HttpGet req = new HttpGet(DdN.URL.resolve(path));
+				HttpResponse res = m_client.execute(req);
+				path = Parser.parseModuleList(res.getEntity().getContent(), group.modules);
+			}
+		}
+
+		access();
+		return modules;
+	}
+
 	private void postTo(String relative) throws IOException {
 		HttpPost request = new HttpPost(DdN.URL.resolve(relative));
 		HttpResponse response = m_client.execute(request);
@@ -163,5 +181,9 @@ public class ServiceClient {
 
 	public void setTitle(String title_id) throws IOException {
 		postTo(String.format("/divanet/title/update/%s", title_id));
+	}
+
+	public void setCommonModule(String key, String module_id) throws IOException {
+		postTo(String.format("/divanet/module/update/COMMON/%s/%s/0", key, module_id));
 	}
 }

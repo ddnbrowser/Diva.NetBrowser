@@ -3,6 +3,7 @@ package net.diva.browser.service;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
@@ -11,6 +12,8 @@ import java.util.regex.Pattern;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import net.diva.browser.model.Module;
+import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
@@ -195,6 +198,33 @@ public final class Parser {
 		Matcher m = RE_TITLE_NAME.matcher(body);
 		while (m.find())
 			titles.add(new BasicNameValuePair(m.group(1), m.group(2)));
+
+		m = m.usePattern(RE_NEXT);
+		return m.find() ? m.group(1) : null;
+	}
+
+	private static final Pattern RE_MODULE_GROUP = Pattern.compile("<a href=\"/divanet/module/list/(\\d+)/\\d+\">(.+)\\(\\d+/\\d+\\)</a>");
+
+	public static List<ModuleGroup> parseModuleIndex(InputStream content) {
+		List<ModuleGroup> modules = new ArrayList<ModuleGroup>();
+		Matcher m = RE_MODULE_GROUP.matcher(read(content));
+		while (m.find())
+			modules.add(new ModuleGroup(Integer.valueOf(m.group(1)), m.group(2)));
+		return modules;
+	}
+
+	private static final Pattern RE_MODULE = Pattern.compile("<a href=\"/divanet/module/detail/(\\w+)/\\d+/\\d+\">(.+)</a>\\s*(\\(未購入\\))?");
+
+	public static String parseModuleList(InputStream content, List<Module> modules) {
+		String body = read(content);
+		Matcher m = RE_MODULE.matcher(body);
+		while (m.find()) {
+			Module module = new Module();
+			module.id = m.group(1);
+			module.name = m.group(2);
+			module.purchased = m.group(3) == null;
+			modules.add(module);
+		}
 
 		m = m.usePattern(RE_NEXT);
 		return m.find() ? m.group(1) : null;

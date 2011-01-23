@@ -1,6 +1,7 @@
 package net.diva.browser;
 
 import net.diva.browser.settings.ConfigCategory;
+import net.diva.browser.settings.ConfigCommonModule;
 import net.diva.browser.settings.ConfigItem;
 import net.diva.browser.settings.ConfigTitle;
 import android.app.ListActivity;
@@ -23,7 +24,11 @@ public class ConfigActivity extends ListActivity {
 
 		m_adapter = new ConfigAdapter(this,
 				new ConfigCategory(getText(R.string.category_title)),
-				new ConfigTitle(this)
+				new ConfigTitle(this),
+				new ConfigCategory(getText(R.string.category_module_common)),
+				new ConfigCommonModule(this, 1),
+				new ConfigCommonModule(this, 2)
+
 		);
 		setListAdapter(m_adapter);
 	}

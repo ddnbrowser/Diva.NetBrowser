@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.List;
 
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.Module;
+import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 
@@ -30,6 +32,7 @@ public class DdN extends Application {
 
 	private PlayRecord m_record;
 	private List<NameValuePair> m_titles;
+	private List<ModuleGroup> m_modules;
 
 	@Override
 	public void onCreate() {
@@ -48,6 +51,12 @@ public class DdN extends Application {
 		if (m_record != null && record.musics == null)
 			record.musics = m_record.musics;
 		return m_record = record;
+	}
+
+	private List<ModuleGroup> getModules_() {
+		if (m_modules == null)
+			m_modules = getLocalStore().loadModules();
+		return m_modules;
 	}
 
 	public static String url(String relative) {
@@ -90,6 +99,29 @@ public class DdN extends Application {
 		for (NameValuePair pair: m_instance.m_titles) {
 			if (pair.getName().equals(id))
 				return pair.getValue();
+		}
+
+		return null;
+	}
+
+	public static List<ModuleGroup> getModules() {
+		return m_instance == null ? null : m_instance.getModules_();
+	}
+
+	public static void setModules(List<ModuleGroup> modules) {
+		if (m_instance != null)
+			m_instance.m_modules = modules;
+	}
+
+	public static Module getModule(String id) {
+		if (id == null || m_instance == null)
+			return null;
+
+		for (ModuleGroup group: getModules()) {
+			for (Module module: group.modules) {
+				if (id.equals(module.id))
+					return module;
+			}
 		}
 
 		return null;

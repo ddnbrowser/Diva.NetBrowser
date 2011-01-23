@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import net.diva.browser.model.Module;
+import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
@@ -23,7 +25,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 3;
+	private static final int VERSION = 4;
 
 	private static LocalStore m_instance;
 
@@ -103,6 +105,52 @@ public class LocalStore extends ContextWrapper {
 		}
 
 		return musics;
+	}
+
+	public List<ModuleGroup> loadModules() {
+		List<ModuleGroup> groups = new ArrayList<ModuleGroup>();
+		Map<Integer, ModuleGroup> id2group = new HashMap<Integer, ModuleGroup>();
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+
+		Cursor cg = db.query(ModuleGroupTable.TABLE_NAME, new String[] {
+				ModuleGroupTable.ID,
+				ModuleGroupTable.NAME,
+		}, null, null, null, null, ModuleGroupTable._ID);
+		try {
+			while (cg.moveToNext()) {
+				ModuleGroup group = new ModuleGroup(cg.getInt(0), cg.getString(1));
+				groups.add(group);
+				id2group.put(group.id, group);
+			}
+		}
+		finally {
+			cg.close();
+		}
+
+		Cursor cm = db.query(ModuleTable.TABLE_NAME, new String[] {
+				ModuleTable.ID,
+				ModuleTable.NAME,
+				ModuleTable.STATUS,
+				ModuleTable.GROUP_ID,
+		}, null, null, null, null, ModuleTable._ID);
+		try {
+			while (cm.moveToNext()) {
+				Module module = new Module();
+				module.id = cm.getString(0);
+				module.name = cm.getString(1);
+				module.purchased = cm.getInt(2) == 1;
+
+				ModuleGroup group = id2group.get(cm.getInt(3));
+				if (group != null)
+					group.modules.add(module);
+			}
+		}
+		finally {
+			cm.close();
+		}
+
+		return groups;
 	}
 
 	public void insert(PlayRecord record) {
@@ -197,6 +245,25 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public void updateModules(List<ModuleGroup> groups) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			for (ModuleGroup group: groups) {
+				ModuleGroupTable.insert(db, group);
+				for (Module module: group.modules) {
+					if (!ModuleTable.update(db, group.id, module))
+						ModuleTable.insert(db, group.id, module);
+				}
+			}
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	private static class OpenHelper extends SQLiteOpenHelper {
 		public OpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
@@ -207,6 +274,8 @@ public class LocalStore extends ContextWrapper {
 			db.execSQL(MusicTable.create_statement());
 			db.execSQL(ScoreTable.create_statement());
 			db.execSQL(TitleTable.create_statement());
+			db.execSQL(ModuleGroupTable.create_statement());
+			db.execSQL(ModuleTable.create_statement());
 		}
 
 		@Override
@@ -216,6 +285,9 @@ public class LocalStore extends ContextWrapper {
 				ScoreTable.addRankingColumns(db);
 			case 2:
 				db.execSQL(TitleTable.create_statement());
+			case 3:
+				db.execSQL(ModuleGroupTable.create_statement());
+				db.execSQL(ModuleTable.create_statement());
 			default:
 				break;
 			}

@@ -4,6 +4,7 @@ import net.diva.browser.settings.ConfigCategory;
 import net.diva.browser.settings.ConfigCommonModule;
 import net.diva.browser.settings.ConfigItem;
 import net.diva.browser.settings.ConfigResetCommon;
+import net.diva.browser.settings.ConfigResetIndividual;
 import net.diva.browser.settings.ConfigTitle;
 import android.app.ListActivity;
 import android.content.Context;
@@ -29,8 +30,9 @@ public class ConfigActivity extends ListActivity {
 				new ConfigCategory(getText(R.string.category_module_common)),
 				new ConfigCommonModule(this, 1),
 				new ConfigCommonModule(this, 2),
-				new ConfigResetCommon(this)
-
+				new ConfigResetCommon(this),
+				new ConfigCategory(getText(R.string.category_module_individual)),
+				new ConfigResetIndividual(this)
 		);
 		setListAdapter(m_adapter);
 	}

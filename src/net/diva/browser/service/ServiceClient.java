@@ -190,4 +190,8 @@ public class ServiceClient {
 	public void resetCommonModules() throws IOException {
 		postTo("/divanet/module/resetCommon/");
 	}
+
+	public void resetIndividualModules() throws IOException {
+		postTo("/divanet/module/resetIndividualAll/");
+	}
 }

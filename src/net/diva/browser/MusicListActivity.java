@@ -467,11 +467,9 @@ public class MusicListActivity extends ListActivity {
 	private class TitleDownloader extends AsyncTask<PlayRecord, Void, String> {
 		@Override
 		protected String doInBackground(PlayRecord... params) {
-			PlayRecord record = null;
+			PlayRecord record = params[0];
 			try {
-				if (m_service.isLogin())
-					record = params[0];
-				else {
+				if (!m_service.isLogin()) {
 					record = m_service.login();
 					record.musics = params[0].musics;
 					m_store.update(record);

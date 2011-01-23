@@ -132,7 +132,7 @@ public class MusicListActivity extends ListActivity {
 			openPage("/divanet/pv/statistics/");
 			break;
 		case R.id.item_game_settings: {
-			Intent intent = new Intent(getApplicationContext(), GameSettingsActivity.class);
+			Intent intent = new Intent(getApplicationContext(), ConfigActivity.class);
 			startActivityForResult(intent, R.id.item_game_settings);
 		}
 			break;

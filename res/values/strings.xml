@@ -39,6 +39,9 @@
     <string name="description_title">設定中の称号</string>
     <string name="category_module_common">共通モジュール設定</string>
     <string name="description_module_common">ボーカル%d</string>
+    <string name="description_reset_common">初期設定に戻す</string>
+    <string name="summary_reset_common">初期化すると「初音ミク」になります</string>
+    <string name="message_reset_common">初期化すると「初音ミク」になります。よろしいですか?</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
 </resources>

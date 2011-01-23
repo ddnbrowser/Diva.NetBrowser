@@ -3,12 +3,15 @@ package net.diva.browser.settings;
 import java.io.IOException;
 
 import net.diva.browser.DdN;
+import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.view.View;
@@ -19,7 +22,7 @@ public abstract class ConfigItem {
 
 	public abstract boolean isCategory();
 	public abstract void setContent(View view);
-	public abstract Intent dispatch(Context context);
+	public abstract Intent dispatch(Context context, Callback callback);
 
 	public interface Callback {
 		void onUpdated();
@@ -28,6 +31,20 @@ public abstract class ConfigItem {
 	public void onResult(int result, Intent data, Callback callback) {
 		if (result == Activity.RESULT_OK)
 			new ApplyTask(callback).execute(data);
+	}
+
+	protected void confirm(Context context, final Callback callback, int title, int message) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setTitle(title);
+		builder.setMessage(message);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				onResult(Activity.RESULT_OK, null, callback);
+				dialog.dismiss();
+			}
+		});
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
 	}
 
 	public boolean inProgress() {

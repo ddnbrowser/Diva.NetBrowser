@@ -53,7 +53,7 @@ public class ConfigCommonModule extends ConfigItem {
 	}
 
 	@Override
-	public Intent dispatch(Context context) {
+	public Intent dispatch(Context context, Callback callback) {
 		return new Intent(context, ModuleListActivity.class);
 	}
 

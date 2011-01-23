@@ -186,4 +186,8 @@ public class ServiceClient {
 	public void setCommonModule(String key, String module_id) throws IOException {
 		postTo(String.format("/divanet/module/update/COMMON/%s/%s/0", key, module_id));
 	}
+
+	public void resetCommonModules() throws IOException {
+		postTo("/divanet/module/resetCommon/");
+	}
 }

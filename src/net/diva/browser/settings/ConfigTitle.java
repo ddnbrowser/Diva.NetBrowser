@@ -32,7 +32,7 @@ public class ConfigTitle extends ConfigItem {
 	}
 
 	@Override
-	public Intent dispatch(Context context) {
+	public Intent dispatch(Context context, Callback callback) {
 		Intent intent = new Intent(context, TitleListActivity.class);
 		intent.putExtra("title_id", DdN.getPlayRecord().title_id);
 		return intent;

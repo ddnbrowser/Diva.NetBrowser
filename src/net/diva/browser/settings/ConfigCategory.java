@@ -22,7 +22,7 @@ public class ConfigCategory extends ConfigItem {
 	}
 
 	@Override
-	public Intent dispatch(Context context) {
+	public Intent dispatch(Context context, Callback callback) {
 		return null;
 	}
 }

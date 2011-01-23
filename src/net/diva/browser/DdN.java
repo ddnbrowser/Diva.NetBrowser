@@ -3,6 +3,7 @@ package net.diva.browser;
 import java.net.URI;
 import java.util.List;
 
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 
@@ -59,6 +60,10 @@ public class DdN extends Application {
 
 	public static ServiceClient getServiceClient() {
 		return getServiceClient(Account.load(PreferenceManager.getDefaultSharedPreferences(m_instance)));
+	}
+
+	public static LocalStore getLocalStore() {
+		return m_instance == null ? null : LocalStore.instance(m_instance);
 	}
 
 	public static PlayRecord getPlayRecord() {

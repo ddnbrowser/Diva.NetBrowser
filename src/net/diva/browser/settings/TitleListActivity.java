@@ -42,7 +42,10 @@ public class TitleListActivity extends ListActivity {
 		findViewById(R.id.button_ok).setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 				NameValuePair pair = m_adapter.getItem(m_view.getCheckedItemPosition());
-				new TitleSetter().execute(pair.getName());
+				Intent intent = getIntent();
+				intent.putExtra("title_id", pair.getName());
+				setResult(RESULT_OK, intent);
+				finish();
 			}
 		});
 		findViewById(R.id.button_cancel).setOnClickListener(new View.OnClickListener() {
@@ -120,51 +123,6 @@ public class TitleListActivity extends ListActivity {
 				tv.setText(pair.getValue());
 			}
 			return view;
-		}
-	}
-
-	private class TitleSetter extends AsyncTask<String, Void, Boolean> {
-		private ProgressDialog m_progress;
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(TitleListActivity.this);
-			m_progress.setMessage(getString(R.string.message_set_title));
-			m_progress.setIndeterminate(true);
-			m_progress.show();
-		}
-
-		@Override
-		protected Boolean doInBackground(String... params) {
-			String title_id = params[0];
-			try {
-				ServiceClient service = DdN.getServiceClient();
-				PlayRecord record = DdN.getPlayRecord();
-				if (!service.isLogin())
-					record = service.login();
-
-				service.setTitle(title_id);
-				record.title_id = title_id;
-				m_store.update(record);
-				DdN.setPlayRecord(record);
-				return Boolean.TRUE;
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
-			}
-			return Boolean.FALSE;
-		}
-
-		@Override
-		protected void onPostExecute(Boolean result) {
-			m_progress.dismiss();
-			if (result) {
-				setResult(RESULT_OK);
-				finish();
-			}
 		}
 	}
 

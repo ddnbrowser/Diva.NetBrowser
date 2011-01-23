@@ -28,10 +28,17 @@ public class ConfigActivity extends ListActivity {
 		setListAdapter(m_adapter);
 	}
 
+	private ConfigItem.Callback m_callback = new ConfigItem.Callback() {
+		public void onUpdated() {
+			m_adapter.notifyDataSetChanged();
+			setResult(RESULT_OK);
+		}
+	};
+
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		ConfigItem item = (ConfigItem)m_adapter.getItem(position);
-		Intent intent = item.dispatch();
+		Intent intent = item.dispatch(this);
 		if (intent != null)
 			startActivityForResult(intent, position);
 	}
@@ -39,10 +46,7 @@ public class ConfigActivity extends ListActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		ConfigItem item = (ConfigItem)m_adapter.getItem(requestCode);
-		if (item.onResult(resultCode, data)) {
-			m_adapter.notifyDataSetChanged();
-			setResult(RESULT_OK);
-		}
+		item.onResult(resultCode, data, m_callback);
 	}
 
 	private static class ConfigAdapter extends BaseAdapter {
@@ -104,7 +108,8 @@ public class ConfigActivity extends ListActivity {
 
 		@Override
 		public boolean isEnabled(int position) {
-			return !m_items[position].isCategory();
+			ConfigItem item = m_items[position];
+			return !item.isCategory() && !item.inProgress();
 		}
 
 	}

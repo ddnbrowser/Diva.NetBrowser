@@ -36,4 +36,5 @@
     <string name="message_set_title">称号を設定しています...</string>
     <string name="category_title">称号設定</string>
     <string name="description_title">設定中の称号</string>
+    <string name="summary_applying">設定しています...</string>
 </resources>

@@ -1,5 +1,6 @@
 package net.diva.browser.settings;
 
+import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 
@@ -21,7 +22,7 @@ public class ConfigCategory extends ConfigItem {
 	}
 
 	@Override
-	public Intent dispatch() {
+	public Intent dispatch(Context context) {
 		return null;
 	}
 }

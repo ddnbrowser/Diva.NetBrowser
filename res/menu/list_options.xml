@@ -20,6 +20,6 @@
             <item android:id="@+id/item_statistics" android:title="@string/item_statistics"></item>
         </menu>
     </item>
-    <item android:id="@+id/item_game_settings" android:title="@string/item_game_settings" android:icon="@drawable/android:ic_menu_preferences"></item>
+    <item android:id="@+id/item_game_settings" android:title="@string/item_game_settings" android:icon="@drawable/android:ic_menu_manage"></item>
     <item android:title="@string/item_tool_settings" android:icon="@drawable/android:ic_menu_preferences" android:id="@+id/item_tool_settings"></item>
 </menu>

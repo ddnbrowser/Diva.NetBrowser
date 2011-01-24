@@ -14,13 +14,23 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 public abstract class ConfigItem {
 	private ApplyTask m_task;
 
-	public abstract boolean isCategory();
+	public boolean isEnabled() {
+		return !inProgress();
+	}
+
+	public View onCreateView(Context context, ViewGroup parent) {
+		LayoutInflater inflater = LayoutInflater.from(context);
+		return inflater.inflate(R.layout.setting_item, parent, false);
+	}
+
 	public abstract void setContent(View view);
 	public abstract Intent dispatch(Context context, Callback callback);
 

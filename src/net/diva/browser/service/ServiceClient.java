@@ -13,6 +13,7 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -172,10 +173,18 @@ public class ServiceClient {
 	}
 
 	private void postTo(String relative) throws IOException {
+		postTo(relative, null);
+	}
+
+	private void postTo(String relative, HttpEntity entity) throws IOException {
 		HttpPost request = new HttpPost(DdN.URL.resolve(relative));
+		if (entity != null)
+			request.setEntity(entity);
+
 		HttpResponse response = m_client.execute(request);
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 			throw new IOException();
+
 		access();
 	}
 
@@ -193,5 +202,11 @@ public class ServiceClient {
 
 	public void resetIndividualModules() throws IOException {
 		postTo("/divanet/module/resetIndividualAll/");
+	}
+
+	public void activateIndividualModules(boolean on) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+		params.add(new BasicNameValuePair("activation", on ? "true" : "false"));
+		postTo("/divanet/module/updateConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
 	}
 }

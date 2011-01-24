@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import net.diva.browser.settings.ConfigActivationIndividual;
 import net.diva.browser.settings.ConfigCategory;
 import net.diva.browser.settings.ConfigCommonModule;
 import net.diva.browser.settings.ConfigItem;
@@ -10,7 +11,6 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -32,7 +32,8 @@ public class ConfigActivity extends ListActivity {
 				new ConfigCommonModule(this, 2),
 				new ConfigResetCommon(this),
 				new ConfigCategory(getText(R.string.category_module_individual)),
-				new ConfigResetIndividual(this)
+				new ConfigResetIndividual(this),
+				new ConfigActivationIndividual(this)
 		);
 		setListAdapter(m_adapter);
 	}
@@ -59,9 +60,6 @@ public class ConfigActivity extends ListActivity {
 	}
 
 	private static class ConfigAdapter extends BaseAdapter {
-		final static int TYPE_CATEGORY = 0;
-		final static int TYPE_ITEM = 1;
-
 		Context m_context;
 		ConfigItem[] m_items;
 
@@ -84,28 +82,19 @@ public class ConfigActivity extends ListActivity {
 
 		@Override
 		public int getViewTypeCount() {
-			return 2;
+			return m_items.length;
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			return m_items[position].isCategory() ? TYPE_CATEGORY : TYPE_ITEM;
+			return position;
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = convertView;
 			ConfigItem item = m_items[position];
-			if (view == null) {
-				LayoutInflater inflater = LayoutInflater.from(m_context);
-				switch (getItemViewType(position)) {
-				case TYPE_CATEGORY:
-					view = inflater.inflate(android.R.layout.preference_category, null);
-					break;
-				case TYPE_ITEM:
-					view = inflater.inflate(R.layout.setting_item, null);
-					break;
-				}
-			}
+			View view = convertView;
+			if (view == null)
+				view = item.onCreateView(m_context, parent);
 			item.setContent(view);
 			return view;
 		}
@@ -117,8 +106,7 @@ public class ConfigActivity extends ListActivity {
 
 		@Override
 		public boolean isEnabled(int position) {
-			ConfigItem item = m_items[position];
-			return !item.isCategory() && !item.inProgress();
+			return m_items[position].isEnabled();
 		}
 
 	}

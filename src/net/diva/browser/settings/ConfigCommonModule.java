@@ -29,11 +29,6 @@ public class ConfigCommonModule extends ConfigItem {
 	}
 
 	@Override
-	public boolean isCategory() {
-		return false;
-	}
-
-	@Override
 	public void setContent(View view) {
 		setText(view, R.id.title, m_title);
 		CharSequence summary = null;

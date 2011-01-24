@@ -21,11 +21,6 @@ public class ConfigResetIndividual extends ConfigItem {
 	}
 
 	@Override
-	public boolean isCategory() {
-		return false;
-	}
-
-	@Override
 	public void setContent(View view) {
 		setText(view, R.id.title, m_title);
 		setText(view, R.id.summary, inProgress() ? m_applying : m_summary);

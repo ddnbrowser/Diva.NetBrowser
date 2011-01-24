@@ -46,6 +46,9 @@
     <string name="description_reset_individual">未設定に戻す(全楽曲)</string>
     <string name="summary_reset_individual">全楽曲の楽曲別モジュール設定を未設定にします</string>
     <string name="message_reset_individual">全楽曲の楽曲別モジュール設定を未設定にします。よろしいですか?</string>
+    <string name="description_activation_individual">ON/OFF設定</string>
+    <string name="summary_activation_individual_off">楽曲別モジュール設定を有効にします</string>
+    <string name="summary_activation_individual_on">楽曲別モジュール設定を無効にします</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
 </resources>

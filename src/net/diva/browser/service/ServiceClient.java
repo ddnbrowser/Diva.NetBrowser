@@ -209,4 +209,8 @@ public class ServiceClient {
 		params.add(new BasicNameValuePair("activation", on ? "true" : "false"));
 		postTo("/divanet/module/updateConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
 	}
+
+	public void unsetSkin() throws IOException {
+		postTo("/divanet/skin/unset/");
+	}
 }

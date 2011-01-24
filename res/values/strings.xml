@@ -49,6 +49,10 @@
     <string name="description_activation_individual">ON/OFF設定</string>
     <string name="summary_activation_individual_off">楽曲別モジュール設定を有効にします</string>
     <string name="summary_activation_individual_on">楽曲別モジュール設定を無効にします</string>
+    <string name="category_skin">スキン設定</string>
+    <string name="description_unset_skin">未設定にする</string>
+    <string name="summary_unset_skin">スキンを未設定にします</string>
+    <string name="message_unset_skin">スキンを未設定にします。よろしいですか?</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
 </resources>

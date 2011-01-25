@@ -200,6 +200,10 @@ public class ServiceClient {
 		postTo("/divanet/module/resetCommon/");
 	}
 
+	public void resetIndividualModule(String music_id) throws IOException {
+		postTo(String.format("/divanet/module/resetIndividual/%s", music_id));
+	}
+
 	public void resetIndividualModules() throws IOException {
 		postTo("/divanet/module/resetIndividualAll/");
 	}

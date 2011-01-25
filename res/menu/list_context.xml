@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="@string/item_update_selction" android:id="@+id/item_update"></item>
+    <item android:id="@+id/item_update" android:title="@string/item_update_selction"></item>
+    <item android:id="@+id/item_reset_module" android:title="@string/item_reset_module"></item>
     <item android:id="@+id/item_ranking" android:title="@string/item_ranking"></item>
 </menu>

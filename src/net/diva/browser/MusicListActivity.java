@@ -14,8 +14,10 @@ import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -157,12 +159,16 @@ public class MusicListActivity extends ListActivity {
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		MusicInfo music = m_adapter.getItem(info.position);
 		switch (item.getItemId()) {
 		case R.id.item_update:
-			new PlayRecordUpdater().execute(m_adapter.getItem(info.position));
+			new PlayRecordUpdater().execute(music);
+			return true;
+		case R.id.item_reset_module:
+			resetModule(music);
 			return true;
 		case R.id.item_ranking:
-			openPage(String.format("/divanet/ranking/summary/%s/0", m_adapter.getItem(info.position).id));
+			openPage(String.format("/divanet/ranking/summary/%s/0", music.id));
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -268,6 +274,20 @@ public class MusicListActivity extends ListActivity {
 				getApplicationContext(), WebBrowseActivity.class);
 		intent.putExtra("cookies", m_service.cookies());
 		startActivity(intent);
+	}
+
+	private void resetModule(final MusicInfo music) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(music.title);
+		builder.setMessage(R.string.message_reset_module);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				new ResetModuleTask().execute(music);
+				dialog.dismiss();
+			}
+		});
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
 	}
 
 	private class OnTouchListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
@@ -494,6 +514,36 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onPostExecute(String result) {
 			m_level_rank.setText(result);
+		}
+	}
+
+	private class ResetModuleTask extends AsyncTask<MusicInfo, Void, PlayRecord> {
+		@Override
+		protected PlayRecord doInBackground(MusicInfo... params) {
+			MusicInfo music = params[0];
+			try {
+				PlayRecord record = null;
+				if (!m_service.isLogin()) {
+					record = m_service.login();
+					m_store.update(record);
+				}
+
+				m_service.resetIndividualModule(music.id);
+				return record;
+			}
+			catch (LoginFailedException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(PlayRecord result) {
+			if (result != null)
+				setPlayRecord(result, null);
 		}
 	}
 }

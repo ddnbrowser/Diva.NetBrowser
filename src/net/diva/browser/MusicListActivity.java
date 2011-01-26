@@ -164,7 +164,7 @@ public class MusicListActivity extends ListActivity {
 		MusicInfo music = m_adapter.getItem(info.position);
 		switch (item.getItemId()) {
 		case R.id.item_update:
-			new PlayRecordUpdater().execute(music);
+			new MusicUpdateTask().execute(music);
 			return true;
 		case R.id.item_set_module: {
 			Intent intent = new Intent(getApplicationContext(), ModuleListActivity.class);
@@ -360,7 +360,7 @@ public class MusicListActivity extends ListActivity {
 		public boolean onDoubleTap(MotionEvent e) {
 			MusicInfo music = getItem(e);
 			if (music != null) {
-				new PlayRecordUpdater().execute(music);
+				new MusicUpdateTask().execute(music);
 				return true;
 			}
 			return super.onDoubleTap(e);
@@ -441,54 +441,21 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	private class PlayRecordUpdater extends AsyncTask<MusicInfo, Void, PlayRecord> {
-		private ProgressDialog m_progress;
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(MusicListActivity.this);
-			m_progress.setMessage(getString(R.string.message_updating));
-			m_progress.setIndeterminate(false);
-			m_progress.show();
+	private class MusicUpdateTask extends BasicTask<MusicInfo> {
+		public MusicUpdateTask() {
+			super(R.string.message_music_updating);
 		}
 
 		@Override
-		protected PlayRecord doInBackground(MusicInfo... args) {
-			final MusicInfo music = args[0];
+		protected void doTask(MusicInfo... params) throws IOException {
+			final MusicInfo music = params[0];
 			try {
-				PlayRecord record = null;
-				if (!m_service.isLogin())
-					record = m_service.login();
-				try {
-					m_service.update(music);
-				}
-				catch (NoLoginException e) {
-					record = m_service.login();
-					m_service.update(music);
-				}
+				m_service.update(music);
 				m_store.update(music);
-				if (record == null)
-					return DdN.getPlayRecord();
-				else {
-					m_store.update(record);
-					record.musics = DdN.getPlayRecord().musics;
-					return record;
-				}
-			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
 			}
 			catch (NoLoginException e) {
-				assert(false);
+				e.printStackTrace();
 			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(PlayRecord result) {
-			if (result != null)
-				setPlayRecord(result, null);
-			m_progress.dismiss();
 		}
 	}
 
@@ -550,77 +517,63 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	private class SetModuleTask extends AsyncTask<Module, Void, PlayRecord> {
-		private ProgressDialog m_progress;
+	private class SetModuleTask extends BasicTask<Module> {
 		private MusicInfo m_music;
 
 		public SetModuleTask(MusicInfo music) {
+			super(R.string.summary_applying);
 			m_music = music;
 		}
 
 		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(MusicListActivity.this);
-			m_progress.setMessage(getString(R.string.summary_applying));
-			m_progress.setIndeterminate(true);
-			m_progress.show();
-		}
-
-		@Override
-		protected PlayRecord doInBackground(Module... params) {
+		protected void doTask(Module... params) throws IOException {
 			Module vocal1 = params[0];
 			Module vocal2 = params[1];
-			try {
-				PlayRecord record = null;
-				if (!m_service.isLogin()) {
-					record = m_service.login();
-					m_store.update(record);
-				}
 
-				if (vocal2 == null) {
-					m_service.setIndividualModule(m_music.id, vocal1.id);
-					m_music.vocal1 = vocal1.id;
-					m_music.vocal2 = null;
-				}
-				else {
-					m_service.setIndividualModule(m_music.id, vocal1.id, vocal2.id);
-					m_music.vocal1 = vocal1.id;
-					m_music.vocal2 = vocal2.id;
-				}
-				m_store.updateModule(m_music);
-				return record;
+			if (vocal2 == null) {
+				m_service.setIndividualModule(m_music.id, vocal1.id);
+				m_music.vocal1 = vocal1.id;
+				m_music.vocal2 = null;
 			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
+			else {
+				m_service.setIndividualModule(m_music.id, vocal1.id, vocal2.id);
+				m_music.vocal1 = vocal1.id;
+				m_music.vocal2 = vocal2.id;
 			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}
-
-		@Override
-		protected void onPostExecute(PlayRecord result) {
-			if (result != null)
-				setPlayRecord(result, null);
-			m_progress.dismiss();
+			m_store.updateModule(m_music);
 		}
 	}
 
-	private class ResetModuleTask extends AsyncTask<MusicInfo, Void, PlayRecord> {
+	private class ResetModuleTask extends BasicTask<MusicInfo> {
+		public ResetModuleTask() {
+			super(R.string.summary_applying);
+		}
+
+		@Override
+		protected void doTask(MusicInfo... params) throws IOException {
+			MusicInfo music = params[0];
+			m_service.resetIndividualModule(music.id);
+			music.vocal1 = music.vocal2 = null;
+			m_store.updateModule(music);
+		}
+	}
+
+	private abstract class BasicTask<Param> extends AsyncTask<Param, Void, PlayRecord> {
 		private ProgressDialog m_progress;
+
+		protected BasicTask(int message) {
+			m_progress = new ProgressDialog(MusicListActivity.this);
+			m_progress.setMessage(getString(message));
+			m_progress.setIndeterminate(true);
+		}
 
 		@Override
 		protected void onPreExecute() {
-			m_progress = new ProgressDialog(MusicListActivity.this);
-			m_progress.setMessage(getString(R.string.summary_applying));
-			m_progress.setIndeterminate(true);
 			m_progress.show();
 		}
 
 		@Override
-		protected PlayRecord doInBackground(MusicInfo... params) {
-			MusicInfo music = params[0];
+		protected PlayRecord doInBackground(Param... params) {
 			try {
 				PlayRecord record = null;
 				if (!m_service.isLogin()) {
@@ -628,9 +581,7 @@ public class MusicListActivity extends ListActivity {
 					m_store.update(record);
 				}
 
-				m_service.resetIndividualModule(music.id);
-				music.vocal1 = music.vocal2 = null;
-				m_store.updateModule(music);
+				doTask(params);
 				return record;
 			}
 			catch (LoginFailedException e) {
@@ -641,6 +592,8 @@ public class MusicListActivity extends ListActivity {
 			}
 			return null;
 		}
+
+		protected abstract void doTask(Param... params) throws IOException;
 
 		@Override
 		protected void onPostExecute(PlayRecord result) {

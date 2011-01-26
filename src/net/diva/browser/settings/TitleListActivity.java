@@ -132,7 +132,7 @@ public class TitleListActivity extends ListActivity {
 		@Override
 		protected void onPreExecute() {
 			m_progress = new ProgressDialog(TitleListActivity.this);
-			m_progress.setMessage(getString(R.string.message_updating));
+			m_progress.setMessage(getString(R.string.message_title_updating));
 			m_progress.setIndeterminate(true);
 			m_progress.show();
 		}

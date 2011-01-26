@@ -102,7 +102,7 @@ public class ModuleListActivity extends ExpandableListActivity {
 		@Override
 		protected void onPreExecute() {
 			m_progress = new ProgressDialog(ModuleListActivity.this);
-			m_progress.setMessage(getString(R.string.message_updating));
+			m_progress.setMessage(getString(R.string.message_module_updating));
 			m_progress.setIndeterminate(true);
 			m_progress.show();
 		}

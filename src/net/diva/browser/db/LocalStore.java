@@ -164,11 +164,12 @@ public class LocalStore extends ContextWrapper {
 		db.beginTransaction();
 		try {
 			for (MusicInfo music: record.musics) {
-				if (MusicTable.insert(db, music) < 0) {
+				if (MusicTable.update(db, music)) {
 					for (int i = 0; i < music.records.length; ++i)
 						ScoreTable.update(db, music.id, i, music.records[i]);
 				}
 				else {
+					MusicTable.insert(db, music);
 					for (int i = 0; i < music.records.length; ++i)
 						ScoreTable.insert(db, music.id, i, music.records[i]);
 				}
@@ -195,6 +196,7 @@ public class LocalStore extends ContextWrapper {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
+			MusicTable.update(db, music);
 			for (int i = 0; i < music.records.length; ++i)
 				ScoreTable.update(db, music.id, i, music.records[i]);
 			db.setTransactionSuccessful();

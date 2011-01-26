@@ -55,6 +55,14 @@ final class MusicTable implements BaseColumns {
 		return db.insert(NAME, null, values);
 	}
 
+	static boolean update(SQLiteDatabase db, MusicInfo music) {
+		ContentValues values = new ContentValues(3);
+		values.put(TITLE, music.title);
+		values.put(COVERART, music.coverart);
+		values.put(PART, music.part);
+		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
+	}
+
 	static void resetModule(SQLiteDatabase db) {
 		ContentValues values = new ContentValues(2);
 		values.putNull(VOCAL1);

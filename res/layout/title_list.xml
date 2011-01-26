@@ -6,9 +6,4 @@
   <RelativeLayout android:layout_width="fill_parent" android:layout_weight="1" android:layout_height="fill_parent" android:id="@id/android:empty">
       <TextView android:text="設定可能な称号はありません" android:layout_weight="1" android:layout_centerInParent="true" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
   </RelativeLayout>
-
-  <LinearLayout android:layout_height="wrap_content" android:layout_gravity="bottom" android:layout_width="fill_parent">
-    <Button android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="fill_parent" android:id="@+id/button_ok" android:text="@android:string/ok"></Button>
-    <Button android:layout_height="wrap_content" android:layout_weight="1" android:layout_width="fill_parent" android:text="@android:string/cancel" android:id="@+id/button_cancel"></Button>
-  </LinearLayout>
 </LinearLayout>

@@ -27,7 +27,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 public class TitleListActivity extends ListActivity {
-	private ListView m_view;
 	private TitleAdapter m_adapter;
 	private LocalStore m_store;
 
@@ -35,27 +34,19 @@ public class TitleListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.title_list);
-		m_view = getListView();
-		m_view.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		m_store = LocalStore.instance(this);
 
-		findViewById(R.id.button_ok).setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				NameValuePair pair = m_adapter.getItem(m_view.getCheckedItemPosition());
-				Intent intent = getIntent();
-				intent.putExtra("title_id", pair.getName());
-				setResult(RESULT_OK, intent);
-				finish();
-			}
-		});
-		findViewById(R.id.button_cancel).setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				finish();
-			}
-		});
-
-		setListAdapter(m_adapter = new TitleAdapter(this, selectedId()));
+		setListAdapter(m_adapter = new TitleAdapter(this));
 		refresh();
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		NameValuePair pair = m_adapter.getItem(position);
+		Intent intent = getIntent();
+		intent.putExtra("title_id", pair.getName());
+		setResult(RESULT_OK, intent);
+		finish();
 	}
 
 	@Override
@@ -77,41 +68,24 @@ public class TitleListActivity extends ListActivity {
 		return true;
 	}
 
-	private String selectedId() {
-		Intent intent = getIntent();
-		if (intent == null)
-			return null;
-
-		return intent.getStringExtra("title_id");
-	}
-
 	private void refresh() {
-		m_view.setItemChecked(m_adapter.setTitles(DdN.getTitles()), true);
+		m_adapter.setTitles(DdN.getTitles());
 	}
 
 	private static class TitleAdapter extends ArrayAdapter<NameValuePair> {
-		private String m_selected;
-
-		public TitleAdapter(Context context, String selected_id) {
-			super(context, android.R.layout.simple_list_item_single_choice);
-			m_selected = selected_id;
+		public TitleAdapter(Context context) {
+			super(context, android.R.layout.simple_list_item_1);
 		}
 
-		public int setTitles(List<NameValuePair> titles) {
+		public void setTitles(List<NameValuePair> titles) {
 			setNotifyOnChange(false);
 			clear();
 
-			int position = ListView.INVALID_POSITION;
-			for (int i = 0; i < titles.size(); ++i) {
-				NameValuePair pair = titles.get(i);
-				add(pair);
-				if (pair.getName().equals(m_selected))
-					position = i;
-			}
+			for (NameValuePair title: titles)
+				add(title);
 
 			setNotifyOnChange(true);
 			notifyDataSetChanged();
-			return position;
 		}
 
 		@Override

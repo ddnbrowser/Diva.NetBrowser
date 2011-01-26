@@ -26,11 +26,20 @@ import android.widget.TextView;
 
 public class ModuleListActivity extends ExpandableListActivity {
 	private ModuleAdapter m_adapter;
+	private int m_request;
+	private int m_part;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.module_list);
+		Intent intent = getIntent();
+		if (intent != null) {
+			m_request = intent.getIntExtra("request", 0);
+			m_part = intent.getIntExtra("part", 0);
+			if (m_part > 1) {
+			}
+		}
 		m_adapter = new ModuleAdapter(this, DdN.getModules());
 		setListAdapter(m_adapter);
 	}
@@ -59,11 +68,32 @@ public class ModuleListActivity extends ExpandableListActivity {
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int group, int position, long id) {
 		Module module = (Module)m_adapter.getChild(group, position);
-		Intent data = new Intent();
-		data.putExtra("module_id", module.id);
-		setResult(RESULT_OK, data);
-		finish();
+		Intent data = new Intent(getIntent());
+		data.putExtra(String.format("vocal%d", m_request), module.id);
+		if (m_request < m_part) {
+			data.putExtra("request", m_request+1);
+			startActivityForResult(data, R.id.item_set_module);
+		}
+		else {
+			setResult(RESULT_OK, data);
+			finish();
+		}
 		return true;
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case R.id.item_set_module:
+			if (resultCode == RESULT_OK) {
+				setResult(RESULT_OK, data);
+				finish();
+			}
+			break;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+			break;
+		}
 	}
 
 	private class UpdateTask extends AsyncTask<Void, Void, Boolean> {

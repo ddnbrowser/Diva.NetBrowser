@@ -14,6 +14,11 @@ public class MusicInfo {
 	public String id;
 	public String title;
 	public String coverart;
+
+	public int part;
+	public String vocal1;
+	public String vocal2;
+
 	public ScoreRecord[] records;
 
 	public MusicInfo(String id_, String title_) {

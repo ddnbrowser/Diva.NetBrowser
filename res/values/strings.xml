@@ -27,6 +27,7 @@
     <string name="item_statistics">クリア統計情報</string>
     <string name="item_game_settings">ゲーム設定</string>
     <string name="item_tool_settings">ツール設定</string>
+    <string name="item_set_module">モジュールを設定</string>
     <string name="item_reset_module">モジュールを初期化</string>
     <string name="item_ranking">ランキング表示</string>
     <string name="item_update">更新</string>
@@ -36,6 +37,7 @@
     <string name="message_loading">プレイデータの読み込み中...</string>
     <string name="message_login_processing">ログイン中...</string>
     <string name="message_set_title">称号を設定しています...</string>
+    <string name="message_set_module">楽曲別モジュールを設定します。よろしいですか?</string>
     <string name="message_reset_module">楽曲別モジュールを未設定にします。よろしいですか?</string>
     <string name="category_title">称号設定</string>
     <string name="description_title">設定中の称号</string>

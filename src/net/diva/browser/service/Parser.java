@@ -113,11 +113,12 @@ public final class Parser {
 
 	public static void parseInfoPage(InputStream content, MusicInfo music) throws ParseException {
 		String body = read(content);
-		Pattern RE_COVERART = Pattern.compile(Pattern.quote(music.title) + "<br>.*?<img src=\"(.+?)\"", Pattern.DOTALL);
+		Pattern RE_COVERART = Pattern.compile(Pattern.quote(music.title) + "<br>\\s*\\[(.*)\\]\\s*<br>\\s*<img src=\"(.+?)\"");
 		Matcher m = RE_COVERART.matcher(body);
 		if (!m.find())
 			throw new ParseException();
-		music.coverart = m.group(1);
+		music.part = "ソロ".equals(m.group(1)) ? 1 : 2;
+		music.coverart = m.group(2);
 		for (int i = 0; i < DIFFICULTIES.length; ++i)
 			music.records[i] = parseScore(m, DIFFICULTIES[i]);
 	}

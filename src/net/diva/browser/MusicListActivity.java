@@ -9,11 +9,13 @@ import org.apache.http.NameValuePair;
 
 import net.diva.browser.DdN.Account;
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.settings.ModuleListActivity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -164,6 +166,16 @@ public class MusicListActivity extends ListActivity {
 		case R.id.item_update:
 			new PlayRecordUpdater().execute(music);
 			return true;
+		case R.id.item_set_module: {
+			Intent intent = new Intent(getApplicationContext(), ModuleListActivity.class);
+			intent.putExtra("request", 1);
+			intent.putExtra("id", music.id);
+			intent.putExtra("part", music.part);
+			intent.putExtra("vocal1", music.vocal1);
+			intent.putExtra("vocal2", music.vocal2);
+			startActivityForResult(intent, R.id.item_set_module);
+		}
+			return true;
 		case R.id.item_reset_module:
 			resetModule(music);
 			return true;
@@ -188,6 +200,9 @@ public class MusicListActivity extends ListActivity {
 			else
 				DownloadRankingService.cancel(this);
 			break;
+		case R.id.item_set_module:
+			if (resultCode == RESULT_OK)
+				setModule(data);
 		default:
 			super.onActivityResult(requestCode, resultCode, data);
 			break;
@@ -274,6 +289,24 @@ public class MusicListActivity extends ListActivity {
 				getApplicationContext(), WebBrowseActivity.class);
 		intent.putExtra("cookies", m_service.cookies());
 		startActivity(intent);
+	}
+
+	private void setModule(Intent data) {
+		final MusicInfo music = DdN.getPlayRecord().getMusic(data.getStringExtra("id"));
+		final Module vocal1 = DdN.getModule(data.getStringExtra("vocal1"));
+		final Module vocal2 = DdN.getModule(data.getStringExtra("vocal2"));
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(music.title);
+		builder.setMessage(R.string.message_set_module);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				new SetModuleTask(music).execute(vocal1, vocal2);
+				dialog.dismiss();
+			}
+		});
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
 	}
 
 	private void resetModule(final MusicInfo music) {
@@ -517,10 +550,26 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	private class ResetModuleTask extends AsyncTask<MusicInfo, Void, PlayRecord> {
+	private class SetModuleTask extends AsyncTask<Module, Void, PlayRecord> {
+		private ProgressDialog m_progress;
+		private MusicInfo m_music;
+
+		public SetModuleTask(MusicInfo music) {
+			m_music = music;
+		}
+
 		@Override
-		protected PlayRecord doInBackground(MusicInfo... params) {
-			MusicInfo music = params[0];
+		protected void onPreExecute() {
+			m_progress = new ProgressDialog(MusicListActivity.this);
+			m_progress.setMessage(getString(R.string.summary_applying));
+			m_progress.setIndeterminate(true);
+			m_progress.show();
+		}
+
+		@Override
+		protected PlayRecord doInBackground(Module... params) {
+			Module vocal1 = params[0];
+			Module vocal2 = params[1];
 			try {
 				PlayRecord record = null;
 				if (!m_service.isLogin()) {
@@ -528,7 +577,17 @@ public class MusicListActivity extends ListActivity {
 					m_store.update(record);
 				}
 
-				m_service.resetIndividualModule(music.id);
+				if (vocal2 == null) {
+					m_service.setIndividualModule(m_music.id, vocal1.id);
+					m_music.vocal1 = vocal1.id;
+					m_music.vocal2 = null;
+				}
+				else {
+					m_service.setIndividualModule(m_music.id, vocal1.id, vocal2.id);
+					m_music.vocal1 = vocal1.id;
+					m_music.vocal2 = vocal2.id;
+				}
+				m_store.updateModule(m_music);
 				return record;
 			}
 			catch (LoginFailedException e) {
@@ -544,6 +603,50 @@ public class MusicListActivity extends ListActivity {
 		protected void onPostExecute(PlayRecord result) {
 			if (result != null)
 				setPlayRecord(result, null);
+			m_progress.dismiss();
+		}
+	}
+
+	private class ResetModuleTask extends AsyncTask<MusicInfo, Void, PlayRecord> {
+		private ProgressDialog m_progress;
+
+		@Override
+		protected void onPreExecute() {
+			m_progress = new ProgressDialog(MusicListActivity.this);
+			m_progress.setMessage(getString(R.string.summary_applying));
+			m_progress.setIndeterminate(true);
+			m_progress.show();
+		}
+
+		@Override
+		protected PlayRecord doInBackground(MusicInfo... params) {
+			MusicInfo music = params[0];
+			try {
+				PlayRecord record = null;
+				if (!m_service.isLogin()) {
+					record = m_service.login();
+					m_store.update(record);
+				}
+
+				m_service.resetIndividualModule(music.id);
+				music.vocal1 = music.vocal2 = null;
+				m_store.updateModule(music);
+				return record;
+			}
+			catch (LoginFailedException e) {
+				e.printStackTrace();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
+
+		@Override
+		protected void onPostExecute(PlayRecord result) {
+			if (result != null)
+				setPlayRecord(result, null);
+			m_progress.dismiss();
 		}
 	}
 }

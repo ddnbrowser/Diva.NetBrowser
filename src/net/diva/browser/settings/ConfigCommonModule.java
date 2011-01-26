@@ -49,12 +49,15 @@ public class ConfigCommonModule extends ConfigItem {
 
 	@Override
 	public Intent dispatch(Context context, Callback callback) {
-		return new Intent(context, ModuleListActivity.class);
+		Intent intent = new Intent(context, ModuleListActivity.class);
+		intent.putExtra("request", 0);
+		intent.putExtra("part", 0);
+		return intent;
 	}
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
-		String module_id = data.getStringExtra("module_id");
+		String module_id = data.getStringExtra("vocal0");
 		service.setCommonModule(m_key, module_id);
 		m_preferences.edit().putString(m_key, module_id).commit();
 		return Boolean.TRUE;

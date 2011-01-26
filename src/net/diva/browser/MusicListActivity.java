@@ -248,11 +248,7 @@ public class MusicListActivity extends ListActivity {
 		point %= 150;
 
 		int next = point - (rank < rank_points.length ? rank_points[rank] : 150);
-		String name = rankName(rank);
-		if (name.equals(title))
-			return String.format("%s %s (%dpts)", record.level, title, next);
-		else
-			return String.format("%s %s\n(%s / %dpts)", record.level, title, name, next);
+		return String.format("%s %s (%dpts)", record.level, title, next);
 	}
 
 	private int rankPoint(PlayRecord record) {
@@ -260,15 +256,6 @@ public class MusicListActivity extends ListActivity {
 		for (MusicInfo m: record.musics)
 			point += m.rankPoint();
 		return point;
-	}
-
-	private String rankName(int rank) {
-		final String[] rank_names = getResources().getStringArray(R.array.rank_names);
-		int max_rank = rank_names.length - 1;
-		if (rank <= max_rank)
-			return rank_names[rank];
-		else
-			return String.format("%s+%d", rank_names[max_rank], rank-max_rank);
 	}
 
 	private void updateAll() {

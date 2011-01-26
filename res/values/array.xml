@@ -6,23 +6,6 @@
 <item>G-TRIAL</item>
 <item>COMPLETE</item>
 </string-array>
-<string-array name="rank_names">
-<item>エチュード</item>
-<item>プレリュード</item>
-<item>バラード</item>
-<item>カンタータ</item>
-<item>ノクターン</item>
-<item>セレナーデ</item>
-<item>ロンド</item>
-<item>ワルツ</item>
-<item>カンツォーナ</item>
-<item>メヌエット</item>
-<item>マーチ</item>
-<item>ララバイ</item>
-<item>カッサシオン</item>
-<item>フーガ</item>
-<item>ボレロ</item>
-</string-array>
 <integer-array name="rank_points">
 <item>200</item>
 <item>200</item>

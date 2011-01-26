@@ -93,7 +93,7 @@ public class DdN extends Application {
 	}
 
 	public static String getTitle(String id) {
-		if (id == null || m_instance == null)
+		if (id == null || m_instance == null || m_instance.m_titles == null)
 			return null;
 
 		for (NameValuePair pair: m_instance.m_titles) {

@@ -76,7 +76,7 @@ public final class Parser {
 	}
 
 	private static final Pattern RE_BLOCKEND = Pattern.compile("</table");
-	private static final Pattern RE_ACHIVEMENT = Pattern.compile("(\\d+)\\.(\\d+)%");
+	private static final Pattern RE_ACHIVEMENT = Pattern.compile("(\\d+)\\.(\\d)(\\d)?%");
 	private static final Pattern RE_HIGHSCORE = Pattern.compile("(\\d+)pts");
 
 	private static ScoreRecord parseScore(Matcher m, String difficulty) throws ParseException {
@@ -97,8 +97,11 @@ public final class Parser {
 		score.clear_status = 4 - findLiteral(m, "clear3.jpg", "clear2.jpg", "clear1.jpg", "-");
 		score.trial_status = findLiteral(m, "C-TRIAL", "G-TRIAL", "COMPLETE");
 		m = m.usePattern(RE_ACHIVEMENT);
-		if (m.find())
-			score.achievement = Integer.valueOf(m.group(1)) * 100 + Integer.valueOf(m.group(2));
+		if (m.find()) {
+			score.achievement = m.group(3) == null ? 0 : Integer.valueOf(m.group(3));
+			score.achievement += Integer.valueOf(m.group(2)) * 10;
+			score.achievement += Integer.valueOf(m.group(1)) * 100;
+		}
 		m = m.usePattern(RE_HIGHSCORE);
 		if (m.find())
 			score.high_score = Integer.valueOf(m.group(1));

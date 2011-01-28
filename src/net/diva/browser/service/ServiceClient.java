@@ -172,6 +172,10 @@ public class ServiceClient {
 		return modules;
 	}
 
+	private void getFrom(String relative, Object... args) throws IOException {
+		m_client.execute(new HttpGet(DdN.URL.resolve(String.format(relative, args))));
+	}
+
 	private void postTo(String relative) throws IOException {
 		postTo(relative, null);
 	}
@@ -205,6 +209,10 @@ public class ServiceClient {
 	}
 
 	public void setIndividualModule(String music_id, String vocal1, String vocal2) throws IOException {
+		getFrom("/divanet/module/selectPv/%s/0", music_id);
+		getFrom("/divanet/module/confirm/%s/vocal1/%s/0/0/0", music_id, vocal1);
+		getFrom("/divanet/module/confirm/%s/vocal2/%s/0/0/0", music_id, vocal2);
+		postTo(String.format("/divanet/module/updateDuet/%s/%s/%s/0", music_id, vocal1, vocal2));
 	}
 
 	public void resetIndividualModule(String music_id) throws IOException {

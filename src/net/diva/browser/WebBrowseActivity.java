@@ -4,11 +4,14 @@ import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -24,6 +27,10 @@ public class WebBrowseActivity extends Activity {
 		m_view = new WebView(this);
 		m_view.setWebViewClient(new ViewClient());
 		m_view.setWebChromeClient(new WebChromeClient());
+
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		WebSettings settings = m_view.getSettings();
+		settings.setBuiltInZoomControls(prefs.getBoolean("enable_builtin_zoom", false));
 
 		Intent intent = getIntent();
 		String url = intent.getDataString();

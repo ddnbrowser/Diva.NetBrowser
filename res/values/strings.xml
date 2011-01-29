@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="button_change">変更</string>
-    <string name="notification_ranking_updated">ランキング情報を更新しました</string>
-    <string name="summary_notify_ranking_updated">ランクイン情報を更新した時にステータスバーで通知します。</string>
-    <string name="notify_ranking_updated">更新を通知</string>
-    <string name="summary_download_rankin">有効にするとランクイン情報を定期的に取得します。</string>
-    <string name="download_rankin">ランクイン情報を取得</string>
-    <string name="category_ranking">ランキング</string>
     <string name="app_name">DIVA.NET Browser</string>
     <string name="ok">OK</string>
     <string name="cancel">キャンセル</string>
@@ -42,6 +35,12 @@
     <string name="category_web">Web画面設定</string>
     <string name="enable_builtin_zoom">ズームボタン表示</string>
     <string name="summary_enable_builtin_zoom">ズームボタンの表示/非表示を切り替えます</string>
+    <string name="category_ranking">ランキング</string>
+    <string name="download_rankin">ランクイン情報を取得</string>
+    <string name="summary_download_rankin">有効にするとランクイン情報を定期的に取得します。</string>
+    <string name="notify_ranking_updated">更新を通知</string>
+    <string name="summary_notify_ranking_updated">ランクイン情報を更新した時にステータスバーで通知します。</string>
+    <string name="notification_ranking_updated">ランキング情報を更新しました</string>
     <string name="category_title">称号設定</string>
     <string name="description_title">設定中の称号</string>
     <string name="category_module_common">共通モジュール設定</string>

@@ -443,6 +443,11 @@ public class MusicListActivity extends ListActivity {
 				e.printStackTrace();
 			}
 		}
+
+		@Override
+		protected void onPostExecute(PlayRecord result) {
+			super.onPostExecute(result != null ? result : DdN.getPlayRecord());
+		}
 	}
 
 	private class PlayRecordLoader extends AsyncTask<DdN.Account, Void, PlayRecord> {

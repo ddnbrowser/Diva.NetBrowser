@@ -12,6 +12,7 @@ import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
 
 import org.apache.http.HttpEntity;
@@ -184,6 +185,27 @@ public class ServiceClient {
 		return modules;
 	}
 
+	public List<SkinInfo> getSkins() throws IOException {
+		List<String> groups = new ArrayList<String>();
+
+		String path = "/divanet/skin/list/0";
+		while (path != null) {
+			HttpGet request = new HttpGet(DdN.URL.resolve(path));
+			HttpResponse response = m_client.execute(request);
+			path = Parser.Skin.parse(response.getEntity().getContent(), groups);
+		}
+
+		List<SkinInfo> skins = new ArrayList<SkinInfo>();
+		for (String group_id: groups) {
+			HttpGet request = new HttpGet(DdN.url("/divanet/skin/select/%s/0", group_id));
+			HttpResponse response = m_client.execute(request);
+			Parser.Skin.parse(response.getEntity().getContent(), skins);
+		}
+
+		access();
+		return skins;
+	}
+
 	private void getFrom(String relative, Object... args) throws IOException {
 		m_client.execute(new HttpGet(DdN.URL.resolve(String.format(relative, args))));
 	}
@@ -239,6 +261,10 @@ public class ServiceClient {
 		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
 		params.add(new BasicNameValuePair("activation", on ? "true" : "false"));
 		postTo("/divanet/module/updateConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
+	}
+
+	public void setSkin(String group_id, String skin_id) throws IOException {
+		postTo(String.format("/divanet/skin/update/%s/%s", group_id, skin_id));
 	}
 
 	public void unsetSkin() throws IOException {

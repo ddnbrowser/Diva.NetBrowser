@@ -11,6 +11,7 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.ScoreRecord;
+import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -23,7 +24,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 6;
+	private static final int VERSION = 7;
 
 	private static LocalStore m_instance;
 
@@ -303,6 +304,46 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public List<SkinInfo> loadSkins() {
+		List<SkinInfo> skins = new ArrayList<SkinInfo>();
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(SkinTable.TABLE_NAME, new String[] {
+				SkinTable.GROUP_ID,
+				SkinTable.ID,
+				SkinTable.NAME,
+				SkinTable.PATH,
+		}, null, null, null, null, SkinTable._ID);
+		try {
+			while (c.moveToNext()) {
+				SkinInfo skin = new SkinInfo(c.getString(0), c.getString(1), c.getString(2));
+				skin.image_path = c.getString(3);
+				skins.add(skin);
+			}
+		}
+		finally {
+			c.close();
+		}
+
+		return skins;
+	}
+
+	public void updateSkins(List<SkinInfo> skins) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			for (SkinInfo skin: skins) {
+				if (SkinTable.insert(db, skin) < 0)
+					SkinTable.update(db, skin);
+			}
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	private static class OpenHelper extends SQLiteOpenHelper {
 		public OpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
@@ -315,6 +356,7 @@ public class LocalStore extends ContextWrapper {
 			db.execSQL(TitleTable.create_statement());
 			db.execSQL(ModuleGroupTable.create_statement());
 			db.execSQL(ModuleTable.create_statement());
+			db.execSQL(SkinTable.create_statement());
 		}
 
 		@Override
@@ -331,6 +373,8 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.addModuleColumns(db);
 			case 5:
 				TitleTable.addImageIDColumn(db);
+			case 6:
+				db.execSQL(SkinTable.create_statement());
 			default:
 				break;
 			}

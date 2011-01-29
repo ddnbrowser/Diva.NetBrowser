@@ -6,6 +6,7 @@ import net.diva.browser.settings.ConfigCommonModule;
 import net.diva.browser.settings.ConfigItem;
 import net.diva.browser.settings.ConfigResetCommon;
 import net.diva.browser.settings.ConfigResetIndividual;
+import net.diva.browser.settings.ConfigSetSkin;
 import net.diva.browser.settings.ConfigTitle;
 import net.diva.browser.settings.ConfigUnsetSkin;
 import android.app.ListActivity;
@@ -36,6 +37,7 @@ public class ConfigActivity extends ListActivity {
 				new ConfigResetIndividual(this),
 				new ConfigActivationIndividual(this),
 				new ConfigCategory(getText(R.string.category_skin)),
+				new ConfigSetSkin(this),
 				new ConfigUnsetSkin(this)
 		);
 		setListAdapter(m_adapter);

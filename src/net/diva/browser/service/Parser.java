@@ -15,6 +15,7 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.ScoreRecord;
+import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
 
 public final class Parser {
@@ -241,5 +242,27 @@ public final class Parser {
 
 		m = m.usePattern(RE_NEXT);
 		return m.find() ? m.group(1) : null;
+	}
+
+	static class Skin {
+		private static final Pattern RE_GROUP = Pattern.compile("<a href=\"/divanet/skin/select/(\\w+)/\\d+\">(.+)</a>");
+		private static final Pattern RE_SKIN = Pattern.compile("<a href=\"/divanet/skin/confirm/(\\w+)/(\\w+)/\\d+\">(.+)</a>");
+
+		static String parse(InputStream content, List<String> groups) {
+			String body = read(content);
+			Matcher m = RE_GROUP.matcher(body);
+			while (m.find())
+				groups.add(m.group(1));
+
+			m = m.usePattern(RE_NEXT);
+			return m.find() ? m.group(1) : null;
+		}
+
+		public static void parse(InputStream content, List<SkinInfo> skins) {
+			String body = read(content);
+			Matcher m = RE_SKIN.matcher(body);
+			while (m.find())
+				skins.add(new SkinInfo(m.group(1), m.group(2), m.group(3)));
+		}
 	}
 }

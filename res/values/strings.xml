@@ -56,6 +56,8 @@
     <string name="summary_activation_individual_off">楽曲別モジュール設定を有効にします</string>
     <string name="summary_activation_individual_on">楽曲別モジュール設定を無効にします</string>
     <string name="category_skin">スキン設定</string>
+    <string name="description_set_skin">スキンを設定する</string>
+    <string name="summary_set_skin">選択したスキンを設定します</string>
     <string name="description_unset_skin">未設定にする</string>
     <string name="summary_unset_skin">スキンを未設定にします</string>
     <string name="message_unset_skin">スキンを未設定にします。よろしいですか?</string>
@@ -63,4 +65,5 @@
     <string name="summary_applying">設定しています...</string>
     <string name="message_title_updating">称号一覧を更新中...</string>
     <string name="message_module_updating">モジュール一覧を更新中...</string>
+    <string name="message_skin_updating">更新しています...</string>
 </resources>

@@ -61,6 +61,10 @@ public class DdN extends Application {
 		return DdN.URL.resolve(relative).toString();
 	}
 
+	public static URI url(String relative, Object...args) {
+		return DdN.URL.resolve(String.format(relative, args));
+	}
+
 	public static ServiceClient getServiceClient(Account account) {
 		return m_instance == null ? null : m_instance.getServiceClient_(account);
 	}

@@ -5,13 +5,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import org.apache.http.NameValuePair;
-
 import net.diva.browser.DdN.Account;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
+import net.diva.browser.model.TitleInfo;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;
@@ -482,7 +481,7 @@ public class MusicListActivity extends ListActivity {
 					m_store.update(record);
 				}
 
-				List<NameValuePair> titles = m_service.getTitles();
+				List<TitleInfo> titles = m_service.getTitles(DdN.getTitles());
 				m_store.updateTitles(titles);
 				DdN.setTitles(titles);
 				String title = DdN.getTitle(record.title_id);

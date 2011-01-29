@@ -5,15 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.ScoreRecord;
+import net.diva.browser.model.TitleInfo;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
@@ -25,7 +23,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 5;
+	private static final int VERSION = 6;
 
 	private static LocalStore m_instance;
 
@@ -248,16 +246,21 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
-	public List<NameValuePair> getTitles() {
-		List<NameValuePair> titles = new ArrayList<NameValuePair>();
+	public List<TitleInfo> getTitles() {
+		List<TitleInfo> titles = new ArrayList<TitleInfo>();
 		SQLiteDatabase db = m_helper.getReadableDatabase();
 		Cursor c = db.query(TitleTable.NAME, new String[] {
 				TitleTable.ID,
 				TitleTable.TITLE,
+				TitleTable.IMAGE_ID,
 		}, null, null, null, null, null);
 		try {
-			while (c.moveToNext())
-				titles.add(new BasicNameValuePair(c.getString(0), c.getString(1)));
+			while (c.moveToNext()) {
+				TitleInfo title = new TitleInfo(c.getString(0), c.getString(1));
+				if (!c.isNull(2))
+					title.image_id = c.getString(2);
+				titles.add(title);
+			}
 		}
 		finally {
 			c.close();
@@ -265,12 +268,14 @@ public class LocalStore extends ContextWrapper {
 		return titles;
 	}
 
-	public void updateTitles(List<NameValuePair> titles) {
+	public void updateTitles(List<TitleInfo> titles) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			for (NameValuePair pair: titles)
-				TitleTable.insert(db, pair);
+			for (TitleInfo title: titles) {
+				if (!TitleTable.update(db, title))
+					TitleTable.insert(db, title);
+			}
 			db.setTransactionSuccessful();
 		}
 		finally {
@@ -324,6 +329,8 @@ public class LocalStore extends ContextWrapper {
 				db.execSQL(ModuleTable.create_statement());
 			case 4:
 				MusicTable.addModuleColumns(db);
+			case 5:
+				TitleTable.addImageIDColumn(db);
 			default:
 				break;
 			}

@@ -9,15 +9,13 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.ScoreRecord;
+import net.diva.browser.model.TitleInfo;
 
 public final class Parser {
 	private Parser() {}
@@ -197,13 +195,24 @@ public final class Parser {
 
 	private static final Pattern RE_TITLE_NAME = Pattern.compile("<a href=\"/divanet/title/confirm/(\\w+)/\\d+\">(.+)</a>");
 
-	public static String parseTitleList(InputStream content, List<NameValuePair> titles) {
+	public static String parseTitleList(InputStream content, List<TitleInfo> titles) {
 		String body = read(content);
 		Matcher m = RE_TITLE_NAME.matcher(body);
-		while (m.find())
-			titles.add(new BasicNameValuePair(m.group(1), m.group(2)));
+		while (m.find()) {
+			TitleInfo title = new TitleInfo(m.group(1), m.group(2));
+			if (!titles.contains(title))
+				titles.add(title);
+		}
 
 		m = m.usePattern(RE_NEXT);
+		return m.find() ? m.group(1) : null;
+	}
+
+	private static final Pattern RE_TITLE_IMAGE = Pattern.compile("<img src=\"/divanet/img/title/(\\w+)\"");
+
+	public static String parseTitlePage(InputStream content) {
+		String body = read(content);
+		Matcher m = RE_TITLE_IMAGE.matcher(body);
 		return m.find() ? m.group(1) : null;
 	}
 

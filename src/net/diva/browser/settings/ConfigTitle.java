@@ -28,9 +28,7 @@ public class ConfigTitle extends ConfigItem {
 
 	@Override
 	public Intent dispatch(Context context, Callback callback) {
-		Intent intent = new Intent(context, TitleListActivity.class);
-		intent.putExtra("title_id", DdN.getPlayRecord().title_id);
-		return intent;
+		return new Intent(context, TitleListActivity.class);
 	}
 
 	private CharSequence getCurrentTitle() {
@@ -43,10 +41,9 @@ public class ConfigTitle extends ConfigItem {
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
-		String title_id = data.getStringExtra("title_id");
-		service.setTitle(title_id);
+		service.setTitle(data.getStringExtra("title_id"));
 		PlayRecord record = DdN.getPlayRecord();
-		record.title_id = title_id;
+		record.title_id = data.getStringExtra("image_id");
 		store.update(record);
 		return Boolean.TRUE;
 	}

@@ -12,6 +12,7 @@ import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.TitleInfo;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -142,13 +143,24 @@ public class ServiceClient {
 		return list;
 	}
 
-	public List<NameValuePair> getTitles() throws IOException {
-		List<NameValuePair> titles = new ArrayList<NameValuePair>();
+	public List<TitleInfo> getTitles(List<TitleInfo> titles) throws IOException {
+		if (titles == null)
+			titles = new ArrayList<TitleInfo>();
 		String path = "/divanet/title/list/0";
 		while (path != null) {
 			HttpGet request = new HttpGet(DdN.URL.resolve(path));
 			HttpResponse response = m_client.execute(request);
 			path = Parser.parseTitleList(response.getEntity().getContent(), titles);
+		}
+
+		for (TitleInfo title: titles) {
+			if (title.image_id != null)
+				continue;
+
+			URI relative = DdN.URL.resolve(String.format("/divanet/title/confirm/%s/0", title.id));
+			HttpGet request = new HttpGet(relative);
+			HttpResponse response = m_client.execute(request);
+			title.image_id = Parser.parseTitlePage(response.getEntity().getContent());
 		}
 
 		access();

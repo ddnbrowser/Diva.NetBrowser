@@ -7,11 +7,9 @@ import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.PlayRecord;
+import net.diva.browser.model.TitleInfo;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
-
-import org.apache.http.NameValuePair;
-
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -42,9 +40,10 @@ public class TitleListActivity extends ListActivity {
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		NameValuePair pair = m_adapter.getItem(position);
+		TitleInfo title = m_adapter.getItem(position);
 		Intent intent = getIntent();
-		intent.putExtra("title_id", pair.getName());
+		intent.putExtra("title_id", title.id);
+		intent.putExtra("image_id", title.image_id);
 		setResult(RESULT_OK, intent);
 		finish();
 	}
@@ -72,16 +71,16 @@ public class TitleListActivity extends ListActivity {
 		m_adapter.setTitles(DdN.getTitles());
 	}
 
-	private static class TitleAdapter extends ArrayAdapter<NameValuePair> {
+	private static class TitleAdapter extends ArrayAdapter<TitleInfo> {
 		public TitleAdapter(Context context) {
 			super(context, android.R.layout.simple_list_item_1);
 		}
 
-		public void setTitles(List<NameValuePair> titles) {
+		public void setTitles(List<TitleInfo> titles) {
 			setNotifyOnChange(false);
 			clear();
 
-			for (NameValuePair title: titles)
+			for (TitleInfo title: titles)
 				add(title);
 
 			setNotifyOnChange(true);
@@ -91,10 +90,10 @@ public class TitleListActivity extends ListActivity {
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			View view = super.getView(position, convertView, parent);
-			NameValuePair pair = getItem(position);
-			if (pair != null) {
+			TitleInfo title = getItem(position);
+			if (title != null) {
 				TextView tv = (TextView)view.findViewById(android.R.id.text1);
-				tv.setText(pair.getValue());
+				tv.setText(title.name);
 			}
 			return view;
 		}
@@ -121,9 +120,9 @@ public class TitleListActivity extends ListActivity {
 					m_store.update(record);
 				}
 
-				List<NameValuePair> titles = service.getTitles();
+				List<TitleInfo> titles = service.getTitles(DdN.getTitles());
 				m_store.updateTitles(titles);
-				DdN.setTitles(titles);
+				DdN.setTitles(m_store.getTitles());
 				return Boolean.TRUE;
 			}
 			catch (IOException e) {

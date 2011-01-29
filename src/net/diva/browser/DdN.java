@@ -7,10 +7,8 @@ import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.PlayRecord;
+import net.diva.browser.model.TitleInfo;
 import net.diva.browser.service.ServiceClient;
-
-import org.apache.http.NameValuePair;
-
 import android.app.AlertDialog;
 import android.app.Application;
 import android.content.Context;
@@ -31,7 +29,7 @@ public class DdN extends Application {
 	private ServiceClient m_service;
 
 	private PlayRecord m_record;
-	private List<NameValuePair> m_titles;
+	private List<TitleInfo> m_titles;
 	private List<ModuleGroup> m_modules;
 
 	@Override
@@ -83,11 +81,11 @@ public class DdN extends Application {
 		return m_instance != null ? m_instance.setPlayRecord_(record) : null;
 	}
 
-	public static List<NameValuePair> getTitles() {
+	public static List<TitleInfo> getTitles() {
 		return m_instance == null ? null : m_instance.m_titles;
 	}
 
-	public static void setTitles(List<NameValuePair> titles) {
+	public static void setTitles(List<TitleInfo> titles) {
 		if (m_instance != null)
 			m_instance.m_titles = titles;
 	}
@@ -96,9 +94,9 @@ public class DdN extends Application {
 		if (id == null || m_instance == null || m_instance.m_titles == null)
 			return null;
 
-		for (NameValuePair pair: m_instance.m_titles) {
-			if (pair.getName().equals(id))
-				return pair.getValue();
+		for (TitleInfo title: m_instance.m_titles) {
+			if (id.equals(title.image_id))
+				return title.name;
 		}
 
 		return null;

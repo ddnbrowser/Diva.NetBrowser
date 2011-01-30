@@ -247,6 +247,7 @@ public final class Parser {
 	static class Skin {
 		private static final Pattern RE_GROUP = Pattern.compile("<a href=\"/divanet/skin/select/(\\w+)/\\d+\">(.+)</a>");
 		private static final Pattern RE_SKIN = Pattern.compile("<a href=\"/divanet/skin/confirm/(\\w+)/(\\w+)/\\d+\">(.+)</a>");
+		private static final Pattern RE_IMAGE = Pattern.compile("<img src=\"(/divanet/img/skin/\\w+)\"");
 
 		static String parse(InputStream content, List<String> groups) {
 			String body = read(content);
@@ -258,11 +259,18 @@ public final class Parser {
 			return m.find() ? m.group(1) : null;
 		}
 
-		public static void parse(InputStream content, List<SkinInfo> skins) {
+		static void parse(InputStream content, List<SkinInfo> skins) {
 			String body = read(content);
 			Matcher m = RE_SKIN.matcher(body);
 			while (m.find())
 				skins.add(new SkinInfo(m.group(1), m.group(2), m.group(3)));
+		}
+
+		static void parse(InputStream content, SkinInfo skin) {
+			String body = read(content);
+			Matcher m = RE_IMAGE.matcher(body);
+			if (m.find())
+				skin.image_path = m.group(1);
 		}
 	}
 }

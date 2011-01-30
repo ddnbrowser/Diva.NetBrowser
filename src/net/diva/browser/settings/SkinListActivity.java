@@ -1,5 +1,7 @@
 package net.diva.browser.settings;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -14,13 +16,16 @@ import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -34,8 +39,9 @@ public class SkinListActivity extends ListActivity {
 		setContentView(R.layout.skin_list);
 		m_store = LocalStore.instance(this);
 
-		setListAdapter(m_adapter = new SkinAdapter(this));
-		refresh();
+		m_adapter = new SkinAdapter(this);
+		setListAdapter(m_adapter);
+		m_adapter.setSkins(m_store.loadSkins());
 	}
 
 	@Override
@@ -67,39 +73,52 @@ public class SkinListActivity extends ListActivity {
 		return true;
 	}
 
-	private void refresh() {
-		m_adapter.setSkins(m_store.loadSkins());
-	}
+	private static class SkinAdapter extends BaseAdapter {
+		Context m_context;
+		List<SkinInfo> m_skins;
 
-	private static class SkinAdapter extends ArrayAdapter<SkinInfo> {
 		public SkinAdapter(Context context) {
-			super(context, android.R.layout.simple_list_item_1);
+			super();
+			m_context = context;
 		}
 
 		public void setSkins(List<SkinInfo> skins) {
-			setNotifyOnChange(false);
-			clear();
-
-			for (SkinInfo skin: skins)
-				add(skin);
-
-			setNotifyOnChange(true);
+			m_skins = skins;
 			notifyDataSetChanged();
 		}
 
-		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = super.getView(position, convertView, parent);
+			View view = convertView;
+			if (view == null) {
+				LayoutInflater inflater = LayoutInflater.from(m_context);
+				view = inflater.inflate(R.layout.skin_item, parent, false);
+			}
+
 			SkinInfo skin = getItem(position);
-			if (skin != null) {
-				TextView tv = (TextView)view.findViewById(android.R.id.text1);
-				tv.setText(skin.name);
+			TextView tv = (TextView)view.findViewById(android.R.id.text1);
+			tv.setText(skin.name);
+			Drawable thumbnail = skin.getThumbnail(m_context);
+			if (thumbnail != null) {
+				ImageView iv = (ImageView)view.findViewById(R.id.thumbnail);
+				iv.setImageDrawable(thumbnail);
 			}
 			return view;
 		}
+
+		public int getCount() {
+			return m_skins != null ? m_skins.size() : 0;
+		}
+
+		public SkinInfo getItem(int position) {
+			return m_skins.get(position);
+		}
+
+		public long getItemId(int position) {
+			return position;
+		}
 	}
 
-	private class SkinDownloader extends AsyncTask<Void, Void, Boolean> {
+	private class SkinDownloader extends AsyncTask<Void, Void, List<SkinInfo>> {
 		private ProgressDialog m_progress;
 
 		@Override
@@ -111,7 +130,7 @@ public class SkinListActivity extends ListActivity {
 		}
 
 		@Override
-		protected Boolean doInBackground(Void... params) {
+		protected List<SkinInfo> doInBackground(Void... params) {
 			try {
 				ServiceClient service = DdN.getServiceClient();
 				PlayRecord record = DdN.getPlayRecord();
@@ -121,7 +140,21 @@ public class SkinListActivity extends ListActivity {
 				}
 
 				m_store.updateSkins(service.getSkins());
-				return Boolean.TRUE;
+				List<SkinInfo> skins = m_store.loadSkins();
+				for (SkinInfo skin: skins) {
+					if (skin.image_path != null)
+						continue;
+
+					service.getSkinDetail(skin);
+					File file = skin.getThumbnailPath(getApplicationContext());
+					if (file != null) {
+						FileOutputStream out = new FileOutputStream(file);
+						service.download(skin.image_path, out);
+						out.close();
+						m_store.updateSkin(skin);
+					}
+				}
+				return skins;
 			}
 			catch (IOException e) {
 				e.printStackTrace();
@@ -129,14 +162,14 @@ public class SkinListActivity extends ListActivity {
 			catch (LoginFailedException e) {
 				e.printStackTrace();
 			}
-			return Boolean.FALSE;
+			return null;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(List<SkinInfo> result) {
 			m_progress.dismiss();
-			if (result)
-				refresh();
+			if (result != null)
+				m_adapter.setSkins(result);
 		}
 	}
 }

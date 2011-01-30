@@ -332,10 +332,21 @@ public class LocalStore extends ContextWrapper {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			for (SkinInfo skin: skins) {
-				if (SkinTable.insert(db, skin) < 0)
-					SkinTable.update(db, skin);
-			}
+			for (SkinInfo skin: skins)
+				SkinTable.insert(db, skin);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
+	public void updateSkin(SkinInfo skin) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			SkinTable.update(db, skin);
 			db.setTransactionSuccessful();
 		}
 		finally {

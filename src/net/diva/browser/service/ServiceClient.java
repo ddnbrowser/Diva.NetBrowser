@@ -206,6 +206,12 @@ public class ServiceClient {
 		return skins;
 	}
 
+	public void getSkinDetail(SkinInfo skin) throws IOException {
+		HttpGet request = new HttpGet(DdN.url("/divanet/skin/confirm/%s/%s/0", skin.group_id, skin.id));
+		HttpResponse response = m_client.execute(request);
+		Parser.Skin.parse(response.getEntity().getContent(), skin);
+	}
+
 	private void getFrom(String relative, Object... args) throws IOException {
 		m_client.execute(new HttpGet(DdN.URL.resolve(String.format(relative, args))));
 	}

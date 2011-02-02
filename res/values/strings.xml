@@ -65,5 +65,6 @@
     <string name="summary_applying">設定しています...</string>
     <string name="message_title_updating">称号一覧を更新中...</string>
     <string name="message_module_updating">モジュール一覧を更新中...</string>
+    <string name="not_purchased">(未購入)</string>
     <string name="message_skin_updating">更新しています...</string>
 </resources>

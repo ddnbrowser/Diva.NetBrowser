@@ -228,6 +228,7 @@ public final class Parser {
 	}
 
 	private static final Pattern RE_MODULE = Pattern.compile("<a href=\"/divanet/module/detail/(\\w+)/\\d+/\\d+\">(.+)</a>\\s*(\\(未購入\\))?");
+	private static final Pattern RE_MODULE_IMAGE = Pattern.compile("<img src=\"(/divanet/img/module/\\w+)\"");
 
 	public static String parseModuleList(InputStream content, List<Module> modules) {
 		String body = read(content);
@@ -242,6 +243,13 @@ public final class Parser {
 
 		m = m.usePattern(RE_NEXT);
 		return m.find() ? m.group(1) : null;
+	}
+
+	static void parseModuleDetail(InputStream content, Module module) {
+		String body = read(content);
+		Matcher m = RE_MODULE_IMAGE.matcher(body);
+		if (m.find())
+			module.image = m.group(1);
 	}
 
 	static class Skin {

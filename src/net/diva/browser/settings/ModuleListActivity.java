@@ -1,10 +1,13 @@
 package net.diva.browser.settings;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.service.LoginFailedException;
@@ -13,6 +16,7 @@ import android.app.ExpandableListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class ModuleListActivity extends ExpandableListActivity {
@@ -68,15 +73,17 @@ public class ModuleListActivity extends ExpandableListActivity {
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int group, int position, long id) {
 		Module module = (Module)m_adapter.getChild(group, position);
-		Intent data = new Intent(getIntent());
-		data.putExtra(String.format("vocal%d", m_request), module.id);
-		if (m_request < m_part) {
-			data.putExtra("request", m_request+1);
-			startActivityForResult(data, R.id.item_set_module);
-		}
-		else {
-			setResult(RESULT_OK, data);
-			finish();
+		if (module.purchased) {
+			Intent data = new Intent(getIntent());
+			data.putExtra(String.format("vocal%d", m_request), module.id);
+			if (m_request < m_part) {
+				data.putExtra("request", m_request+1);
+				startActivityForResult(data, R.id.item_set_module);
+			}
+			else {
+				setResult(RESULT_OK, data);
+				finish();
+			}
 		}
 		return true;
 	}
@@ -110,13 +117,29 @@ public class ModuleListActivity extends ExpandableListActivity {
 		@Override
 		protected Boolean doInBackground(Void... params) {
 			ServiceClient service = DdN.getServiceClient();
+			LocalStore store = DdN.getLocalStore();
 			try {
 				if (!service.isLogin())
 					service.login();
 
-				List<ModuleGroup> modules = service.getModules();
+				store.updateModules(service.getModules());
+				List<ModuleGroup> modules = store.loadModules();
+				for (ModuleGroup group: modules) {
+					for (Module module: group.modules) {
+						if (module.image != null)
+							continue;
+
+						service.getModuleDetail(module);
+						File file = module.getThumbnailPath(getApplicationContext());
+						if (file != null) {
+							FileOutputStream out = new FileOutputStream(file);
+							service.download(module.thumbnail, out);
+							out.close();
+							store.updateModule(module);
+						}
+					}
+				}
 				DdN.setModules(modules);
-				DdN.getLocalStore().updateModules(modules);
 				return Boolean.TRUE;
 			}
 			catch (LoginFailedException e) {
@@ -156,7 +179,7 @@ public class ModuleListActivity extends ExpandableListActivity {
 			notifyDataSetChanged();
 		}
 
-		public Object getChild(int group, int position) {
+		public Module getChild(int group, int position) {
 			List<Module> modules = m_modules.get(group).modules;
 			if (m_showAll)
 				return modules.get(position);
@@ -176,11 +199,24 @@ public class ModuleListActivity extends ExpandableListActivity {
 		public View getChildView(int group, int position, boolean flag, View view, ViewGroup parent) {
 			if (view == null) {
 				LayoutInflater inflater = LayoutInflater.from(m_context);
-				view = inflater.inflate(android.R.layout.simple_expandable_list_item_1, parent, false);
+				view = inflater.inflate(R.layout.module_item, parent, false);
 			}
 			TextView tv = (TextView)view.findViewById(android.R.id.text1);
-			Module module = (Module)getChild(group, position);
+			Module module = getChild(group, position);
 			tv.setText(module.name);
+			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
+			if (module.purchased) {
+				text2.setVisibility(View.GONE);
+			}
+			else {
+				text2.setVisibility(View.VISIBLE);
+				text2.setText(R.string.not_purchased);
+			}
+			Drawable thumbnail = module.getThumbnail(m_context);
+			if (thumbnail != null) {
+				ImageView iv = (ImageView)view.findViewById(R.id.thumbnail);
+				iv.setImageDrawable(thumbnail);
+			}
 			return view;
 		}
 
@@ -197,7 +233,7 @@ public class ModuleListActivity extends ExpandableListActivity {
 			return count;
 		}
 
-		public Object getGroup(int position) {
+		public ModuleGroup getGroup(int position) {
 			return m_modules.get(position);
 		}
 
@@ -215,7 +251,7 @@ public class ModuleListActivity extends ExpandableListActivity {
 				view = inflater.inflate(android.R.layout.simple_expandable_list_item_1, parent, false);
 			}
 			TextView tv = (TextView)view.findViewById(android.R.id.text1);
-			ModuleGroup group = (ModuleGroup)getGroup(position);
+			ModuleGroup group = getGroup(position);
 			tv.setText(group.name);
 			return view;
 		}
@@ -224,7 +260,7 @@ public class ModuleListActivity extends ExpandableListActivity {
 			return false;
 		}
 
-		public boolean isChildSelectable(int i, int j) {
+		public boolean isChildSelectable(int group, int position) {
 			return true;
 		}
 	}

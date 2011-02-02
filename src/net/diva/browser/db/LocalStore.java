@@ -24,7 +24,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 7;
+	private static final int VERSION = 8;
 
 	private static LocalStore m_instance;
 
@@ -138,6 +138,8 @@ public class LocalStore extends ContextWrapper {
 				ModuleTable.NAME,
 				ModuleTable.STATUS,
 				ModuleTable.GROUP_ID,
+				ModuleTable.IMAGE,
+				ModuleTable.THUMBNAIL,
 		}, null, null, null, null, ModuleTable._ID);
 		try {
 			while (cm.moveToNext()) {
@@ -145,6 +147,8 @@ public class LocalStore extends ContextWrapper {
 				module.id = cm.getString(0);
 				module.name = cm.getString(1);
 				module.purchased = cm.getInt(2) == 1;
+				module.image = cm.getString(4);
+				module.thumbnail = cm.getString(5);
 
 				ModuleGroup group = id2group.get(cm.getInt(3));
 				if (group != null)
@@ -304,6 +308,19 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public void updateModule(Module module) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			ModuleTable.update(db, module);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	public List<SkinInfo> loadSkins() {
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 
@@ -386,6 +403,8 @@ public class LocalStore extends ContextWrapper {
 				TitleTable.addImageIDColumn(db);
 			case 6:
 				db.execSQL(SkinTable.create_statement());
+			case 7:
+				ModuleTable.addImagePathColumn(db);
 			default:
 				break;
 			}

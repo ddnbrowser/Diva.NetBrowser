@@ -1,5 +1,6 @@
 package net.diva.browser.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
+import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
@@ -183,6 +185,13 @@ public class ServiceClient {
 
 		access();
 		return modules;
+	}
+
+	public void getModuleDetail(Module module) throws IOException {
+		HttpGet request = new HttpGet(DdN.url("/divanet/module/detail/%s/0/0", module.id));
+		HttpResponse response = m_client.execute(request);
+		Parser.parseModuleDetail(response.getEntity().getContent(), module);
+		module.thumbnail = String.format("/divanet/img/moduleTmb/%s", new File(module.image).getName());
 	}
 
 	public List<SkinInfo> getSkins() throws IOException {

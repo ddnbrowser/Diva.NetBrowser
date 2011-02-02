@@ -24,15 +24,17 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ModuleListActivity extends ExpandableListActivity {
+public class ModuleListActivity extends ExpandableListActivity implements AdapterView.OnItemClickListener {
 	private ModuleAdapter m_adapter;
 	private int m_request;
 	private int m_part;
+	private String m_key;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,7 +44,12 @@ public class ModuleListActivity extends ExpandableListActivity {
 		if (intent != null) {
 			m_request = intent.getIntExtra("request", 0);
 			m_part = intent.getIntExtra("part", 0);
-			if (m_part > 1) {
+			m_key = String.format("vocal%d", m_request);
+			Module module = DdN.getModule(intent.getStringExtra(m_key));
+			if (module != null) {
+				ExpandableListView listView = getExpandableListView();
+				listView.addHeaderView(getModuleView(this, module, null, listView), module, true);
+				listView.setOnItemClickListener(this);
 			}
 		}
 		m_adapter = new ModuleAdapter(this, DdN.getModules());
@@ -70,12 +77,20 @@ public class ModuleListActivity extends ExpandableListActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		onSelectModule((Module)parent.getItemAtPosition(position));
+	}
+
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v, int group, int position, long id) {
-		Module module = (Module)m_adapter.getChild(group, position);
+		onSelectModule(m_adapter.getChild(group, position));
+		return true;
+	}
+
+	private void onSelectModule(Module module) {
 		if (module.purchased) {
 			Intent data = new Intent(getIntent());
-			data.putExtra(String.format("vocal%d", m_request), module.id);
+			data.putExtra(m_key, module.id);
 			if (m_request < m_part) {
 				data.putExtra("request", m_request+1);
 				startActivityForResult(data, R.id.item_set_module);
@@ -85,7 +100,6 @@ public class ModuleListActivity extends ExpandableListActivity {
 				finish();
 			}
 		}
-		return true;
 	}
 
 	@Override
@@ -101,6 +115,33 @@ public class ModuleListActivity extends ExpandableListActivity {
 			super.onActivityResult(requestCode, resultCode, data);
 			break;
 		}
+	}
+
+	private static View getModuleView(Context context, Module module, View view, ViewGroup parent) {
+		if (view == null) {
+			LayoutInflater inflater = LayoutInflater.from(context);
+			view = inflater.inflate(R.layout.module_item, parent, false);
+		}
+
+		TextView text1 = (TextView)view.findViewById(android.R.id.text1);
+		text1.setText(module.name);
+
+		TextView text2 = (TextView)view.findViewById(android.R.id.text2);
+		if (module.purchased) {
+			text2.setVisibility(View.GONE);
+		}
+		else {
+			text2.setVisibility(View.VISIBLE);
+			text2.setText(R.string.not_purchased);
+		}
+
+		Drawable thumbnail = module.getThumbnail(context);
+		if (thumbnail != null) {
+			ImageView iv = (ImageView)view.findViewById(R.id.thumbnail);
+			iv.setImageDrawable(thumbnail);
+		}
+
+		return view;
 	}
 
 	private class UpdateTask extends AsyncTask<Void, Void, Boolean> {
@@ -197,27 +238,7 @@ public class ModuleListActivity extends ExpandableListActivity {
 		}
 
 		public View getChildView(int group, int position, boolean flag, View view, ViewGroup parent) {
-			if (view == null) {
-				LayoutInflater inflater = LayoutInflater.from(m_context);
-				view = inflater.inflate(R.layout.module_item, parent, false);
-			}
-			TextView tv = (TextView)view.findViewById(android.R.id.text1);
-			Module module = getChild(group, position);
-			tv.setText(module.name);
-			TextView text2 = (TextView)view.findViewById(android.R.id.text2);
-			if (module.purchased) {
-				text2.setVisibility(View.GONE);
-			}
-			else {
-				text2.setVisibility(View.VISIBLE);
-				text2.setText(R.string.not_purchased);
-			}
-			Drawable thumbnail = module.getThumbnail(m_context);
-			if (thumbnail != null) {
-				ImageView iv = (ImageView)view.findViewById(R.id.thumbnail);
-				iv.setImageDrawable(thumbnail);
-			}
-			return view;
+			return getModuleView(m_context, getChild(group, position), view, parent);
 		}
 
 		public int getChildrenCount(int group) {

@@ -3,10 +3,12 @@ package net.diva.browser.settings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.WebBrowseActivity;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
@@ -17,6 +19,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -99,6 +102,13 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 				setResult(RESULT_OK, data);
 				finish();
 			}
+		}
+		else {
+			URI url = DdN.url("/divanet/module/detailShop/%s/0/0", module.id);
+			Intent intent = new Intent(
+					Intent.ACTION_VIEW, Uri.parse(url.toString()),
+					getApplicationContext(), WebBrowseActivity.class);
+			startActivity(intent);
 		}
 	}
 

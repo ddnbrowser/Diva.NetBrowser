@@ -273,7 +273,6 @@ public class MusicListActivity extends ListActivity {
 		Intent intent = new Intent(
 				Intent.ACTION_VIEW, Uri.parse(DdN.url(relative)),
 				getApplicationContext(), WebBrowseActivity.class);
-		intent.putExtra("cookies", m_service.cookies());
 		startActivity(intent);
 	}
 

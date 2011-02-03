@@ -34,7 +34,7 @@ public class WebBrowseActivity extends Activity {
 
 		Intent intent = getIntent();
 		String url = intent.getDataString();
-		String cookies = intent.getStringExtra("cookies");
+		String cookies = m_service.cookies();
 		if (cookies == null)
 			new LoginTask().execute(url);
 		else

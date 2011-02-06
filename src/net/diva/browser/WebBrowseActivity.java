@@ -71,7 +71,7 @@ public class WebBrowseActivity extends Activity {
 	private class LoginTask extends AsyncTask<String, Void, String[]> {
 		@Override
 		protected void onPreExecute() {
-			setContentView(R.layout.login_waiting);
+			setContentView(R.layout.waiting);
 		}
 
 		@Override

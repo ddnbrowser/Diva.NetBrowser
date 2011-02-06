@@ -123,11 +123,14 @@ public class ServiceClient {
 		}
 	}
 
-	public void download(String path, OutputStream out) throws IOException {
-		URI url = DdN.URL.resolve(path);
-		HttpGet request = new HttpGet(url);
+	public InputStream download(String path) throws IOException {
+		HttpGet request = new HttpGet(DdN.URL.resolve(path));
 		HttpResponse response = m_client.execute(request);
-		InputStream in = response.getEntity().getContent();
+		return response.getEntity().getContent();
+	}
+
+	public void download(String path, OutputStream out) throws IOException {
+		InputStream in = download(path);
 		byte[] buffer = new byte[1024];
 		for (int read; (read = in.read(buffer)) != -1;)
 			out.write(buffer, 0, read);
@@ -221,15 +224,21 @@ public class ServiceClient {
 		Parser.Skin.parse(response.getEntity().getContent(), skin);
 	}
 
+	public String getShopDetail(String path, List<NameValuePair> details) throws IOException {
+		HttpGet request = new HttpGet(DdN.URL.resolve(path));
+		HttpResponse response = m_client.execute(request);
+		return Parser.Shop.parse(response.getEntity().getContent(), details);
+	}
+
 	private void getFrom(String relative, Object... args) throws IOException {
 		m_client.execute(new HttpGet(DdN.URL.resolve(String.format(relative, args))));
 	}
 
-	private void postTo(String relative) throws IOException {
-		postTo(relative, null);
+	private HttpResponse postTo(String relative) throws IOException {
+		return postTo(relative, null);
 	}
 
-	private void postTo(String relative, HttpEntity entity) throws IOException {
+	private HttpResponse postTo(String relative, HttpEntity entity) throws IOException {
 		HttpPost request = new HttpPost(DdN.URL.resolve(relative));
 		if (entity != null)
 			request.setEntity(entity);
@@ -239,6 +248,7 @@ public class ServiceClient {
 			throw new IOException();
 
 		access();
+		return response;
 	}
 
 	public void setTitle(String title_id) throws IOException {
@@ -284,5 +294,11 @@ public class ServiceClient {
 
 	public void unsetSkin() throws IOException {
 		postTo("/divanet/skin/unset/");
+	}
+
+	public void buyModule(String id) throws OperationFailedException, IOException {
+		HttpResponse response = postTo(String.format("/divanet/module/buy/%s", id));
+		if (!Parser.Shop.isSuccess(response.getEntity().getContent()))
+			throw new OperationFailedException();
 	}
 }

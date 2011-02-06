@@ -17,6 +17,7 @@
         <activity android:name=".settings.TitleListActivity"></activity>
         <activity android:name=".settings.ModuleListActivity"></activity>
         <activity android:name=".settings.SkinListActivity"></activity>
+        <activity android:name=".settings.ShopActivity" android:theme="@style/Theme.Translucent"></activity>
         <receiver android:name=".DdNBrowserReceiver">
             <intent-filter>
                 <action android:name="net.diva.browser.action.DOWNLOAD_RANKING"></action>

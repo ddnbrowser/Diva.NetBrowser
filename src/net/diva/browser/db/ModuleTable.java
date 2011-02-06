@@ -58,7 +58,8 @@ final class ModuleTable implements BaseColumns {
 	}
 
 	static boolean update(SQLiteDatabase db, Module module) {
-		ContentValues values = new ContentValues(2);
+		ContentValues values = new ContentValues(3);
+		values.put(STATUS, module.purchased ? 1 : 0);
 		values.put(IMAGE, module.image);
 		values.put(THUMBNAIL, module.thumbnail);
 		return db.update(TABLE_NAME, values, WHERE_IDENTITY, new String[] { module.id }) == 1;

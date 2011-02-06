@@ -3,12 +3,10 @@ package net.diva.browser.settings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
-import net.diva.browser.WebBrowseActivity;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
@@ -32,6 +30,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class ModuleListActivity extends ExpandableListActivity implements AdapterView.OnItemClickListener {
 	private ModuleAdapter m_adapter;
@@ -104,11 +103,10 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			}
 		}
 		else {
-			URI url = DdN.url("/divanet/module/detailShop/%s/0/0", module.id);
-			Intent intent = new Intent(
-					Intent.ACTION_VIEW, Uri.parse(url.toString()),
-					getApplicationContext(), WebBrowseActivity.class);
-			startActivity(intent);
+			Intent intent = new Intent(getApplicationContext(), ShopActivity.class);
+			intent.setData(Uri.parse(DdN.url("/divanet/module/detailShop/%s/0/0", module.id).toString()));
+			intent.putExtra(m_key, module.id);
+			startActivityForResult(intent, R.id.item_confirm_buying);
 		}
 	}
 
@@ -119,6 +117,12 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			if (resultCode == RESULT_OK) {
 				setResult(RESULT_OK, data);
 				finish();
+			}
+			break;
+		case R.id.item_confirm_buying:
+			if (resultCode == RESULT_OK) {
+				Module module = DdN.getModule(data.getStringExtra(m_key));
+				new BuyTask().execute(module);
 			}
 			break;
 		default:
@@ -207,6 +211,47 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			m_progress.dismiss();
 			if (result)
 				m_adapter.setModules(DdN.getModules());
+		}
+	}
+
+	private class BuyTask extends AsyncTask<Module, Void, Boolean> {
+		private ProgressDialog m_progress;
+
+		@Override
+		protected void onPreExecute() {
+			m_progress = new ProgressDialog(ModuleListActivity.this);
+			m_progress.setMessage(getString(R.string.buying));
+			m_progress.setIndeterminate(true);
+			m_progress.show();
+		}
+
+		@Override
+		protected Boolean doInBackground(Module... params) {
+			Module module = params[0];
+			ServiceClient service = DdN.getServiceClient();
+			LocalStore store = DdN.getLocalStore();
+			try {
+				if (!service.isLogin())
+					service.login();
+
+				service.buyModule(module.id);
+				module.purchased = true;
+				store.updateModule(module);
+				return Boolean.TRUE;
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+			return Boolean.FALSE;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+			m_progress.dismiss();
+			if (result)
+				m_adapter.notifyDataSetChanged();
+			else
+				Toast.makeText(ModuleListActivity.this, R.string.faile_buying, Toast.LENGTH_SHORT).show();
 		}
 	}
 

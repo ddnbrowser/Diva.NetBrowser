@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent"
+  android:orientation="vertical"
+  android:padding="20dip">
+	<ImageView android:id="@+id/thumbnail"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:adjustViewBounds="true"
+		android:src="@drawable/pv_012"
+		android:scaleType="fitCenter"
+		android:layout_weight="1"
+		/>
+	<LinearLayout android:id="@+id/details"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:layout_weight="1"
+		/>
+	<Button android:id="@+id/button_buy"
+		android:layout_height="wrap_content"
+		android:layout_width="fill_parent"
+		android:text="@string/button_buy"
+		android:gravity="center"/>
+</LinearLayout>

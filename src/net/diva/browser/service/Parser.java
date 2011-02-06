@@ -9,6 +9,9 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -279,6 +282,26 @@ public final class Parser {
 			Matcher m = RE_IMAGE.matcher(body);
 			if (m.find())
 				skin.image_path = m.group(1);
+		}
+	}
+
+	static class Shop {
+		private static final Pattern RE_IMAGE = Pattern.compile("<img src=\"(/divanet/[^\"]+)\"");
+		private static final Pattern RE_ITEM = Pattern.compile("(\\[.+\\])</font><br>\\s*(.+)<");
+
+		static String parse(InputStream content, List<NameValuePair> details) {
+			String body = read(content);
+			Matcher m = RE_ITEM.matcher(body);
+			while (m.find())
+				details.add(new BasicNameValuePair(m.group(1), m.group(2)));
+
+			m = m.usePattern(RE_IMAGE);
+			return m.find() ? m.group(1) : null;
+		}
+
+		static boolean isSuccess(InputStream content) {
+			String body = read(content);
+			return body.contains("購入しました");
 		}
 	}
 }

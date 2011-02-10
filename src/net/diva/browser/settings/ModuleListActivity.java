@@ -3,6 +3,7 @@ package net.diva.browser.settings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
@@ -258,15 +259,34 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 	private static class ModuleAdapter extends BaseExpandableListAdapter {
 		Context m_context;
 		List<ModuleGroup> m_modules;
+		List<ModuleGroup> m_groups;
+		List<List<Module>> m_purchased;
 		boolean m_showAll = false;
 
 		ModuleAdapter(Context context, List<ModuleGroup> modules) {
 			m_context = context;
-			m_modules = modules;
+			setModules(modules);
 		}
 
 		void setModules(List<ModuleGroup> modules) {
 			m_modules = modules;
+
+			List<ModuleGroup> groups = new ArrayList<ModuleGroup>();;
+			List<List<Module>> purchased = new ArrayList<List<Module>>();
+			for (ModuleGroup group: modules) {
+				List<Module> list = new ArrayList<Module>();
+				for (Module module: group.modules) {
+					if (module.purchased)
+						list.add(module);
+				}
+				if (!list.isEmpty()) {
+					groups.add(group);
+					purchased.add(list);
+				}
+			}
+			m_groups = groups;
+			m_purchased = purchased;
+
 			notifyDataSetChanged();
 		}
 
@@ -276,16 +296,10 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		}
 
 		public Module getChild(int group, int position) {
-			List<Module> modules = m_modules.get(group).modules;
 			if (m_showAll)
-				return modules.get(position);
-
-			int count = 0;
-			for (Module module: m_modules.get(group).modules) {
-				if (module.purchased && count++ == position)
-					return module;
-			}
-			return null;
+				return m_modules.get(group).modules.get(position);
+			else
+				return m_purchased.get(group).get(position);
 		}
 
 		public long getChildId(int group, int position) {
@@ -297,24 +311,18 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		}
 
 		public int getChildrenCount(int group) {
-			List<Module> modules = m_modules.get(group).modules;
 			if (m_showAll)
-				return modules.size();
-
-			int count = 0;
-			for (Module module: m_modules.get(group).modules) {
-				if (module.purchased)
-					++count;
-			}
-			return count;
+				return m_modules.get(group).modules.size();
+			else
+				return m_purchased.get(group).size();
 		}
 
 		public ModuleGroup getGroup(int position) {
-			return m_modules.get(position);
+			return m_showAll ? m_modules.get(position) : m_groups.get(position);
 		}
 
 		public int getGroupCount() {
-			return m_modules.size();
+			return m_showAll ? m_modules.size() : m_groups.size();
 		}
 
 		public long getGroupId(int position) {

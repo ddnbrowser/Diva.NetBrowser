@@ -274,7 +274,7 @@ public final class Parser {
 			String body = read(content);
 			Matcher m = RE_SKIN.matcher(body);
 			while (m.find())
-				skins.add(new SkinInfo(m.group(1), m.group(2), m.group(3), true));
+				skins.add(new SkinInfo(m.group(2), m.group(1), m.group(3), true));
 		}
 
 		static void parse(InputStream content, SkinInfo skin) {
@@ -290,7 +290,7 @@ public final class Parser {
 			String body = read(content);
 			Matcher m = RE_SHOP_ITEM.matcher(body);
 			while (m.find())
-				skins.add(new SkinInfo(m.group(1), m.group(2), m.group(3), false));
+				skins.add(new SkinInfo(m.group(2), m.group(1), m.group(3), false));
 
 			m = m.usePattern(RE_NEXT);
 			return m.find() ? m.group(1) : null;

@@ -233,7 +233,7 @@ public class ServiceClient {
 	}
 
 	public void getSkinDetail(SkinInfo skin) throws IOException {
-		URI url = DdN.url("/divanet/skin/%s/%s/%s/0", skin.purchased ? "confirm" : "detail", skin.group_id, skin.id);
+		URI url = DdN.url("/divanet/skin/%s/%s/%s/0", skin.purchased ? "confirm" : "detail", skin.id, skin.group_id);
 		HttpGet request = new HttpGet(url);
 		HttpResponse response = m_client.execute(request);
 		Parser.Skin.parse(response.getEntity().getContent(), skin);
@@ -304,7 +304,7 @@ public class ServiceClient {
 	}
 
 	public void setSkin(String group_id, String skin_id) throws IOException {
-		postTo(String.format("/divanet/skin/update/%s/%s", group_id, skin_id));
+		postTo(String.format("/divanet/skin/update/%s/%s", skin_id, group_id));
 	}
 
 	public void unsetSkin() throws IOException {
@@ -318,7 +318,7 @@ public class ServiceClient {
 	}
 
 	public void buySkin(String group_id, String skin_id) throws OperationFailedException, IOException {
-		HttpResponse response = postTo(String.format("/divanet/skin/buy/%s/%s", group_id, skin_id));
+		HttpResponse response = postTo(String.format("/divanet/skin/buy/%s/%s", skin_id, group_id));
 		if (!Parser.Shop.isSuccess(response.getEntity().getContent()))
 			throw new OperationFailedException();
 	}

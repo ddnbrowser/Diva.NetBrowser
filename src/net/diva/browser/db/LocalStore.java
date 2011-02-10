@@ -24,7 +24,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 9;
+	private static final int VERSION = 10;
 
 	private static LocalStore m_instance;
 
@@ -410,6 +410,8 @@ public class LocalStore extends ContextWrapper {
 				ModuleTable.addImagePathColumn(db);
 			case 8:
 				SkinTable.addStatusColumn(db);
+			case 9:
+				db.execSQL(String.format("DELETE FROM %s;", SkinTable.TABLE_NAME));
 			default:
 				break;
 			}

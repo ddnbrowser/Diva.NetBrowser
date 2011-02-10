@@ -24,7 +24,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 8;
+	private static final int VERSION = 9;
 
 	private static LocalStore m_instance;
 
@@ -330,10 +330,11 @@ public class LocalStore extends ContextWrapper {
 				SkinTable.ID,
 				SkinTable.NAME,
 				SkinTable.PATH,
+				SkinTable.STATUS,
 		}, null, null, null, null, SkinTable._ID);
 		try {
 			while (c.moveToNext()) {
-				SkinInfo skin = new SkinInfo(c.getString(0), c.getString(1), c.getString(2));
+				SkinInfo skin = new SkinInfo(c.getString(0), c.getString(1), c.getString(2), c.getInt(4) == 1);
 				skin.image_path = c.getString(3);
 				skins.add(skin);
 			}
@@ -349,8 +350,10 @@ public class LocalStore extends ContextWrapper {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			for (SkinInfo skin: skins)
-				SkinTable.insert(db, skin);
+			for (SkinInfo skin: skins) {
+				if (!SkinTable.update(db, skin))
+					SkinTable.insert(db, skin);
+			}
 			db.setTransactionSuccessful();
 		}
 		finally {
@@ -405,6 +408,8 @@ public class LocalStore extends ContextWrapper {
 				db.execSQL(SkinTable.create_statement());
 			case 7:
 				ModuleTable.addImagePathColumn(db);
+			case 8:
+				SkinTable.addStatusColumn(db);
 			default:
 				break;
 			}

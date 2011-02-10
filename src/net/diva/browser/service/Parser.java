@@ -274,7 +274,7 @@ public final class Parser {
 			String body = read(content);
 			Matcher m = RE_SKIN.matcher(body);
 			while (m.find())
-				skins.add(new SkinInfo(m.group(1), m.group(2), m.group(3)));
+				skins.add(new SkinInfo(m.group(1), m.group(2), m.group(3), true));
 		}
 
 		static void parse(InputStream content, SkinInfo skin) {
@@ -282,6 +282,18 @@ public final class Parser {
 			Matcher m = RE_IMAGE.matcher(body);
 			if (m.find())
 				skin.image_path = m.group(1);
+		}
+
+		private static final Pattern RE_SHOP_ITEM = Pattern.compile("<a href=\"/divanet/skin/detail/(\\w+)/(\\w+)/\\d+\">(.+)</a>");
+
+		static String parseShop(InputStream content, List<SkinInfo> skins) {
+			String body = read(content);
+			Matcher m = RE_SHOP_ITEM.matcher(body);
+			while (m.find())
+				skins.add(new SkinInfo(m.group(1), m.group(2), m.group(3), false));
+
+			m = m.usePattern(RE_NEXT);
+			return m.find() ? m.group(1) : null;
 		}
 	}
 

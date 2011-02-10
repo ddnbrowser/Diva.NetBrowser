@@ -11,11 +11,13 @@ public class SkinInfo {
 	public String id;
 	public String name;
 	public String image_path;
+	public boolean purchased;
 
-	public SkinInfo(String group_id_, String id_, String name_) {
+	public SkinInfo(String group_id_, String id_, String name_, boolean purchased_) {
 		group_id = group_id_;
 		id = id_;
 		name = name_;
+		purchased = purchased_;
 	}
 
 	public File getThumbnailPath(Context context) {

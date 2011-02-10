@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="fill_parent" android:layout_height="fill_parent">
-  <ListView android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_weight="1" android:id="@id/android:list"></ListView>
-  <RelativeLayout android:layout_width="fill_parent" android:layout_weight="1" android:layout_height="fill_parent" android:id="@id/android:empty">
-      <TextView android:text="設定可能な称号はありません" android:layout_weight="1" android:layout_centerInParent="true" android:layout_height="wrap_content" android:layout_width="wrap_content"/>
-  </RelativeLayout>
-</LinearLayout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	>
+	<ListView android:id="@id/android:list"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		/>
+	<RelativeLayout android:id="@id/android:empty"
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		>
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_centerInParent="true"
+			android:gravity="center"
+			android:text="設定可能な称号はありません\nメニューを開いて更新を選択して下さい"
+			/>
+	</RelativeLayout>
+</FrameLayout>

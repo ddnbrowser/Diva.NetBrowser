@@ -88,12 +88,14 @@ public abstract class ConfigItem {
 		protected Boolean doInBackground(Intent... params) {
 			try {
 				ServiceClient service = DdN.getServiceClient();
+				LocalStore store = DdN.getLocalStore();
 				if (!service.isLogin()) {
 					PlayRecord record = service.login();
+					store.update(record);
 					DdN.setPlayRecord(record);
 				}
 
-				return apply(service, DdN.getLocalStore(), params[0]);
+				return apply(service, store, params[0]);
 			}
 			catch (IOException e) {
 				e.printStackTrace();

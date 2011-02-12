@@ -191,7 +191,7 @@ public class MusicListActivity extends ListActivity {
 		switch (requestCode) {
 		case R.id.item_game_settings:
 			if (resultCode == RESULT_OK)
-				setPlayRecord(DdN.getPlayRecord());
+				refresh();
 			break;
 		case R.id.item_tool_settings:
 			if (m_preferences.getBoolean("download_rankin", false))
@@ -208,17 +208,8 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	public void setPlayRecord(PlayRecord record) {
-		setPlayRecord(record, record.musics);
-	}
-
-	public void setPlayRecord(PlayRecord record, List<MusicInfo> music) {
-		DdN.setPlayRecord(record);
-
-		if (music != null)
-			m_adapter.setData(music);
-		else
-			m_adapter.notifyDataSetChanged();
+	public void refresh() {
+		PlayRecord record = DdN.getPlayRecord();
 
 		String title = DdN.getTitle(record.title_id);
 		if (title == null) {
@@ -227,6 +218,8 @@ public class MusicListActivity extends ListActivity {
 		}
 		m_player_name.setText(record.player_name);
 		m_level_rank.setText(rankText(record, title));
+
+		m_adapter.setData(record.musics);
 	}
 
 	public void setDifficulty(int difficulty) {
@@ -399,7 +392,7 @@ public class MusicListActivity extends ListActivity {
 				account.putTo(editor);
 				editor.putLong("last_updated", System.currentTimeMillis());
 				editor.commit();
-				return record;
+				return DdN.setPlayRecord(record);
 			}
 			catch (LoginFailedException e) {
 				e.printStackTrace();
@@ -421,7 +414,7 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onPostExecute(PlayRecord result) {
 			if (result != null)
-				setPlayRecord(result);
+				refresh();
 			m_progress.dismiss();
 		}
 	}
@@ -463,13 +456,13 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected PlayRecord doInBackground(DdN.Account... args) {
 			DdN.setTitles(m_store.getTitles());
-			return m_store.load(args[0].access_code);
+			return DdN.setPlayRecord(m_store.load(args[0].access_code));
 		}
 
 		@Override
 		protected void onPostExecute(PlayRecord result) {
 			if (result != null)
-				setPlayRecord(result);
+				refresh();
 			m_progress.dismiss();
 		}
 	}
@@ -569,6 +562,7 @@ public class MusicListActivity extends ListActivity {
 				if (!m_service.isLogin()) {
 					record = m_service.login();
 					m_store.update(record);
+					DdN.setPlayRecord(record);
 				}
 
 				doTask(params);
@@ -588,7 +582,7 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onPostExecute(PlayRecord result) {
 			if (result != null)
-				setPlayRecord(result, null);
+				refresh();
 			m_progress.dismiss();
 		}
 	}

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.diva.browser;
 
@@ -49,8 +49,12 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 	}
 
 	public void setData(List<MusicInfo> music) {
-		m_musics = music;
-		setDifficulty(m_difficulty);
+		if (m_musics == music)
+			notifyDataSetChanged();
+		else {
+			m_musics = music;
+			setDifficulty(m_difficulty);
+		}
 	}
 
 	public void setDifficulty(int difficulty) {

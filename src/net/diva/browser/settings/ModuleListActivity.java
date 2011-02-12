@@ -288,7 +288,7 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		}
 
 		public long getGroupId(int position) {
-			return position;
+			return getGroup(position).id;
 		}
 
 		public View getGroupView(int position, boolean flag, View view, ViewGroup parent) {

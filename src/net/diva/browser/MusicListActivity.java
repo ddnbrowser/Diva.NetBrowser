@@ -45,7 +45,6 @@ public class MusicListActivity extends ListActivity {
 	private MusicAdapter m_adapter;
 
 	private SharedPreferences m_preferences;
-	private ServiceClient m_service;
 	private LocalStore m_store;
 
 	/** Called when the activity is first created. */
@@ -90,7 +89,6 @@ public class MusicListActivity extends ListActivity {
 			DdN.Account.input(this, new PlayRecordDownloader());
 			return;
 		}
-		m_service = DdN.getServiceClient(account);
 
 		new PlayRecordLoader().execute(account);
 	}
@@ -388,7 +386,6 @@ public class MusicListActivity extends ListActivity {
 					publishProgress(1);
 				}
 
-				m_service = service;
 				m_store.insert(record);
 				SharedPreferences.Editor editor = m_preferences.edit();
 				account.putTo(editor);
@@ -459,13 +456,13 @@ public class MusicListActivity extends ListActivity {
 		protected String doInBackground(PlayRecord... params) {
 			PlayRecord record = params[0];
 			try {
-				if (!m_service.isLogin()) {
-					record = m_service.login();
-					record.musics = params[0].musics;
+				ServiceClient service = DdN.getServiceClient();
+				if (!service.isLogin()) {
+					record = DdN.setPlayRecord(service.login());
 					m_store.update(record);
 				}
 
-				List<TitleInfo> titles = m_service.getTitles(DdN.getTitles());
+				List<TitleInfo> titles = service.getTitles(DdN.getTitles());
 				m_store.updateTitles(titles);
 				DdN.setTitles(titles);
 				String title = DdN.getTitle(record.title_id);

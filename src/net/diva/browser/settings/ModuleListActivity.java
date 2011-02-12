@@ -158,7 +158,7 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 
 	private class UpdateTask extends ServiceTask<Void, Void, Boolean> {
 		UpdateTask() {
-			super(ModuleListActivity.this, R.string.message_module_updating);
+			super(ModuleListActivity.this, R.string.message_updating);
 		}
 
 		@Override

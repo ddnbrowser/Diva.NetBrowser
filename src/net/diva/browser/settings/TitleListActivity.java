@@ -97,7 +97,7 @@ public class TitleListActivity extends ListActivity {
 
 	private class TitleDownloader extends ServiceTask<Void, Void, Boolean> {
 		TitleDownloader() {
-			super(TitleListActivity.this, R.string.message_title_updating);
+			super(TitleListActivity.this, R.string.message_updating);
 		}
 
 		@Override

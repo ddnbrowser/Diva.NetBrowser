@@ -173,7 +173,7 @@ public class SkinListActivity extends ListActivity {
 
 	private class SkinDownloader extends ServiceTask<Void, Void, List<SkinInfo>> {
 		SkinDownloader() {
-			super(SkinListActivity.this, R.string.message_skin_updating);
+			super(SkinListActivity.this, R.string.message_updating);
 		}
 
 		@Override

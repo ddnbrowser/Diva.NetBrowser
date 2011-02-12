@@ -26,10 +26,8 @@
     <string name="item_update">更新</string>
     <string name="item_toggle_show_all">表示切替</string>
     <string name="message_downloading">プレイデータの取得中...</string>
-    <string name="message_music_updating">楽曲情報を更新中...</string>
-    <string name="message_loading">プレイデータの読み込み中...</string>
+    <string name="message_loading">読み込み中...</string>
     <string name="message_login_processing">ログイン中...</string>
-    <string name="message_set_title">称号を設定しています...</string>
     <string name="message_set_module">楽曲別モジュールを設定します。よろしいですか?</string>
     <string name="message_reset_module">楽曲別モジュールを未設定にします。よろしいですか?</string>
     <string name="category_web">Web画面設定</string>
@@ -37,9 +35,9 @@
     <string name="summary_enable_builtin_zoom">ズームボタンの表示/非表示を切り替えます</string>
     <string name="category_ranking">ランキング</string>
     <string name="download_rankin">ランクイン情報を取得</string>
-    <string name="summary_download_rankin">有効にするとランクイン情報を定期的に取得します。</string>
+    <string name="summary_download_rankin">有効にするとランクイン情報を定期的に取得します</string>
     <string name="notify_ranking_updated">更新を通知</string>
-    <string name="summary_notify_ranking_updated">ランクイン情報を更新した時にステータスバーで通知します。</string>
+    <string name="summary_notify_ranking_updated">ランクイン情報を更新した時にステータスバーで通知します</string>
     <string name="notification_ranking_updated">ランキング情報を更新しました</string>
     <string name="category_title">称号設定</string>
     <string name="description_title">設定中の称号</string>
@@ -63,11 +61,8 @@
     <string name="message_unset_skin">スキンを未設定にします。よろしいですか?</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
-    <string name="message_title_updating">称号一覧を更新中...</string>
-    <string name="message_module_updating">モジュール一覧を更新中...</string>
+    <string name="message_updating">更新しています...</string>
     <string name="not_purchased">(未購入)</string>
-    <string name="message_skin_updating">更新しています...</string>
-    <string name="loading">読み込み中...</string>
     <string name="failed_load_details">詳細情報の取得に失敗しました</string>
     <string name="button_buy">購入する</string>
     <string name="buying">購入しています...</string>

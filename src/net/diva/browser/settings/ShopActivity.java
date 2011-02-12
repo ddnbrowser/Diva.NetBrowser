@@ -33,7 +33,7 @@ public class ShopActivity extends Activity implements View.OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.waiting);
 		TextView text = (TextView)findViewById(R.id.message);
-		text.setText(R.string.loading);
+		text.setText(R.string.message_loading);
 		new LoadDetailTask().execute(getIntent().getDataString());
 	}
 

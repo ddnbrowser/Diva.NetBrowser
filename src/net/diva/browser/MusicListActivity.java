@@ -420,7 +420,7 @@ public class MusicListActivity extends ListActivity {
 
 	private class MusicUpdateTask extends BasicTask<MusicInfo> {
 		public MusicUpdateTask() {
-			super(R.string.message_music_updating);
+			super(R.string.message_updating);
 		}
 
 		@Override

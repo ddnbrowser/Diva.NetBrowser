@@ -2,24 +2,20 @@ package net.diva.browser.settings;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
-import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.SkinInfo;
-import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.service.ServiceTask;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -175,98 +171,59 @@ public class SkinListActivity extends ListActivity {
 		}
 	}
 
-	private class SkinDownloader extends AsyncTask<Void, Void, List<SkinInfo>> {
-		private ProgressDialog m_progress;
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(SkinListActivity.this);
-			m_progress.setMessage(getString(R.string.message_skin_updating));
-			m_progress.setIndeterminate(true);
-			m_progress.show();
+	private class SkinDownloader extends ServiceTask<Void, Void, List<SkinInfo>> {
+		SkinDownloader() {
+			super(SkinListActivity.this, R.string.message_skin_updating);
 		}
 
 		@Override
-		protected List<SkinInfo> doInBackground(Void... params) {
-			try {
-				ServiceClient service = DdN.getServiceClient();
-				PlayRecord record = DdN.getPlayRecord();
-				if (!service.isLogin()) {
-					record = DdN.setPlayRecord(service.login());
-					m_store.update(record);
+		protected List<SkinInfo> doTask(ServiceClient service, Void... params) throws Exception {
+			List<SkinInfo> skins = service.getSkins();
+			skins.addAll(service.getSkinsFromShop());
+			m_store.updateSkins(skins);
+			skins = m_store.loadSkins();
+
+			for (SkinInfo skin: skins) {
+				if (skin.image_path != null)
+					continue;
+
+				service.getSkinDetail(skin);
+				File file = skin.getThumbnailPath(getApplicationContext());
+				if (file != null) {
+					FileOutputStream out = new FileOutputStream(file);
+					service.download(skin.image_path, out);
+					out.close();
+					m_store.updateSkin(skin);
 				}
-
-				List<SkinInfo> skins = service.getSkins();
-				skins.addAll(service.getSkinsFromShop());
-				m_store.updateSkins(skins);
-				skins = m_store.loadSkins();
-
-				for (SkinInfo skin: skins) {
-					if (skin.image_path != null)
-						continue;
-
-					service.getSkinDetail(skin);
-					File file = skin.getThumbnailPath(getApplicationContext());
-					if (file != null) {
-						FileOutputStream out = new FileOutputStream(file);
-						service.download(skin.image_path, out);
-						out.close();
-						m_store.updateSkin(skin);
-					}
-				}
-				return skins;
 			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
-			}
-			return null;
+			return skins;
 		}
 
 		@Override
-		protected void onPostExecute(List<SkinInfo> result) {
-			m_progress.dismiss();
+		protected void onResult(List<SkinInfo> result) {
 			if (result != null)
 				m_adapter.setSkins(result);
 		}
 	}
 
-	private class BuyTask extends AsyncTask<SkinInfo, Void, Boolean> {
-		private ProgressDialog m_progress;
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(SkinListActivity.this);
-			m_progress.setMessage(getString(R.string.buying));
-			m_progress.setIndeterminate(true);
-			m_progress.show();
+	private class BuyTask extends ServiceTask<SkinInfo, Void, Boolean> {
+		BuyTask() {
+			super(SkinListActivity.this, R.string.buying);
 		}
 
 		@Override
-		protected Boolean doInBackground(SkinInfo... params) {
+		protected Boolean doTask(ServiceClient service, SkinInfo... params) throws Exception {
 			SkinInfo skin = params[0];
-			ServiceClient service = DdN.getServiceClient();
 			LocalStore store = DdN.getLocalStore();
-			try {
-				if (!service.isLogin())
-					service.login();
 
-				service.buySkin(skin.group_id, skin.id);
-				skin.purchased = true;
-				store.updateSkin(skin);
-				return Boolean.TRUE;
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-			return Boolean.FALSE;
+			service.buySkin(skin.group_id, skin.id);
+			skin.purchased = true;
+			store.updateSkin(skin);
+			return Boolean.TRUE;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			m_progress.dismiss();
+		protected void onResult(Boolean result) {
 			if (result)
 				m_adapter.notifyDataSetChanged();
 			else

@@ -2,7 +2,6 @@ package net.diva.browser.settings;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,15 +10,13 @@ import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
-import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.service.ServiceTask;
 import android.app.ExpandableListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -159,97 +156,62 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		return view;
 	}
 
-	private class UpdateTask extends AsyncTask<Void, Void, Boolean> {
-		private ProgressDialog m_progress;
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(ModuleListActivity.this);
-			m_progress.setMessage(getString(R.string.message_module_updating));
-			m_progress.setIndeterminate(true);
-			m_progress.show();
+	private class UpdateTask extends ServiceTask<Void, Void, Boolean> {
+		UpdateTask() {
+			super(ModuleListActivity.this, R.string.message_module_updating);
 		}
 
 		@Override
-		protected Boolean doInBackground(Void... params) {
-			ServiceClient service = DdN.getServiceClient();
+		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
 			LocalStore store = DdN.getLocalStore();
-			try {
-				if (!service.isLogin())
-					service.login();
 
-				store.updateModules(service.getModules());
-				List<ModuleGroup> modules = store.loadModules();
-				for (ModuleGroup group: modules) {
-					for (Module module: group.modules) {
-						if (module.image != null)
-							continue;
+			store.updateModules(service.getModules());
+			List<ModuleGroup> modules = store.loadModules();
+			for (ModuleGroup group: modules) {
+				for (Module module: group.modules) {
+					if (module.image != null)
+						continue;
 
-						service.getModuleDetail(module);
-						File file = module.getThumbnailPath(getApplicationContext());
-						if (file != null) {
-							FileOutputStream out = new FileOutputStream(file);
-							service.download(module.thumbnail, out);
-							out.close();
-							store.updateModule(module);
-						}
+					service.getModuleDetail(module);
+					File file = module.getThumbnailPath(getApplicationContext());
+					if (file != null) {
+						FileOutputStream out = new FileOutputStream(file);
+						service.download(module.thumbnail, out);
+						out.close();
+						store.updateModule(module);
 					}
 				}
-				DdN.setModules(modules);
-				return Boolean.TRUE;
 			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			return Boolean.FALSE;
+			DdN.setModules(modules);
+			return Boolean.TRUE;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			m_progress.dismiss();
-			if (result)
+		protected void onResult(Boolean result) {
+			if (result != null && result)
 				m_adapter.setModules(DdN.getModules());
 		}
 	}
 
-	private class BuyTask extends AsyncTask<Module, Void, Boolean> {
-		private ProgressDialog m_progress;
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(ModuleListActivity.this);
-			m_progress.setMessage(getString(R.string.buying));
-			m_progress.setIndeterminate(true);
-			m_progress.show();
+	private class BuyTask extends ServiceTask<Module, Void, Boolean> {
+		BuyTask() {
+			super(ModuleListActivity.this, R.string.buying);
 		}
 
 		@Override
-		protected Boolean doInBackground(Module... params) {
+		protected Boolean doTask(ServiceClient service, Module... params) throws Exception {
 			Module module = params[0];
-			ServiceClient service = DdN.getServiceClient();
 			LocalStore store = DdN.getLocalStore();
-			try {
-				if (!service.isLogin())
-					service.login();
 
-				service.buyModule(module.id);
-				module.purchased = true;
-				store.updateModule(module);
-				return Boolean.TRUE;
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-			return Boolean.FALSE;
+			service.buyModule(module.id);
+			module.purchased = true;
+			store.updateModule(module);
+			return Boolean.TRUE;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			m_progress.dismiss();
-			if (result)
+		protected void onResult(Boolean result) {
+			if (result != null && result)
 				m_adapter.notifyDataSetChanged();
 			else
 				Toast.makeText(ModuleListActivity.this, R.string.faile_buying, Toast.LENGTH_SHORT).show();

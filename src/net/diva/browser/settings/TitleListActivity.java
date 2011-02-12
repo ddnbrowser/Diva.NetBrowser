@@ -1,20 +1,16 @@
 package net.diva.browser.settings;
 
-import java.io.IOException;
 import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
-import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.TitleInfo;
-import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.service.ServiceTask;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -99,44 +95,21 @@ public class TitleListActivity extends ListActivity {
 		}
 	}
 
-	private class TitleDownloader extends AsyncTask<Void, Void, Boolean> {
-		private ProgressDialog m_progress;
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(TitleListActivity.this);
-			m_progress.setMessage(getString(R.string.message_title_updating));
-			m_progress.setIndeterminate(true);
-			m_progress.show();
+	private class TitleDownloader extends ServiceTask<Void, Void, Boolean> {
+		TitleDownloader() {
+			super(TitleListActivity.this, R.string.message_title_updating);
 		}
 
 		@Override
-		protected Boolean doInBackground(Void... params) {
-			try {
-				ServiceClient service = DdN.getServiceClient();
-				PlayRecord record = DdN.getPlayRecord();
-				if (!service.isLogin()) {
-					record = DdN.setPlayRecord(service.login());
-					m_store.update(record);
-				}
-
-				List<TitleInfo> titles = service.getTitles(DdN.getTitles());
-				m_store.updateTitles(titles);
-				DdN.setTitles(m_store.getTitles());
-				return Boolean.TRUE;
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
-			}
-			return Boolean.FALSE;
+		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
+			List<TitleInfo> titles = service.getTitles(DdN.getTitles());
+			m_store.updateTitles(titles);
+			DdN.setTitles(m_store.getTitles());
+			return Boolean.TRUE;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
-			m_progress.dismiss();
+		protected void onResult(Boolean result) {
 			if (result)
 				refresh();
 		}

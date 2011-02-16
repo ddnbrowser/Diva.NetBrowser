@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,9 +90,8 @@ public class ServiceClient {
 		List<MusicInfo> list = new ArrayList<MusicInfo>();
 		String path = "/divanet/pv/list/0/0";
 		while (path != null) {
-			HttpGet request = new HttpGet(DdN.URL.resolve(path));
 			try {
-				HttpResponse response = m_client.execute(request);
+				HttpResponse response = getFrom(path);
 				path = Parser.parseListPage(response.getEntity().getContent(), list);
 			}
 			catch (IOException e) {
@@ -103,16 +101,12 @@ public class ServiceClient {
 		if (list.isEmpty())
 			throw new NoLoginException();
 
-		access();
 		record.musics = list;
 	}
 
 	public void update(MusicInfo music) throws NoLoginException {
-		URI url = DdN.URL.resolve(String.format("/divanet/pv/info/%s/0/0", music.id));
-		HttpGet request = new HttpGet(url);
 		try {
-			HttpResponse response = m_client.execute(request);
-			access();
+			HttpResponse response = getFrom("/divanet/pv/info/%s/0/0", music.id);
 			Parser.parseInfoPage(response.getEntity().getContent(), music);
 		}
 		catch (ParseException e) {
@@ -124,8 +118,7 @@ public class ServiceClient {
 	}
 
 	public InputStream download(String path) throws IOException {
-		HttpGet request = new HttpGet(DdN.URL.resolve(path));
-		HttpResponse response = m_client.execute(request);
+		HttpResponse response = getFrom(path);
 		return response.getEntity().getContent();
 	}
 
@@ -140,12 +133,10 @@ public class ServiceClient {
 		List<Ranking> list = new ArrayList<Ranking>();
 		String path = "/divanet/ranking/list/0";
 		while (path != null) {
-			HttpGet request = new HttpGet(DdN.URL.resolve(path));
-			HttpResponse response = m_client.execute(request);
+			HttpResponse response = getFrom(path);
 			path = Parser.parseRankingList(response.getEntity().getContent(), list);
 		}
 
-		access();
 		return list;
 	}
 
@@ -154,8 +145,7 @@ public class ServiceClient {
 			titles = new ArrayList<TitleInfo>();
 		String path = "/divanet/title/list/0";
 		while (path != null) {
-			HttpGet request = new HttpGet(DdN.URL.resolve(path));
-			HttpResponse response = m_client.execute(request);
+			HttpResponse response = getFrom(path);
 			path = Parser.parseTitleList(response.getEntity().getContent(), titles);
 		}
 
@@ -163,36 +153,29 @@ public class ServiceClient {
 			if (title.image_id != null)
 				continue;
 
-			URI relative = DdN.URL.resolve(String.format("/divanet/title/confirm/%s/0", title.id));
-			HttpGet request = new HttpGet(relative);
-			HttpResponse response = m_client.execute(request);
+			HttpResponse response = getFrom("/divanet/title/confirm/%s/0", title.id);
 			title.image_id = Parser.parseTitlePage(response.getEntity().getContent());
 		}
 
-		access();
 		return titles;
 	}
 
 	public List<ModuleGroup> getModules() throws IOException {
-		HttpGet request = new HttpGet(DdN.URL.resolve("/divanet/module/"));
-		HttpResponse response = m_client.execute(request);
+		HttpResponse response = getFrom("/divanet/module/");
 		List<ModuleGroup> modules = Parser.parseModuleIndex(response.getEntity().getContent());
 		for (ModuleGroup group: modules) {
 			String path = String.format("/divanet/module/list/%d/0", group.id);
 			while (path != null) {
-				HttpGet req = new HttpGet(DdN.URL.resolve(path));
-				HttpResponse res = m_client.execute(req);
+				HttpResponse res = getFrom(path);
 				path = Parser.parseModuleList(res.getEntity().getContent(), group.modules);
 			}
 		}
 
-		access();
 		return modules;
 	}
 
 	public void getModuleDetail(Module module) throws IOException {
-		HttpGet request = new HttpGet(DdN.url("/divanet/module/detail/%s/0/0", module.id));
-		HttpResponse response = m_client.execute(request);
+		HttpResponse response = getFrom("/divanet/module/detail/%s/0/0", module.id);
 		Parser.parseModuleDetail(response.getEntity().getContent(), module);
 		module.thumbnail = String.format("/divanet/img/moduleTmb/%s", new File(module.image).getName());
 	}
@@ -202,19 +185,16 @@ public class ServiceClient {
 
 		String path = "/divanet/skin/list/0";
 		while (path != null) {
-			HttpGet request = new HttpGet(DdN.URL.resolve(path));
-			HttpResponse response = m_client.execute(request);
+			HttpResponse response = getFrom(path);
 			path = Parser.Skin.parse(response.getEntity().getContent(), groups);
 		}
 
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {
-			HttpGet request = new HttpGet(DdN.url("/divanet/skin/select/%s/0", group_id));
-			HttpResponse response = m_client.execute(request);
+			HttpResponse response = getFrom("/divanet/skin/select/%s/0", group_id);
 			Parser.Skin.parse(response.getEntity().getContent(), skins);
 		}
 
-		access();
 		return skins;
 	}
 
@@ -223,30 +203,35 @@ public class ServiceClient {
 
 		String path = "/divanet/skin/shop/0";
 		while (path != null) {
-			HttpGet request = new HttpGet(DdN.URL.resolve(path));
-			HttpResponse response = m_client.execute(request);
+			HttpResponse response = getFrom(path);
 			path = Parser.Skin.parseShop(response.getEntity().getContent(), skins);
 		}
 
-		access();
 		return skins;
 	}
 
 	public void getSkinDetail(SkinInfo skin) throws IOException {
-		URI url = DdN.url("/divanet/skin/%s/%s/%s/0", skin.purchased ? "confirm" : "detail", skin.id, skin.group_id);
-		HttpGet request = new HttpGet(url);
-		HttpResponse response = m_client.execute(request);
+		HttpResponse response = getFrom("/divanet/skin/%s/%s/%s/0",
+				skin.purchased ? "confirm" : "detail", skin.id, skin.group_id);
 		Parser.Skin.parse(response.getEntity().getContent(), skin);
 	}
 
 	public String getShopDetail(String path, List<NameValuePair> details) throws IOException {
-		HttpGet request = new HttpGet(DdN.URL.resolve(path));
-		HttpResponse response = m_client.execute(request);
+		HttpResponse response = getFrom(path);
 		return Parser.Shop.parse(response.getEntity().getContent(), details);
 	}
 
-	private void getFrom(String relative, Object... args) throws IOException {
-		m_client.execute(new HttpGet(DdN.URL.resolve(String.format(relative, args))));
+	private HttpResponse getFrom(String relative, Object... args) throws IOException {
+		return getFrom(String.format(relative, args));
+	}
+
+	private HttpResponse getFrom(String relative) throws IOException {
+		HttpResponse response = m_client.execute(new HttpGet(DdN.URL.resolve(relative)));
+		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+			throw new IOException();
+
+		access();
+		return response;
 	}
 
 	private HttpResponse postTo(String relative) throws IOException {

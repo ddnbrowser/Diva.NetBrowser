@@ -56,7 +56,7 @@ public final class Parser {
 	}
 
 	private static final Pattern RE_MUSIC_TITLE = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/\\d+\">(.+)</a>");
-	private static final Pattern RE_NEXT = Pattern.compile("<a href=\"(.+)\">次へ</a>");
+	private static final Pattern RE_NEXT = Pattern.compile("<a href=\"([/\\w]+)\".*>次へ.*</a>");
 
 	public static String parseListPage(InputStream content, List<MusicInfo> list) {
 		String body = read(content);

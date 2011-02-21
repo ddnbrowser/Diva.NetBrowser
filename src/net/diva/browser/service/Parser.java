@@ -197,6 +197,13 @@ public final class Parser {
 		return entry;
 	}
 
+	private static final Pattern RE_RENAME_RESULT = Pattern.compile("<font.*>(.*)</font><br>\\s*<br>\\s*再度入力してください");
+	public static String parseRenameResult(InputStream content) {
+		String body = read(content);
+		Matcher m = RE_RENAME_RESULT.matcher(body);
+		return m.find() ? m.group(1) : null;
+	}
+
 	private static final Pattern RE_TITLE_NAME = Pattern.compile("<a href=\"/divanet/title/confirm/(\\w+)/\\d+\">(.+)</a>");
 
 	public static String parseTitleList(InputStream content, List<TitleInfo> titles) {

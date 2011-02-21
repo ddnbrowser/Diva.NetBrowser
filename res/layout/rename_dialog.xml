@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:padding="10dip">
+	<TextView android:id="@+id/caption"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:text="[プレイヤー名]"
+		android:textColor="#00FFFF"
+		/>
+	<EditText android:id="@+id/player_name"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/caption"
+		android:maxLines="1"
+		android:inputType="textWebEditText"
+		/>
+	<TextView
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/player_name"
+		android:layout_marginTop="6dip"
+		android:text="10VPが必要です\n半角記号「/\\&lt;&gt;'&quot;%;()&amp;」は使用できません\n"
+		/>
+</RelativeLayout>

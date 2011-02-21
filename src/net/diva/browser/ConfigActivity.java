@@ -4,6 +4,7 @@ import net.diva.browser.settings.ConfigActivationIndividual;
 import net.diva.browser.settings.ConfigCategory;
 import net.diva.browser.settings.ConfigCommonModule;
 import net.diva.browser.settings.ConfigItem;
+import net.diva.browser.settings.ConfigRename;
 import net.diva.browser.settings.ConfigResetCommon;
 import net.diva.browser.settings.ConfigResetIndividual;
 import net.diva.browser.settings.ConfigSetSkin;
@@ -27,7 +28,8 @@ public class ConfigActivity extends ListActivity {
 		setContentView(R.layout.config);
 
 		m_adapter = new ConfigAdapter(this,
-				new ConfigCategory(getText(R.string.category_title)),
+				new ConfigCategory(getText(R.string.category_player)),
+				new ConfigRename(this),
 				new ConfigTitle(this),
 				new ConfigCategory(getText(R.string.category_module_common)),
 				new ConfigCommonModule(this, 1),

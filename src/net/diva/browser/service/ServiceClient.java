@@ -251,6 +251,15 @@ public class ServiceClient {
 		return response;
 	}
 
+	public void rename(String name) throws OperationFailedException, IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+		params.add(new BasicNameValuePair("name", name));
+		HttpResponse response = postTo("/divanet/personal/updateName/", new UrlEncodedFormEntity(params, "UTF-8"));
+		String error = Parser.parseRenameResult(response.getEntity().getContent());
+		if (error != null)
+			throw new OperationFailedException(error);
+	}
+
 	public void setTitle(String title_id) throws IOException {
 		postTo(String.format("/divanet/title/update/%s", title_id));
 	}

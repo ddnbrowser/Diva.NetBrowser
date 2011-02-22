@@ -102,8 +102,9 @@ public class MusicListActivity extends ListActivity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		final long now = System.currentTimeMillis();
-		boolean enable = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
-		menu.findItem(R.id.item_update).setEnabled(enable);
+		boolean enable_all = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
+		menu.findItem(R.id.item_update).setVisible(enable_all);
+		menu.findItem(R.id.item_update_new).setVisible(!enable_all);
 		MenuItem sort = menu.findItem(m_adapter.sortOrder());
 		if (sort != null)
 			sort.setChecked(true);
@@ -124,6 +125,9 @@ public class MusicListActivity extends ListActivity {
 		switch (id) {
 		case R.id.item_update:
 			updateAll();
+			break;
+		case R.id.item_update_new:
+			new UpdateNewTask().execute();
 			break;
 		case R.id.item_news:
 			openPage("/divanet/menu/news/");
@@ -345,29 +349,29 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
+	public void cacheCoverart(MusicInfo music, ServiceClient service) {
+		File cache = music.getCoverArtPath(getApplicationContext());
+		if (cache.exists())
+			return;
+
+		try {
+			FileOutputStream out = new FileOutputStream(cache);
+			service.download(music.coverart, out);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private class PlayRecordDownloader extends AsyncTask<DdN.Account, Integer, PlayRecord> {
 		private ProgressDialog m_progress;
-
-		public void cacheCoverart(MusicInfo music, ServiceClient service) {
-			File cache = music.getCoverArtPath(getApplicationContext());
-			if (cache.exists())
-				return;
-
-			try {
-				FileOutputStream out = new FileOutputStream(cache);
-				service.download(music.coverart, out);
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 
 		@Override
 		protected void onPreExecute() {
 			m_progress = new ProgressDialog(MusicListActivity.this);
 			m_progress.setMessage(getString(R.string.message_downloading));
 			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			m_progress.setIndeterminate(false);
+			m_progress.setIndeterminate(true);
 			m_progress.show();
 		}
 
@@ -377,7 +381,7 @@ public class MusicListActivity extends ListActivity {
 			ServiceClient service = DdN.getServiceClient(account);
 			try {
 				PlayRecord record = service.login();
-				service.update(record);
+				record.musics = service.getMusics();
 				publishProgress(0, record.musics.size());
 
 				for (MusicInfo music: record.musics) {
@@ -404,9 +408,10 @@ public class MusicListActivity extends ListActivity {
 
 		@Override
 		protected void onProgressUpdate(Integer... values) {
-			if (values.length > 1)
+			if (values.length > 1) {
+				m_progress.setIndeterminate(false);
 				m_progress.setMax(values[1]);
-
+			}
 			m_progress.incrementProgressBy(values[0]);
 		}
 
@@ -415,6 +420,55 @@ public class MusicListActivity extends ListActivity {
 			if (result != null)
 				refresh();
 			m_progress.dismiss();
+		}
+	}
+
+	private class UpdateNewTask extends ServiceTask<Void, Integer, Boolean> {
+		public UpdateNewTask() {
+			super(MusicListActivity.this, R.string.message_downloading);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
+			PlayRecord record = DdN.getPlayRecord();
+
+			List<MusicInfo> musics = service.getMusics();
+			musics.removeAll(record.musics);
+			if (musics.isEmpty())
+				return Boolean.FALSE;
+
+			publishProgress(0, musics.size());
+			for (MusicInfo music: musics) {
+				service.update(music);
+				cacheCoverart(music, service);
+				publishProgress(1);
+			}
+
+			DdN.getLocalStore().insert(musics);
+			musics.addAll(0, record.musics);
+			record.musics = musics;
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			if (values.length > 1) {
+				m_progress.setIndeterminate(false);
+				m_progress.setMax(values[1]);
+			}
+			m_progress.incrementProgressBy(values[0]);
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			if (result != null && result)
+				refresh();
 		}
 	}
 

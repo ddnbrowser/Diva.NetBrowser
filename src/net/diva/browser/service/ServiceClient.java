@@ -86,7 +86,7 @@ public class ServiceClient {
 		}
 	}
 
-	public void update(PlayRecord record) throws NoLoginException {
+	public List<MusicInfo> getMusics() throws NoLoginException {
 		List<MusicInfo> list = new ArrayList<MusicInfo>();
 		String path = "/divanet/pv/list/0/0";
 		while (path != null) {
@@ -101,7 +101,7 @@ public class ServiceClient {
 		if (list.isEmpty())
 			throw new NoLoginException();
 
-		record.musics = list;
+		return list;
 	}
 
 	public void update(MusicInfo music) throws NoLoginException {

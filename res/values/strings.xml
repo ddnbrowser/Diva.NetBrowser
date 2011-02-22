@@ -8,6 +8,7 @@
     <string name="password">パスワード：</string>
     <string name="item_sort">ソート</string>
     <string name="item_update_all">全曲更新</string>
+    <string name="item_update_new">新曲取得</string>
     <string name="item_update_selction">1曲更新</string>
     <string name="item_sort_by_difficulty">難易度</string>
     <string name="item_sort_by_score">スコア</string>

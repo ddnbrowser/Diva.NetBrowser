@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
       android:versionCode="115" android:versionName="1.15">
-    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name=".DdN">
+    <application android:icon="@drawable/icon" android:label="@string/app_name" android:name=".DdN" android:debuggable="true">
         <activity android:name=".MusicListActivity"
                   android:label="@string/app_name" android:screenOrientation="user" android:configChanges="keyboardHidden|orientation">
             <intent-filter>

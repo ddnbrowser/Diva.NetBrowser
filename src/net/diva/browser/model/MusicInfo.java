@@ -47,4 +47,14 @@ public class MusicInfo {
 	public Drawable getCoverArt(Context context) {
 		return new BitmapDrawable(getCoverArtPath(context).getAbsolutePath());
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o != null && (o instanceof MusicInfo) && id.equals(((MusicInfo)o).id);
+	}
+
+	@Override
+	public int hashCode() {
+		return id.hashCode();
+	}
 }

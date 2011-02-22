@@ -163,10 +163,15 @@ public class LocalStore extends ContextWrapper {
 	}
 
 	public void insert(PlayRecord record) {
+		insert(record.musics);
+		update(record);
+	}
+
+	public void insert(List<MusicInfo> musics) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			for (MusicInfo music: record.musics) {
+			for (MusicInfo music: musics) {
 				if (MusicTable.update(db, music)) {
 					for (int i = 0; i < music.records.length; ++i)
 						ScoreTable.update(db, music.id, i, music.records[i]);
@@ -183,8 +188,6 @@ public class LocalStore extends ContextWrapper {
 			db.endTransaction();
 			db.close();
 		}
-
-		update(record);
 	}
 
 	public void update(PlayRecord record) {

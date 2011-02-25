@@ -159,6 +159,9 @@ public class MusicListActivity extends ListActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		getMenuInflater().inflate(R.menu.list_context, menu);
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
+		MusicInfo music = m_adapter.getItem(info.position);
+		menu.setHeaderTitle(music.title);
 	}
 
 	@Override

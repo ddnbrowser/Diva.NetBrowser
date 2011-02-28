@@ -11,6 +11,7 @@ final class MusicTable implements BaseColumns {
 	public static final String ID = "id";
 	public static final String COVERART = "coverart";
 	public static final String TITLE = "title";
+	public static final String READING = "reading";
 	public static final String PART = "part";
 	public static final String VOCAL1 = "vocal1";
 	public static final String VOCAL2 = "vocal2";
@@ -25,6 +26,7 @@ final class MusicTable implements BaseColumns {
 		.append(_ID).append(" integer primary key autoincrement,")
 		.append(ID).append(" text UNIQUE,")
 		.append(TITLE).append(" text,")
+		.append(READING).append(" text,")
 		.append(COVERART).append(" text,")
 		.append(PART).append(" integer,")
 		.append(VOCAL1).append(" text,")
@@ -44,10 +46,15 @@ final class MusicTable implements BaseColumns {
 		db.update(NAME, values, null, null);
 	}
 
+	static void addReadingColumn(SQLiteDatabase db) {
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", NAME, READING, "text"));
+	}
+
 	static long insert(SQLiteDatabase db, MusicInfo music) {
-		ContentValues values = new ContentValues(6);
+		ContentValues values = new ContentValues(7);
 		values.put(ID, music.id);
 		values.put(TITLE, music.title);
+		values.put(READING, music.reading);
 		values.put(COVERART, music.coverart);
 		values.put(PART, music.part);
 		values.putNull(VOCAL1);
@@ -56,8 +63,9 @@ final class MusicTable implements BaseColumns {
 	}
 
 	static boolean update(SQLiteDatabase db, MusicInfo music) {
-		ContentValues values = new ContentValues(3);
+		ContentValues values = new ContentValues(4);
 		values.put(TITLE, music.title);
+		values.put(READING, music.reading);
 		values.put(COVERART, music.coverart);
 		values.put(PART, music.part);
 		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;

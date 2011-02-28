@@ -3,6 +3,7 @@ package net.diva.browser;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN.Account;
@@ -29,12 +30,14 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
@@ -185,6 +188,9 @@ public class MusicListActivity extends ListActivity {
 		case R.id.item_reset_module:
 			resetModule(music);
 			return true;
+		case R.id.item_edit_reading:
+			editTitleReading(music);
+			return true;
 		case R.id.item_ranking:
 			openPage(String.format("/divanet/ranking/summary/%s/0", music.id));
 			return true;
@@ -198,7 +204,7 @@ public class MusicListActivity extends ListActivity {
 		switch (requestCode) {
 		case R.id.item_game_settings:
 			if (resultCode == RESULT_OK)
-				refresh();
+				refresh(false);
 			break;
 		case R.id.item_tool_settings:
 			if (m_preferences.getBoolean("download_rankin", false))
@@ -215,7 +221,7 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	public void refresh() {
+	public void refresh(boolean reload) {
 		PlayRecord record = DdN.getPlayRecord();
 
 		String title = DdN.getTitle(record.title_id);
@@ -226,7 +232,10 @@ public class MusicListActivity extends ListActivity {
 		m_player_name.setText(record.player_name);
 		m_level_rank.setText(rankText(record, title));
 
-		m_adapter.setData(record.musics);
+		if (reload)
+			m_adapter.setData(record.musics);
+		else
+			m_adapter.notifyDataSetChanged();
 	}
 
 	public void setDifficulty(int difficulty) {
@@ -308,6 +317,28 @@ public class MusicListActivity extends ListActivity {
 		builder.show();
 	}
 
+	private void editTitleReading(final MusicInfo music) {
+		LayoutInflater inflater = LayoutInflater.from(this);
+		View view = inflater.inflate(R.layout.input_reading, null);
+		final EditText edit = (EditText)view.findViewById(R.id.reading);
+		edit.setText(music.reading);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.input_reading);
+		builder.setMessage(music.title);
+		builder.setView(view);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				music.reading = edit.getText().toString();
+				m_store.update(music);
+				dialog.dismiss();
+				refresh(false);
+			}
+		});
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
+	}
+
 	private class OnTouchListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
 		private GestureDetector m_detector;
 
@@ -369,6 +400,23 @@ public class MusicListActivity extends ListActivity {
 	private class PlayRecordDownloader extends AsyncTask<DdN.Account, Integer, PlayRecord> {
 		private ProgressDialog m_progress;
 
+		private List<MusicInfo> mergeMusicList(List<MusicInfo> newMusics) {
+			PlayRecord record = DdN.getPlayRecord();
+			if (record == null)
+				return newMusics;
+
+			List<MusicInfo> musics = new ArrayList<MusicInfo>(record.musics);
+			for (MusicInfo music: newMusics) {
+				int index = musics.indexOf(music);
+				if (index < 0)
+					musics.add(music);
+				else
+					musics.get(index).title = music.title;
+			}
+
+			return musics;
+		}
+
 		@Override
 		protected void onPreExecute() {
 			m_progress = new ProgressDialog(MusicListActivity.this);
@@ -384,7 +432,7 @@ public class MusicListActivity extends ListActivity {
 			ServiceClient service = DdN.getServiceClient(account);
 			try {
 				PlayRecord record = service.login();
-				record.musics = service.getMusics();
+				record.musics = mergeMusicList(service.getMusics());
 				publishProgress(0, record.musics.size());
 
 				for (MusicInfo music: record.musics) {
@@ -421,7 +469,7 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onPostExecute(PlayRecord result) {
 			if (result != null)
-				refresh();
+				refresh(true);
 			m_progress.dismiss();
 		}
 	}
@@ -453,7 +501,7 @@ public class MusicListActivity extends ListActivity {
 				publishProgress(1);
 			}
 
-			DdN.getLocalStore().insert(musics);
+			m_store.insert(musics);
 			musics.addAll(0, record.musics);
 			record.musics = musics;
 			return Boolean.TRUE;
@@ -471,7 +519,7 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onResult(Boolean result) {
 			if (result != null && result)
-				refresh();
+				refresh(true);
 		}
 	}
 
@@ -504,7 +552,7 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onResult(Boolean result) {
 			if (result != null)
-				refresh();
+				refresh(true);
 		}
 	}
 
@@ -599,7 +647,7 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onResult(Boolean result) {
 			if (result != null && result)
-				refresh();
+				refresh(false);
 		}
 	}
 }

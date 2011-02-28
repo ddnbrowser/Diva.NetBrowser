@@ -13,6 +13,7 @@ public class MusicInfo {
 
 	public String id;
 	public String title;
+	public String reading;
 	public String coverart;
 
 	public int part;

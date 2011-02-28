@@ -81,8 +81,10 @@ public final class Parser {
 	private static final Pattern RE_ACHIVEMENT = Pattern.compile("(\\d+)\\.(\\d)(\\d)?%");
 	private static final Pattern RE_HIGHSCORE = Pattern.compile("(\\d+)pts");
 
-	private static ScoreRecord parseScore(Matcher m, String difficulty) throws ParseException {
-		ScoreRecord score = new ScoreRecord();
+	private static ScoreRecord parseScore(Matcher m, String difficulty, ScoreRecord score) throws ParseException {
+		if (score == null)
+			score = new ScoreRecord();
+
 		Pattern RE_DIFFICULTY = Pattern.compile(Pattern.quote(difficulty)+"</b><br>\\s*★(\\d+)");
 		m = m.usePattern(RE_DIFFICULTY);
 		if (!m.find())
@@ -125,7 +127,7 @@ public final class Parser {
 		music.part = "ソロ".equals(m.group(1)) ? 1 : 2;
 		music.coverart = m.group(2);
 		for (int i = 0; i < DIFFICULTIES.length; ++i)
-			music.records[i] = parseScore(m, DIFFICULTIES[i]);
+			music.records[i] = parseScore(m, DIFFICULTIES[i], music.records[i]);
 	}
 
 	private static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\">(.+)</a>");

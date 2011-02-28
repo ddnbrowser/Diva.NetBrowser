@@ -44,17 +44,13 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 		};
 
 		m_difficulty = difficulty;
-		m_sortOrder = 0;
+		m_sortOrder = R.id.item_sort_by_name;
 		m_reverseOrder = false;
 	}
 
 	public void setData(List<MusicInfo> music) {
-		if (m_musics == music)
-			notifyDataSetChanged();
-		else {
-			m_musics = music;
-			setDifficulty(m_difficulty);
-		}
+		m_musics = music;
+		setDifficulty(m_difficulty);
 	}
 
 	public void setDifficulty(int difficulty) {
@@ -113,6 +109,9 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 	public void sortBy(int order, boolean reverse) {
 		Comparator<MusicInfo> cmp = null;
 		switch (order) {
+		case R.id.item_sort_by_name:
+			cmp = byName();
+			break;
 		case R.id.item_sort_by_difficulty:
 			cmp = byDifficulty();
 			break;
@@ -139,10 +138,21 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 		m_reverseOrder = reverse;
 	}
 
+	private Comparator<MusicInfo> byName() {
+		return new Comparator<MusicInfo>() {
+			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				return lhs.reading.compareTo(rhs.reading);
+			}
+		};
+	}
+
 	private Comparator<MusicInfo> byDifficulty() {
 		return new Comparator<MusicInfo>() {
 			public int compare(MusicInfo lhs, MusicInfo rhs) {
-				return lhs.records[m_difficulty].difficulty - rhs.records[m_difficulty].difficulty;
+				int res = lhs.records[m_difficulty].difficulty - rhs.records[m_difficulty].difficulty;
+				if (res != 0)
+					return res;
+				return lhs.reading.compareTo(rhs.reading);
 			}
 		};
 	}

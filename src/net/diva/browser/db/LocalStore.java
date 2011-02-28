@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.diva.browser.R;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -24,7 +25,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 10;
+	private static final int VERSION = 11;
 
 	private static LocalStore m_instance;
 
@@ -35,10 +36,23 @@ public class LocalStore extends ContextWrapper {
 	}
 
 	private SQLiteOpenHelper m_helper;
+	private Map<String, String> m_readingMap;
 
 	private LocalStore(Context context) {
 		super(context);
 		m_helper = new OpenHelper(context, DATABASE_NAME, null, VERSION);
+	}
+
+	public String getReading(String title) {
+		if (m_readingMap == null) {
+			Map<String, String> map = new HashMap<String, String>();
+			String[] items = getResources().getStringArray(R.array.music_name_map);
+			for (int i = 0; i < items.length; i += 2)
+				map.put(items[i], items[i+1]);
+			m_readingMap = map;
+		}
+		String reading = m_readingMap.get(title);
+		return reading != null ? reading : "";
 	}
 
 	public PlayRecord load(String access_code) {
@@ -64,6 +78,7 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.PART,
 				MusicTable.VOCAL1,
 				MusicTable.VOCAL2,
+				MusicTable.READING,
 		}, null, null, null, null, MusicTable._ID);
 		try {
 			while (cm.moveToNext()) {
@@ -72,6 +87,9 @@ public class LocalStore extends ContextWrapper {
 				music.part = cm.getInt(3);
 				music.vocal1 = cm.getString(4);
 				music.vocal2 = cm.getString(5);
+				music.reading = cm.getString(6);
+				if (music.reading == null)
+					music.reading = getReading(music.title);
 				musics.add(music);
 				id2music.put(music.id, music);
 			}
@@ -177,6 +195,7 @@ public class LocalStore extends ContextWrapper {
 						ScoreTable.update(db, music.id, i, music.records[i]);
 				}
 				else {
+					music.reading = getReading(music.title);
 					MusicTable.insert(db, music);
 					for (int i = 0; i < music.records.length; ++i)
 						ScoreTable.insert(db, music.id, i, music.records[i]);
@@ -415,6 +434,8 @@ public class LocalStore extends ContextWrapper {
 				SkinTable.addStatusColumn(db);
 			case 9:
 				db.execSQL(String.format("DELETE FROM %s;", SkinTable.TABLE_NAME));
+			case 10:
+				MusicTable.addReadingColumn(db);
 			default:
 				break;
 			}

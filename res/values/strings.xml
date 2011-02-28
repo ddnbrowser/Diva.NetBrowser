@@ -10,6 +10,7 @@
     <string name="item_update_all">全曲更新</string>
     <string name="item_update_new">新曲取得</string>
     <string name="item_update_selction">1曲更新</string>
+    <string name="item_sort_by_name">曲名</string>
     <string name="item_sort_by_difficulty">難易度</string>
     <string name="item_sort_by_score">スコア</string>
     <string name="item_sort_by_achievement">達成率</string>
@@ -23,6 +24,7 @@
     <string name="item_tool_settings">ツール設定</string>
     <string name="item_set_module">モジュールを設定</string>
     <string name="item_reset_module">モジュールを初期化</string>
+    <string name="item_edit_reading">読み仮名編集</string>
     <string name="item_ranking">ランキング表示</string>
     <string name="item_update">更新</string>
     <string name="item_toggle_show_all">表示切替</string>
@@ -70,4 +72,5 @@
     <string name="button_buy">購入する</string>
     <string name="buying">購入しています...</string>
     <string name="faile_buying">購入処理に失敗しました</string>
+    <string name="input_reading">読み仮名入力</string>
 </resources>

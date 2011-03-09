@@ -106,6 +106,7 @@ public class MusicListActivity extends ListActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		final long now = System.currentTimeMillis();
 		boolean enable_all = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
+		menu.findItem(R.id.item_switch_list).setTitle(m_adapter.isFavorite() ? R.string.show_all : R.string.show_favorite);
 		menu.findItem(R.id.item_update).setVisible(enable_all);
 		menu.findItem(R.id.item_update_new).setVisible(!enable_all);
 		MenuItem sort = menu.findItem(m_adapter.sortOrder());

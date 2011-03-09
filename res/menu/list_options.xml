@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/item_switch_list" android:title="@string/show_favorite" android:icon="@drawable/android:ic_menu_agenda"></item>
     <item android:title="@string/item_update_all" android:icon="@drawable/ic_menu_refresh" android:id="@+id/item_update"></item>
     <item android:title="@string/item_update_new" android:icon="@drawable/ic_menu_refresh" android:id="@+id/item_update_new"></item>
     <item android:title="@string/item_sort" android:icon="@drawable/android:ic_menu_sort_by_size" android:id="@+id/item_sort">

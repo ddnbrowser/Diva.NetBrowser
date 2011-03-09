@@ -126,6 +126,9 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		switch (id) {
+		case R.id.item_switch_list:
+			m_adapter.toggleFavorite();
+			break;
 		case R.id.item_update:
 			updateAll();
 			break;
@@ -165,6 +168,14 @@ public class MusicListActivity extends ListActivity {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		MusicInfo music = m_adapter.getItem(info.position);
 		menu.setHeaderTitle(music.title);
+		if (m_adapter.isFavorite()) {
+			menu.findItem(R.id.item_add_favorite).setVisible(false);
+			menu.findItem(R.id.item_remove_favorite).setEnabled(music.favorite);
+		}
+		else {
+			menu.findItem(R.id.item_add_favorite).setEnabled(!music.favorite);
+			menu.findItem(R.id.item_remove_favorite).setVisible(false);
+		}
 	}
 
 	@Override
@@ -174,6 +185,12 @@ public class MusicListActivity extends ListActivity {
 		switch (item.getItemId()) {
 		case R.id.item_update:
 			new MusicUpdateTask().execute(music);
+			return true;
+		case R.id.item_add_favorite:
+			updatFavorite(music, true);
+			return true;
+		case R.id.item_remove_favorite:
+			updatFavorite(music, false);
 			return true;
 		case R.id.item_set_module: {
 			Intent intent = new Intent(getApplicationContext(), ModuleListActivity.class);
@@ -276,6 +293,13 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		task.execute(account);
+	}
+
+	private void updatFavorite(MusicInfo music, boolean register) {
+		music.favorite = register;
+		m_store.updateFavorite(music);
+		if (m_adapter.isFavorite())
+			refresh(true);
 	}
 
 	private void openPage(String relative) {

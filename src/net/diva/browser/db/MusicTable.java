@@ -15,6 +15,7 @@ final class MusicTable implements BaseColumns {
 	public static final String PART = "part";
 	public static final String VOCAL1 = "vocal1";
 	public static final String VOCAL2 = "vocal2";
+	public static final String FAVORITE = "favorite";
 
 	private static final String WHERE_IDENTITY = String.format("%s=?", ID);
 
@@ -30,7 +31,8 @@ final class MusicTable implements BaseColumns {
 		.append(COVERART).append(" text,")
 		.append(PART).append(" integer,")
 		.append(VOCAL1).append(" text,")
-		.append(VOCAL2).append(" text")
+		.append(VOCAL2).append(" text,")
+		.append(FAVORITE).append(" integer")
 		.append(")");
 		return builder.toString();
 	}
@@ -50,8 +52,12 @@ final class MusicTable implements BaseColumns {
 		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", NAME, READING, "text"));
 	}
 
+	static void addFavoriteColumn(SQLiteDatabase db) {
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", NAME, FAVORITE, "integer"));
+	}
+
 	static long insert(SQLiteDatabase db, MusicInfo music) {
-		ContentValues values = new ContentValues(7);
+		ContentValues values = new ContentValues(8);
 		values.put(ID, music.id);
 		values.put(TITLE, music.title);
 		values.put(READING, music.reading);
@@ -59,6 +65,7 @@ final class MusicTable implements BaseColumns {
 		values.put(PART, music.part);
 		values.putNull(VOCAL1);
 		values.putNull(VOCAL2);
+		values.put(FAVORITE, music.favorite ? 1 : 0);
 		return db.insert(NAME, null, values);
 	}
 
@@ -88,6 +95,12 @@ final class MusicTable implements BaseColumns {
 			values.putNull(VOCAL2);
 		else
 			values.put(VOCAL2, music.vocal2);
+		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
+	}
+
+	static boolean updateFavorite(SQLiteDatabase db, MusicInfo music) {
+		ContentValues values = new ContentValues(1);
+		values.put(FAVORITE, music.favorite ? 1 : 0);
 		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
 	}
 }

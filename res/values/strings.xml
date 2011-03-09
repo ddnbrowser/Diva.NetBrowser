@@ -6,10 +6,12 @@
     <string name="account_input_title">ログイン</string>
     <string name="access_code">アクセスコード:</string>
     <string name="password">パスワード：</string>
-    <string name="item_sort">ソート</string>
+    <string name="show_favorite">お気に入り</string>
+    <string name="show_all">全て表示</string>
     <string name="item_update_all">全曲更新</string>
     <string name="item_update_new">新曲取得</string>
-    <string name="item_update_selction">1曲更新</string>
+    <string name="item_update_selction">更新</string>
+    <string name="item_sort">ソート</string>
     <string name="item_sort_by_name">曲名</string>
     <string name="item_sort_by_difficulty">難易度</string>
     <string name="item_sort_by_score">スコア</string>
@@ -22,6 +24,8 @@
     <string name="item_statistics">クリア統計情報</string>
     <string name="item_game_settings">ゲーム設定</string>
     <string name="item_tool_settings">ツール設定</string>
+    <string name="item_add_favorite">お気に入りに追加</string>
+    <string name="item_remove_favorite">お気に入りから削除</string>
     <string name="item_set_module">モジュールを設定</string>
     <string name="item_reset_module">モジュールを初期化</string>
     <string name="item_edit_reading">読み仮名編集</string>

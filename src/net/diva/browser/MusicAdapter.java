@@ -27,6 +27,7 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 	private Drawable[] m_clear_icons;
 
 	private List<MusicInfo> m_musics;
+	private boolean m_favorite;
 	private int m_difficulty;
 	private int m_sortOrder;
 	private boolean m_reverseOrder;
@@ -50,14 +51,29 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 
 	public void setData(List<MusicInfo> music) {
 		m_musics = music;
-		setDifficulty(m_difficulty);
+		update();
+	}
+
+	public boolean isFavorite() {
+		return m_favorite;
+	}
+
+	public void toggleFavorite() {
+		m_favorite = !m_favorite;
+		update();
 	}
 
 	public void setDifficulty(int difficulty) {
 		m_difficulty = difficulty;
+		update();
+	}
+
+	private void update() {
 		setNotifyOnChange(false);
 		clear();
 		for (MusicInfo music: m_musics) {
+			if (m_favorite && !music.favorite)
+				continue;
 			if (music.records[m_difficulty] != null)
 				add(music);
 		}

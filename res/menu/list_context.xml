@@ -2,6 +2,8 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/item_update" android:title="@string/item_update_selction"></item>
+    <item android:id="@+id/item_add_favorite" android:title="@string/item_add_favorite"></item>
+    <item android:id="@+id/item_remove_favorite" android:title="@string/item_remove_favorite"></item>
     <item android:id="@+id/item_set_module" android:title="@string/item_set_module"></item>
     <item android:id="@+id/item_reset_module" android:title="@string/item_reset_module"></item>
 	<item android:id="@+id/item_edit_reading" android:title="@string/item_edit_reading"></item>

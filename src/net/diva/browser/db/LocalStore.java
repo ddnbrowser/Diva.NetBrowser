@@ -25,7 +25,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 11;
+	private static final int VERSION = 12;
 
 	private static LocalStore m_instance;
 
@@ -79,6 +79,7 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.VOCAL1,
 				MusicTable.VOCAL2,
 				MusicTable.READING,
+				MusicTable.FAVORITE,
 		}, null, null, null, null, MusicTable._ID);
 		try {
 			while (cm.moveToNext()) {
@@ -90,6 +91,7 @@ public class LocalStore extends ContextWrapper {
 				music.reading = cm.getString(6);
 				if (music.reading == null)
 					music.reading = getReading(music.title);
+				music.favorite = cm.getInt(7) == 1;
 				musics.add(music);
 				id2music.put(music.id, music);
 			}
@@ -224,6 +226,19 @@ public class LocalStore extends ContextWrapper {
 			MusicTable.update(db, music);
 			for (int i = 0; i < music.records.length; ++i)
 				ScoreTable.update(db, music.id, i, music.records[i]);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
+	public void updateFavorite(MusicInfo music) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			MusicTable.updateFavorite(db, music);
 			db.setTransactionSuccessful();
 		}
 		finally {
@@ -436,6 +451,8 @@ public class LocalStore extends ContextWrapper {
 				db.execSQL(String.format("DELETE FROM %s;", SkinTable.TABLE_NAME));
 			case 10:
 				MusicTable.addReadingColumn(db);
+			case 11:
+				MusicTable.addFavoriteColumn(db);
 			default:
 				break;
 			}

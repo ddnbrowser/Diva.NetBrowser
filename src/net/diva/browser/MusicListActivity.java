@@ -61,9 +61,10 @@ public class MusicListActivity extends ListActivity {
 		m_store = LocalStore.instance(this);
 
 		final int difficulty = m_preferences.getInt("difficulty", 3);
+		final boolean favorite = m_preferences.getBoolean("start_from_favorite", false);
 		m_player_name = (TextView)findViewById(R.id.player_name);
 		m_level_rank = (TextView)findViewById(R.id.level_rank);
-		m_adapter = new MusicAdapter(this, difficulty);
+		m_adapter = new MusicAdapter(this, difficulty, favorite);
 		setListAdapter(m_adapter);
 
 		m_player_name.setText("");

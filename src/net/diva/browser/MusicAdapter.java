@@ -32,7 +32,7 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 	private int m_sortOrder;
 	private boolean m_reverseOrder;
 
-	public MusicAdapter(Context context, int difficulty) {
+	public MusicAdapter(Context context, int difficulty, boolean favoriteOnly) {
 		super(context, LIST_ITEM_ID);
 		m_inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Resources resources = context.getResources();
@@ -45,6 +45,7 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 		};
 
 		m_difficulty = difficulty;
+		m_favorite = favoriteOnly;
 		m_sortOrder = R.id.item_sort_by_name;
 		m_reverseOrder = false;
 	}

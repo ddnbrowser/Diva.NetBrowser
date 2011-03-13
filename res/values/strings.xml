@@ -37,6 +37,9 @@
     <string name="message_login_processing">ログイン中...</string>
     <string name="message_set_module">楽曲別モジュールを設定します。よろしいですか?</string>
     <string name="message_reset_module">楽曲別モジュールを未設定にします。よろしいですか?</string>
+    <string name="category_basic">基本設定</string>
+    <string name="start_from_favorite">お気に入りから起動</string>
+    <string name="summary_start_from_favorite">起動した時、最初にお気に入りを開きます</string>
     <string name="category_web">Web画面設定</string>
     <string name="enable_builtin_zoom">ズームボタン表示</string>
     <string name="summary_enable_builtin_zoom">ズームボタンの表示/非表示を切り替えます</string>

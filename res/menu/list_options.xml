@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/item_switch_list" android:title="@string/show_favorite" android:icon="@drawable/android:ic_menu_agenda"></item>
-    <item android:title="@string/item_update_all" android:icon="@drawable/ic_menu_refresh" android:id="@+id/item_update"></item>
-    <item android:title="@string/item_update_new" android:icon="@drawable/ic_menu_refresh" android:id="@+id/item_update_new"></item>
-    <item android:title="@string/item_sort" android:icon="@drawable/android:ic_menu_sort_by_size" android:id="@+id/item_sort">
+    <item android:id="@+id/item_switch_list" android:title="@string/show_favorite" android:icon="@drawable/ic_menu_agenda"></item>
+    <item android:id="@+id/item_update" android:title="@string/item_update_all" android:icon="@drawable/ic_menu_refresh"></item>
+    <item android:id="@+id/item_update_new" android:title="@string/item_update_new" android:icon="@drawable/ic_menu_add"></item>
+    <item android:id="@+id/item_sort" android:title="@string/item_sort" android:icon="@drawable/ic_menu_sort_by_size">
         <menu>
             <group android:id="@+id/group_sort" android:checkableBehavior="single">
                 <item android:id="@+id/item_sort_by_name" android:title="@string/item_sort_by_name"></item>
@@ -16,13 +16,13 @@
             </group>
         </menu>
     </item>
-    <item android:id="@+id/item_open_web" android:title="@string/item_open_web" android:icon="@drawable/android:ic_menu_info_details">
+    <item android:id="@+id/item_open_web" android:title="@string/item_open_web" android:icon="@drawable/ic_menu_info_details">
         <menu>
             <item android:id="@+id/item_news" android:title="@string/item_news"></item>
             <item android:id="@+id/item_contest" android:title="@string/item_contest"></item>
             <item android:id="@+id/item_statistics" android:title="@string/item_statistics"></item>
         </menu>
     </item>
-    <item android:id="@+id/item_game_settings" android:title="@string/item_game_settings" android:icon="@drawable/android:ic_menu_manage"></item>
-    <item android:title="@string/item_tool_settings" android:icon="@drawable/android:ic_menu_preferences" android:id="@+id/item_tool_settings"></item>
+    <item android:id="@+id/item_game_settings" android:title="@string/item_game_settings" android:icon="@drawable/ic_menu_manage"></item>
+    <item android:id="@+id/item_tool_settings" android:title="@string/item_tool_settings" android:icon="@drawable/ic_menu_preferences"></item>
 </menu>

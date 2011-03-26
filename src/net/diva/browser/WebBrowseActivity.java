@@ -5,9 +5,12 @@ import net.diva.browser.service.ServiceClient;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebChromeClient;
@@ -22,11 +25,15 @@ public class WebBrowseActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_PROGRESS);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		m_service = DdN.getServiceClient();
 
 		m_view = new WebView(this);
+		m_view.setBackgroundColor(Color.BLACK);
+		m_view.setInitialScale(67);
 		m_view.setWebViewClient(new ViewClient());
-		m_view.setWebChromeClient(new WebChromeClient());
+		m_view.setWebChromeClient(new ChromeClient());
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		WebSettings settings = m_view.getSettings();
@@ -47,15 +54,23 @@ public class WebBrowseActivity extends Activity {
 		manager.setCookie(DdN.url("/"), cookies);
 		CookieSyncManager.getInstance().sync();
 
+		setProgress(0);
 		m_view.loadUrl(url);
 		setContentView(m_view);
 	}
 
 	private class ViewClient extends WebViewClient {
 		@Override
+		public void onPageStarted(WebView view, String url, Bitmap favicon) {
+			super.onPageStarted(view, url, favicon);
+			setProgressBarIndeterminateVisibility(true);
+		}
+
+		@Override
 		public void onPageFinished(WebView view, String url) {
 			super.onPageFinished(view, url);
 			m_service.access();
+			setProgressBarIndeterminateVisibility(false);
 		}
 
 		@Override
@@ -65,6 +80,13 @@ public class WebBrowseActivity extends Activity {
 
 			new LoginTask().execute(url);
 			return true;
+		}
+	}
+
+	private class ChromeClient extends WebChromeClient {
+		@Override
+		public void onProgressChanged(WebView view, int newProgress) {
+			setProgress(newProgress * 1000);
 		}
 	}
 

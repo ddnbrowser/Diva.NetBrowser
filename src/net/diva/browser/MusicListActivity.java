@@ -189,10 +189,10 @@ public class MusicListActivity extends ListActivity {
 			new MusicUpdateTask().execute(music);
 			return true;
 		case R.id.item_add_favorite:
-			updatFavorite(music, true);
+			updateFavorite(music, true);
 			return true;
 		case R.id.item_remove_favorite:
-			updatFavorite(music, false);
+			updateFavorite(music, false);
 			return true;
 		case R.id.item_set_module: {
 			Intent intent = new Intent(getApplicationContext(), ModuleListActivity.class);
@@ -297,7 +297,7 @@ public class MusicListActivity extends ListActivity {
 		task.execute(account);
 	}
 
-	private void updatFavorite(MusicInfo music, boolean register) {
+	private void updateFavorite(MusicInfo music, boolean register) {
 		music.favorite = register;
 		m_store.updateFavorite(music);
 		if (m_adapter.isFavorite())

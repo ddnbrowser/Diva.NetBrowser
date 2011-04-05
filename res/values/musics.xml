@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="music_name_map">
+<item>恋は戦争</item>
+<item>コイハセンソウ</item>
+<item>ワールドイズマイン</item>
+<item>ワアルドイズマイン</item>
+<item>その一秒スローモーション</item>
+<item>ソノイチビョウスロウモウション</item>
+<item>ひねくれ者</item>
+<item>ヒネクレモノ</item>
+<item>メルト</item>
+<item>メルト</item>
+<item>Far Away</item>
+<item>ファラウェイ</item>
+<item>ストロボナイツ</item>
+<item>ストロボナイツ</item>
+<item>Star Story</item>
+<item>スタアストオリイ</item>
+<item>Last Night, Good Night</item>
+<item>ラストナイトグッドナイト</item>
+<item>Packaged</item>
+<item>パッケイジド</item>
+<item>雨のちSweet*Drops</item>
+<item>アメノチスイイトドロップス</item>
+<item>マージナル</item>
+<item>マアジナル</item>
+<item>フキゲンワルツ</item>
+<item>フキゲンワルツ</item>
+<item>ミラクルペイント</item>
+<item>ミラクルペイント</item>
+<item>Dreaming Leaf -ユメミルコトノハ-</item>
+<item>ドリイミングリイフ</item>
+<item>恋スルＶＯＣ＠ＬＯＩＤ</item>
+<item>コイスルボオカロイド</item>
+<item>荒野と森と魔法の歌</item>
+<item>コウヤトモリトマホウノウタ</item>
+<item>いのちの歌</item>
+<item>イノチノウタ</item>
+<item>ハト</item>
+<item>ハト</item>
+<item>moon</item>
+<item>ムウン</item>
+<item>みくみく菌にご注意♪</item>
+<item>ミクミクキンニゴチュウイ</item>
+<item>The secret garden</item>
+<item>シイクレットガアデン</item>
+<item>Dear cocoa girls</item>
+<item>ディアコココアガアルズ</item>
+<item>天鵞絨アラベスク</item>
+<item>ビロオドアラベスク</item>
+<item>ラブリスト更新中？</item>
+<item>ラブリストコウシンチュウ</item>
+<item>Ievan Polkka</item>
+<item>イェバンポルッカ</item>
+<item>みくみくにしてあげる♪【してやんよ】</item>
+<item>ミクミクニシテアゲル</item>
+<item>金の聖夜霜雪に朽ちて</item>
+<item>コガネノセイヤソウセツニクチテ</item>
+<item>えれくとりっく・えんじぇぅ</item>
+<item>エレクトリックエンジェゥ</item>
+<item>あなたの歌姫</item>
+<item>アナタノウタヒメ</item>
+<item>初音ミクの消失</item>
+<item>ハツネミクノショウシツ</item>
+<item>こっち向いて Baby</item>
+<item>コッチムイテベイビイ</item>
+<item>カラフル×メロディ</item>
+<item>カラフルメロディ</item>
+<item>ロミオとシンデレラ</item>
+<item>ロミオトシンデレラ</item>
+<item>カンタレラ</item>
+<item>カンタレラ</item>
+<item>Change me</item>
+<item>チェンジミイ</item>
+<item>Magical Sound Shower</item>
+<item>マジカルサウンドシャワア</item>
+<item>多重未来のカルテット -Quartet Theme-</item>
+<item>タジュウミライノカルテット</item>
+<item>星屑ユートピア</item>
+<item>ホシクズユウトピア</item>
+<item>StargazeR</item>
+<item>スタアゲイザア</item>
+<item>孤独の果て</item>
+<item>コドクノハテ</item>
+<item>タイムリミット</item>
+<item>タイムリミット</item>
+<item>Holy Star -2010 DIVA mix-</item>
+<item>ホオリイスタア</item>
+<item>melody...</item>
+<item>メロディ</item>
+<item>saturation</item>
+<item>サチュレイション</item>
+<item>迷的サイバネティックス</item>
+<item>メイテキサイバネティックス</item>
+<item>ピンクムーン</item>
+<item>ピンクムウン</item>
+<item>透明水彩</item>
+<item>トウメイスイサイ</item>
+<item>いろは唄</item>
+<item>イロハウタ</item>
+<item>片想いサンバ</item>
+<item>カタオモイサンバ</item>
+<item>サヨナラ・グッバイ</item>
+<item>サヨナラグッバイ</item>
+<item>崩壊歌姫 -disruptive diva-</item>
+<item>ホウカイウタヒメ</item>
+<item>ZIGG-ZAGG</item>
+<item>ジグザグ</item>
+<item>ナイトメア☆パーティーナイト</item>
+<item>ナイトメアパアティイナイト</item>
+<item>恋ノート////</item>
+<item>コイノオト</item>
+<item>SYMPHONIC DIVE - DIVA edit -</item>
+<item>シンフォニックダイブ</item>
+<item>どうしてこうなった</item>
+<item>ドウシテコウナッタ</item>
+<item>オオカミガール</item>
+<item>オオカミガアル</item>
+<item>Starlite★Lydian</item>
+<item>スタアライトリディアン</item>
+<item>ペリコ・スペースシッパー</item>
+<item>ペリコスペエスシッパア</item>
+<item>炉心融解</item>
+<item>ロシンユウカイ</item>
+<item>Promise</item>
+<item>プロミス</item>
+<item>右肩の蝶</item>
+<item>ミギカタノチョウ</item>
+<item>愛言葉</item>
+<item>アイコトバ</item>
+<item>ぽっぴっぽー</item>
+<item>ポッピッポオ</item>
+<item>magnet</item>
+<item>マグネット</item>
+<item>サウンド</item>
+<item>サウンド</item>
+<item>ココロ</item>
+<item>ココロ</item>
+<item>Just Be Friends</item>
+<item>ジャストビイフレンド</item>
+<item>クローバー・クラブ</item>
+<item>クロオバアクラブ</item>
+<item>from Y to Y</item>
+<item>フロムワイトゥワイ</item>
+<item>Yellow</item>
+<item>イエロオ</item>
+<item>初めての恋が終わる時</item>
+<item>ハジメテノコイガオワルトキ</item>
+<item>巨大少女</item>
+<item>キョダイショウジョ</item>
+<item>Dear</item>
+<item>ディア</item>
+<item>ジェミニ</item>
+<item>ジェミニ</item>
+<item>VOiCE -DIVA MIX-</item>
+<item>ボイス</item>
+<item>Innocence</item>
+<item>イノセンス</item>
+<item>ほんとは分かってる</item>
+<item>ホントハワカッテル</item>
+<item>恋色病棟</item>
+<item>コイイロビョウトウ</item>
+<item>ファインダー</item>
+<item>ファインダア</item>
+<item>ハジメテノオト</item>
+<item>ハジメテノオト</item>
+<item>サイハテ</item>
+<item>サイハテ</item>
+<item>ダブルラリアット</item>
+<item>ダブルラリアット</item>
+<item>初音ミクの激唱</item>
+<item>ハツネミクノゲキショウ</item>
+<item>LINK</item>
+<item>リンク</item>
+<item>マスターオブパペッツ</item>
+<item>マスタアオブパペッツ</item>
+<item>Pane dhiria</item>
+<item>パネディリア</item>
+<item>ほしをつくるひと</item>
+<item>ホシヲツクルヒト</item>
+<item>So much loving you★ -DIVA Edit-</item>
+<item>ソオマッチラビンユウ</item>
+<item>ジュゲムシーケンサー</item>
+<item>ジュゲムシイケンサア</item>
+<item>さあ、どっち?</item>
+<item>サアドッチ</item>
+<item>数多の舞 -Dance of many-</item>
+<item>アマタノマイ</item>
+<item>Equation+**</item>
+<item>イクエイション</item>
+<item>イヤイヤ星人</item>
+<item>イヤイヤセイジン</item>
+<item>嘘つきベティ</item>
+<item>ウソツキベティ</item>
+</string-array>
+</resources>

@@ -142,7 +142,7 @@ public class DownloadRankingService extends Service {
 		CharSequence title = getText(R.string.app_name);
 		CharSequence text = getText(R.string.notification_ranking_updated);
 
-		Intent intent = new Intent(context, MusicListActivity.class);
+		Intent intent = new Intent(context, MainActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		PendingIntent operation = PendingIntent.getActivity(context, 0, intent, 0);
 

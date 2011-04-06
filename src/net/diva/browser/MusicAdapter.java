@@ -32,7 +32,7 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 	private int m_sortOrder;
 	private boolean m_reverseOrder;
 
-	public MusicAdapter(Context context, int difficulty, boolean favoriteOnly) {
+	public MusicAdapter(Context context, boolean favoriteOnly) {
 		super(context, LIST_ITEM_ID);
 		m_inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		Resources resources = context.getResources();
@@ -44,7 +44,7 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 				resources.getDrawable(R.drawable.clear3),
 		};
 
-		m_difficulty = difficulty;
+		m_difficulty = 0;
 		m_favorite = favoriteOnly;
 		m_sortOrder = R.id.item_sort_by_name;
 		m_reverseOrder = false;
@@ -59,14 +59,10 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 		return m_favorite;
 	}
 
-	public void toggleFavorite() {
-		m_favorite = !m_favorite;
-		update();
-	}
-
-	public void setDifficulty(int difficulty) {
+	public void setDifficulty(int difficulty, boolean update) {
 		m_difficulty = difficulty;
-		update();
+		if (update)
+			update();
 	}
 
 	private void update() {

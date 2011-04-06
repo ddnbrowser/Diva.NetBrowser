@@ -37,6 +37,13 @@ public class DdN extends Application {
 		super.onCreate();
 		CookieSyncManager.createInstance(this);
 		m_instance = this;
+
+		Account account = Account.load(PreferenceManager.getDefaultSharedPreferences(this));
+		if (account != null) {
+			LocalStore store = getLocalStore();
+			m_titles = store.getTitles();
+			m_record = store.load(account.access_code);
+		}
 	}
 
 	private ServiceClient getServiceClient_(Account account) {

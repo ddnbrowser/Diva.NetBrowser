@@ -6,8 +6,6 @@
     <string name="account_input_title">ログイン</string>
     <string name="access_code">アクセスコード:</string>
     <string name="password">パスワード：</string>
-    <string name="show_favorite">お気に入り</string>
-    <string name="show_all">全て表示</string>
     <string name="item_update_all">全曲更新</string>
     <string name="item_update_new">新曲取得</string>
     <string name="item_update_selction">更新</string>
@@ -80,4 +78,6 @@
     <string name="buying">購入しています...</string>
     <string name="faile_buying">購入処理に失敗しました</string>
     <string name="input_reading">読み仮名入力</string>
+    <string name="default_tab">初期表示タブ</string>
+    <string name="summary_default_tab">起動時に表示するタブを選択します</string>
 </resources>

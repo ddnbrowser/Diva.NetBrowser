@@ -17,7 +17,6 @@ import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.settings.ModuleListActivity;
-import net.diva.browser.util.ProgressTask;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -38,12 +37,9 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MusicListActivity extends ListActivity {
-	private TextView m_player_name;
-	private TextView m_level_rank;
 	private View m_buttons[];
 	private MusicAdapter m_adapter;
 
@@ -60,15 +56,9 @@ public class MusicListActivity extends ListActivity {
 		m_preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		m_store = LocalStore.instance(this);
 
-		final int difficulty = m_preferences.getInt("difficulty", 3);
-		final boolean favorite = m_preferences.getBoolean("start_from_favorite", false);
-		m_player_name = (TextView)findViewById(R.id.player_name);
-		m_level_rank = (TextView)findViewById(R.id.level_rank);
-		m_adapter = new MusicAdapter(this, difficulty, favorite);
+		final boolean favorite = getIntent().getBooleanExtra("is_favorite", false);
+		m_adapter = new MusicAdapter(this, favorite);
 		setListAdapter(m_adapter);
-
-		m_player_name.setText("");
-		m_level_rank.setText("");
 
 		m_buttons = new View[] {
 				findViewById(R.id.button_easy),
@@ -80,11 +70,9 @@ public class MusicListActivity extends ListActivity {
 			final int d = i;
 			m_buttons[i].setOnClickListener(new View.OnClickListener() {
 				public void onClick(View view) {
-					setDifficulty(d);
+					setDifficulty(d, true);
 				}
 			});
-			m_buttons[i].setEnabled(d != difficulty);
-
 		}
 		getListView().setOnTouchListener(new OnTouchListener());
 
@@ -93,8 +81,16 @@ public class MusicListActivity extends ListActivity {
 			DdN.Account.input(this, new PlayRecordDownloader());
 			return;
 		}
+	}
 
-		new PlayRecordLoader().execute(account);
+	@Override
+	protected void onResume() {
+		super.onResume();
+		PlayRecord record = DdN.getPlayRecord();
+		if (record != null) {
+			setDifficulty(m_preferences.getInt("difficulty", 3), false);
+			refresh(true);
+		}
 	}
 
 	@Override
@@ -107,7 +103,6 @@ public class MusicListActivity extends ListActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		final long now = System.currentTimeMillis();
 		boolean enable_all = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
-		menu.findItem(R.id.item_switch_list).setTitle(m_adapter.isFavorite() ? R.string.show_all : R.string.show_favorite);
 		menu.findItem(R.id.item_update).setVisible(enable_all);
 		menu.findItem(R.id.item_update_new).setVisible(!enable_all);
 		MenuItem sort = menu.findItem(m_adapter.sortOrder());
@@ -128,9 +123,6 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		switch (id) {
-		case R.id.item_switch_list:
-			m_adapter.toggleFavorite();
-			break;
 		case R.id.item_update:
 			updateAll();
 			break;
@@ -248,8 +240,7 @@ public class MusicListActivity extends ListActivity {
 			title = "取得中...";
 			new TitleDownloader().execute(record);
 		}
-		m_player_name.setText(record.player_name);
-		m_level_rank.setText(rankText(record, title));
+		setTitle(rankText(record, title));
 
 		if (reload)
 			m_adapter.setData(record.musics);
@@ -257,9 +248,10 @@ public class MusicListActivity extends ListActivity {
 			m_adapter.notifyDataSetChanged();
 	}
 
-	public void setDifficulty(int difficulty) {
-		m_adapter.setDifficulty(difficulty);
-		m_preferences.edit().putInt("difficulty", difficulty).commit();
+	public void setDifficulty(int difficulty, boolean update) {
+		m_adapter.setDifficulty(difficulty, update);
+		if (update)
+			m_preferences.edit().putInt("difficulty", difficulty).commit();
 		for (int i = 0; i < m_buttons.length; ++i)
 			m_buttons[i].setEnabled(i != difficulty);
 	}
@@ -563,25 +555,6 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	private class PlayRecordLoader extends ProgressTask<DdN.Account, Void, Boolean> {
-		PlayRecordLoader() {
-			super(MusicListActivity.this, R.string.message_loading);
-		}
-
-		@Override
-		protected Boolean doInBackground(DdN.Account... args) {
-			DdN.setTitles(m_store.getTitles());
-			DdN.setPlayRecord(m_store.load(args[0].access_code));
-			return Boolean.TRUE;
-		}
-
-		@Override
-		protected void onResult(Boolean result) {
-			if (result != null)
-				refresh(true);
-		}
-	}
-
 	private class TitleDownloader extends AsyncTask<PlayRecord, Void, String> {
 		@Override
 		protected String doInBackground(PlayRecord... params) {
@@ -611,7 +584,7 @@ public class MusicListActivity extends ListActivity {
 
 		@Override
 		protected void onPostExecute(String result) {
-			m_level_rank.setText(result);
+			setTitle(result);
 		}
 	}
 

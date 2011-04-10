@@ -1,6 +1,7 @@
 package net.diva.browser.service;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -127,6 +128,25 @@ public class ServiceClient {
 		byte[] buffer = new byte[1024];
 		for (int read; (read = in.read(buffer)) != -1;)
 			out.write(buffer, 0, read);
+	}
+
+	public boolean cacheContent(String path, File file) {
+		if (file.exists())
+			return false;
+
+		FileOutputStream out = null;
+		try {
+			out = new FileOutputStream(file);
+			download(path, out);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		finally {
+			if (out != null)
+				try { out.close(); } catch (IOException e) {}
+		}
+		return true;
 	}
 
 	public List<Ranking> getRankInList() throws IOException, ParseException {

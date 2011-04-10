@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import net.diva.browser.common.DownloadPlayRecord;
 import android.app.Activity;
 import android.app.TabActivity;
 import android.content.Context;
@@ -39,6 +40,10 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 		host.setCurrentTabByTag(prefs.getString("default_tab", tags[0]));
+
+		DdN.Account account = DdN.Account.load(prefs);
+		if (account == null)
+			DdN.Account.input(this, new DownloadPlayRecord(this));
 	}
 
 	@Override

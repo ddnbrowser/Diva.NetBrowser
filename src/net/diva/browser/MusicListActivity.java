@@ -1,25 +1,22 @@
 package net.diva.browser;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import net.diva.browser.DdN.Account;
+import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.TitleInfo;
 import net.diva.browser.service.LoginFailedException;
-import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.settings.ModuleListActivity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -75,12 +72,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			});
 		}
 		getListView().setOnTouchListener(new OnTouchListener());
-
-		DdN.Account account = DdN.Account.load(m_preferences);
-		if (account == null) {
-			DdN.Account.input(this, new PlayRecordDownloader());
-			return;
-		}
 	}
 
 	@Override
@@ -284,7 +275,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	}
 
 	private void updateAll() {
-		PlayRecordDownloader task = new PlayRecordDownloader();
+		DownloadPlayRecord task = new DownloadPlayRecord(this);
 
 		DdN.Account account = DdN.Account.load(m_preferences);
 		if (account == null) {
@@ -407,100 +398,12 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		}
 	}
 
-	public void cacheCoverart(MusicInfo music, ServiceClient service) {
-		File cache = music.getCoverArtPath(getApplicationContext());
-		if (cache.exists())
-			return;
-
-		try {
-			FileOutputStream out = new FileOutputStream(cache);
-			service.download(music.coverart, out);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private class PlayRecordDownloader extends AsyncTask<DdN.Account, Integer, PlayRecord> {
-		private ProgressDialog m_progress;
-
-		private List<MusicInfo> mergeMusicList(List<MusicInfo> newMusics) {
-			PlayRecord record = DdN.getPlayRecord();
-			if (record == null)
-				return newMusics;
-
-			List<MusicInfo> musics = new ArrayList<MusicInfo>(record.musics);
-			for (MusicInfo music: newMusics) {
-				int index = musics.indexOf(music);
-				if (index < 0)
-					musics.add(music);
-				else
-					musics.get(index).title = music.title;
-			}
-
-			return musics;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			m_progress = new ProgressDialog(MusicListActivity.this);
-			m_progress.setMessage(getString(R.string.message_downloading));
-			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			m_progress.setIndeterminate(true);
-			m_progress.show();
-		}
-
-		@Override
-		protected PlayRecord doInBackground(DdN.Account... args) {
-			final Account account = args[0];
-			ServiceClient service = DdN.getServiceClient(account);
-			try {
-				PlayRecord record = service.login();
-				record.musics = mergeMusicList(service.getMusics());
-				publishProgress(0, record.musics.size());
-
-				for (MusicInfo music: record.musics) {
-					service.update(music);
-					cacheCoverart(music, service);
-					publishProgress(1);
-				}
-
-				m_store.insert(record);
-				SharedPreferences.Editor editor = m_preferences.edit();
-				account.putTo(editor);
-				editor.putLong("last_updated", System.currentTimeMillis());
-				editor.commit();
-				return record;
-			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
-			}
-			catch (NoLoginException e) {
-				assert(false);
-			}
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			if (values.length > 1) {
-				m_progress.setIndeterminate(false);
-				m_progress.setMax(values[1]);
-			}
-			m_progress.incrementProgressBy(values[0]);
-		}
-
-		@Override
-		protected void onPostExecute(PlayRecord result) {
-			if (result != null)
-				DdN.setPlayRecord(result);
-			m_progress.dismiss();
-		}
-	}
-
 	private class UpdateNewTask extends ServiceTask<Void, Integer, PlayRecord> {
+		private Context m_context;
+
 		public UpdateNewTask() {
 			super(MusicListActivity.this, R.string.message_downloading);
+			m_context = m_progress.getContext();
 		}
 
 		@Override
@@ -521,7 +424,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			publishProgress(0, musics.size());
 			for (MusicInfo music: musics) {
 				service.update(music);
-				cacheCoverart(music, service);
+				service.cacheContent(music.coverart, music.getCoverArtPath(m_context));
 				publishProgress(1);
 			}
 

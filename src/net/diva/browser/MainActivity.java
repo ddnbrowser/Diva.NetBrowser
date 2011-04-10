@@ -10,6 +10,8 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TabHost;
 
 public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener {
@@ -56,5 +58,56 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		CharSequence title = getCurrentActivity().getTitle();
 		if (title != null)
 			setTitle(title);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main_options, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		int id = item.getItemId();
+		switch (id) {
+		case R.id.item_news:
+			WebBrowseActivity.open(this, "/divanet/menu/news/");
+			break;
+		case R.id.item_contest:
+			WebBrowseActivity.open(this, "/divanet/contest/info/");
+			break;
+		case R.id.item_statistics:
+			WebBrowseActivity.open(this, "/divanet/pv/statistics/");
+			break;
+		case R.id.item_game_settings: {
+			Intent intent = new Intent(getApplicationContext(), ConfigActivity.class);
+			startActivity(intent);
+		}
+			break;
+		case R.id.item_tool_settings: {
+			Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
+			startActivityForResult(intent, R.id.item_tool_settings);
+		}
+			break;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case R.id.item_tool_settings:
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+			if (preferences.getBoolean("download_rankin", false))
+				DownloadRankingService.reserve(this);
+			else
+				DownloadRankingService.cancel(this);
+			break;
+		default:
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 }

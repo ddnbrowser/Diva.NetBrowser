@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -93,7 +92,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.list_options, menu);
-		return true;
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
@@ -125,25 +124,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			break;
 		case R.id.item_update_new:
 			new UpdateNewTask().execute();
-			break;
-		case R.id.item_news:
-			openPage("/divanet/menu/news/");
-			break;
-		case R.id.item_contest:
-			openPage("/divanet/contest/info/");
-			break;
-		case R.id.item_statistics:
-			openPage("/divanet/pv/statistics/");
-			break;
-		case R.id.item_game_settings: {
-			Intent intent = new Intent(getApplicationContext(), ConfigActivity.class);
-			startActivityForResult(intent, R.id.item_game_settings);
-		}
-			break;
-		case R.id.item_tool_settings: {
-			Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-			startActivityForResult(intent, R.id.item_tool_settings);
-		}
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -200,7 +180,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			editTitleReading(music);
 			return true;
 		case R.id.item_ranking:
-			openPage(String.format("/divanet/ranking/summary/%s/0", music.id));
+			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", music.id));
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -210,19 +190,14 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case R.id.item_tool_settings:
-			if (m_preferences.getBoolean("download_rankin", false))
-				DownloadRankingService.reserve(this);
-			else
-				DownloadRankingService.cancel(this);
-			break;
 		case R.id.item_set_module:
 			if (resultCode == RESULT_OK)
 				setModule(data);
+			break;
 		default:
-			super.onActivityResult(requestCode, resultCode, data);
 			break;
 		}
+		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
@@ -291,13 +266,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		m_store.updateFavorite(music);
 		if (m_adapter.isFavorite())
 			refreshList(true);
-	}
-
-	private void openPage(String relative) {
-		Intent intent = new Intent(
-				Intent.ACTION_VIEW, Uri.parse(DdN.url(relative)),
-				getApplicationContext(), WebBrowseActivity.class);
-		startActivity(intent);
 	}
 
 	private void setModule(Intent data) {

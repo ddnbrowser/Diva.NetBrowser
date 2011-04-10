@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/item_open_web" android:title="@string/item_open_web" android:icon="@drawable/ic_menu_info_details">
+        <menu>
+            <item android:id="@+id/item_news" android:title="@string/item_news"></item>
+            <item android:id="@+id/item_contest" android:title="@string/item_contest"></item>
+            <item android:id="@+id/item_statistics" android:title="@string/item_statistics"></item>
+        </menu>
+    </item>
+    <item android:id="@+id/item_game_settings" android:title="@string/item_game_settings" android:icon="@drawable/ic_menu_manage"></item>
+    <item android:id="@+id/item_tool_settings" android:title="@string/item_tool_settings" android:icon="@drawable/ic_menu_preferences"></item>
+</menu>

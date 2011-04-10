@@ -39,7 +39,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class MusicListActivity extends ListActivity {
+public class MusicListActivity extends ListActivity implements DdN.Observer {
 	private View m_buttons[];
 	private MusicAdapter m_adapter;
 
@@ -86,11 +86,17 @@ public class MusicListActivity extends ListActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		setDifficulty(m_preferences.getInt("difficulty", 3), false);
 		PlayRecord record = DdN.getPlayRecord();
-		if (record != null) {
-			setDifficulty(m_preferences.getInt("difficulty", 3), false);
-			refresh(true);
-		}
+		if (record != null)
+			onUpdate(record, false);
+		DdN.registerObserver(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		DdN.unregisterObserver(this);
 	}
 
 	@Override
@@ -213,10 +219,6 @@ public class MusicListActivity extends ListActivity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case R.id.item_game_settings:
-			if (resultCode == RESULT_OK)
-				refresh(false);
-			break;
 		case R.id.item_tool_settings:
 			if (m_preferences.getBoolean("download_rankin", false))
 				DownloadRankingService.reserve(this);
@@ -232,9 +234,7 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	public void refresh(boolean reload) {
-		PlayRecord record = DdN.getPlayRecord();
-
+	public void onUpdate(PlayRecord record, boolean noMusic) {
 		String title = DdN.getTitle(record.title_id);
 		if (title == null) {
 			title = "取得中...";
@@ -242,6 +242,12 @@ public class MusicListActivity extends ListActivity {
 		}
 		setTitle(rankText(record, title));
 
+		if (!noMusic)
+			m_adapter.setData(record.musics);
+	}
+
+	public void refreshList(boolean reload) {
+		PlayRecord record = DdN.getPlayRecord();
 		if (reload)
 			m_adapter.setData(record.musics);
 		else
@@ -293,7 +299,7 @@ public class MusicListActivity extends ListActivity {
 		music.favorite = register;
 		m_store.updateFavorite(music);
 		if (m_adapter.isFavorite())
-			refresh(true);
+			refreshList(true);
 	}
 
 	private void openPage(String relative) {
@@ -350,7 +356,7 @@ public class MusicListActivity extends ListActivity {
 				music.reading = edit.getText().toString();
 				m_store.update(music);
 				dialog.dismiss();
-				refresh(false);
+				refreshList(false);
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, null);
@@ -464,7 +470,7 @@ public class MusicListActivity extends ListActivity {
 				account.putTo(editor);
 				editor.putLong("last_updated", System.currentTimeMillis());
 				editor.commit();
-				return DdN.setPlayRecord(record);
+				return record;
 			}
 			catch (LoginFailedException e) {
 				e.printStackTrace();
@@ -487,12 +493,12 @@ public class MusicListActivity extends ListActivity {
 		@Override
 		protected void onPostExecute(PlayRecord result) {
 			if (result != null)
-				refresh(true);
+				DdN.setPlayRecord(result);
 			m_progress.dismiss();
 		}
 	}
 
-	private class UpdateNewTask extends ServiceTask<Void, Integer, Boolean> {
+	private class UpdateNewTask extends ServiceTask<Void, Integer, PlayRecord> {
 		public UpdateNewTask() {
 			super(MusicListActivity.this, R.string.message_downloading);
 		}
@@ -504,13 +510,13 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		@Override
-		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
+		protected PlayRecord doTask(ServiceClient service, Void... params) throws Exception {
 			PlayRecord record = DdN.getPlayRecord();
 
 			List<MusicInfo> musics = service.getMusics();
 			musics.removeAll(record.musics);
 			if (musics.isEmpty())
-				return Boolean.FALSE;
+				return null;
 
 			publishProgress(0, musics.size());
 			for (MusicInfo music: musics) {
@@ -522,7 +528,7 @@ public class MusicListActivity extends ListActivity {
 			m_store.insert(musics);
 			musics.addAll(0, record.musics);
 			record.musics = musics;
-			return Boolean.TRUE;
+			return record;
 		}
 
 		@Override
@@ -535,15 +541,15 @@ public class MusicListActivity extends ListActivity {
 		}
 
 		@Override
-		protected void onResult(Boolean result) {
-			if (result != null && result)
-				refresh(true);
+		protected void onResult(PlayRecord result) {
+			if (result != null)
+				DdN.setPlayRecord(result);
 		}
 	}
 
-	private class MusicUpdateTask extends BasicTask<MusicInfo> {
+	private class MusicUpdateTask extends ServiceTask<MusicInfo, Void, Boolean> {
 		public MusicUpdateTask() {
-			super(R.string.message_updating);
+			super(MusicListActivity.this, R.string.message_updating);
 		}
 
 		@Override
@@ -552,6 +558,12 @@ public class MusicListActivity extends ListActivity {
 			service.update(music);
 			m_store.update(music);
 			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			if (result != null && result)
+				refreshList(false);
 		}
 	}
 
@@ -588,11 +600,11 @@ public class MusicListActivity extends ListActivity {
 		}
 	}
 
-	private class SetModuleTask extends BasicTask<Module> {
+	private class SetModuleTask extends ServiceTask<Module, Void, Boolean> {
 		private MusicInfo m_music;
 
 		public SetModuleTask(MusicInfo music) {
-			super(R.string.summary_applying);
+			super(MusicListActivity.this, R.string.summary_applying);
 			m_music = music;
 		}
 
@@ -612,13 +624,13 @@ public class MusicListActivity extends ListActivity {
 				m_music.vocal2 = vocal2.id;
 			}
 			m_store.updateModule(m_music);
-			return isRequiredRefresh();
+			return Boolean.TRUE;
 		}
 	}
 
-	private class ResetModuleTask extends BasicTask<MusicInfo> {
+	private class ResetModuleTask extends ServiceTask<MusicInfo, Void, Boolean> {
 		public ResetModuleTask() {
-			super(R.string.summary_applying);
+			super(MusicListActivity.this, R.string.summary_applying);
 		}
 
 		@Override
@@ -627,26 +639,7 @@ public class MusicListActivity extends ListActivity {
 			service.resetIndividualModule(music.id);
 			music.vocal1 = music.vocal2 = null;
 			m_store.updateModule(music);
-			return isRequiredRefresh();
-		}
-	}
-
-	private abstract class BasicTask<Param> extends ServiceTask<Param, Void, Boolean> {
-		PlayRecord m_record;
-
-		BasicTask(int message) {
-			super(MusicListActivity.this, message);
-			m_record = DdN.getPlayRecord();
-		}
-
-		boolean isRequiredRefresh() {
-			return m_record != DdN.getPlayRecord();
-		}
-
-		@Override
-		protected void onResult(Boolean result) {
-			if (result != null && result)
-				refresh(false);
+			return Boolean.TRUE;
 		}
 	}
 }

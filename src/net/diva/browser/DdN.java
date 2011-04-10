@@ -1,6 +1,7 @@
 package net.diva.browser;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.db.LocalStore;
@@ -15,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,10 @@ import android.webkit.CookieSyncManager;
 import android.widget.TextView;
 
 public class DdN extends Application {
+	public interface Observer {
+		void onUpdate(PlayRecord record, boolean noMusic);
+	}
+
 	public static final URI URL = URI.create("http://project-diva-ac.net/divanet/");
 
 	private static DdN m_instance;
@@ -32,15 +38,21 @@ public class DdN extends Application {
 	private List<TitleInfo> m_titles;
 	private List<ModuleGroup> m_modules;
 
+	private Handler m_handler;
+	private List<Observer> m_observers;
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		CookieSyncManager.createInstance(this);
+
 		m_instance = this;
+		m_handler = new Handler();
+		m_observers = new ArrayList<Observer>();
 
 		Account account = Account.load(PreferenceManager.getDefaultSharedPreferences(this));
 		if (account != null) {
-			LocalStore store = getLocalStore();
+			LocalStore store = LocalStore.instance(this);
 			m_titles = store.getTitles();
 			m_record = store.load(account.access_code);
 		}
@@ -53,9 +65,20 @@ public class DdN extends Application {
 	}
 
 	private PlayRecord setPlayRecord_(PlayRecord record) {
-		if (m_record != null && record.musics == null)
+		final boolean noMusic = record.musics == null;
+		if (noMusic && m_record != null)
 			record.musics = m_record.musics;
-		return m_record = record;
+		m_record = record;
+
+		m_handler.post(new Runnable() {
+			public void run() {
+				synchronized (m_observers) {
+					for (Observer o: m_observers)
+						o.onUpdate(m_record, noMusic);
+				}
+			}
+		});
+		return m_record;
 	}
 
 	private List<ModuleGroup> getModules_() {
@@ -134,6 +157,18 @@ public class DdN extends Application {
 		}
 
 		return null;
+	}
+
+	public static void registerObserver(Observer observer) {
+		synchronized (m_instance.m_observers) {
+			m_instance.m_observers.add(observer);
+		}
+	}
+
+	public static void unregisterObserver(Observer observer) {
+		synchronized (m_instance.m_observers) {
+			m_instance.m_observers.remove(observer);
+		}
 	}
 
 	public static class Account {

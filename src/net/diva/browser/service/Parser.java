@@ -39,6 +39,7 @@ public final class Parser {
 
 	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\].*<br>\\s*(.+)<br>");
 	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/RANK\\].*<br>\\s*(.+)<br>\\s*<img src=\"/divanet/img/title/(\\w+)\"><br>");
+	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\].*<br>\\s*(\\d+)VP<br>");
 
 	public static PlayRecord parseMenuPage(InputStream content) throws ParseException {
 		PlayRecord record = new PlayRecord();
@@ -52,6 +53,9 @@ public final class Parser {
 			throw new ParseException();
 		record.level = m.group(1);
 		record.title_id = m.group(2);
+		m = m.usePattern(RE_VP);
+		if (m.find())
+			record.vocaloid_point = Integer.valueOf(m.group(1));
 		return record;
 	}
 

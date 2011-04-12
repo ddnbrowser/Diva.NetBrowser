@@ -64,6 +64,8 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 		R.layout.info_bar,
 		R.layout.info_right,
 		R.layout.info_right,
+		android.R.layout.preference_category,
+		R.layout.info_right,
 	};
 
 	private class InformationAdapter extends BaseAdapter {
@@ -132,6 +134,12 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 			case 6:
 				setText(view, R.id.text1, R.string.next_rank);
 				setText(view, R.id.text2, String.format("%d pts", m_rankPoints));
+				break;
+			case 7:
+				setText(view, android.R.id.title, R.string.vocaloid_point);
+				break;
+			case 8:
+				setText(view, R.id.text2, String.format("%d VP", m_record.vocaloid_point));
 				break;
 			}
 

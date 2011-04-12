@@ -8,6 +8,7 @@ public class PlayRecord {
 	public String player_name;
 	public String level;
 	public String title_id;
+	public int vocaloid_point;
 	public List<MusicInfo> musics;
 
 	public MusicInfo getMusic(String id) {

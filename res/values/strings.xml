@@ -85,4 +85,5 @@
     <string name="level_rank">LEVEL / RANK</string>
     <string name="next_level">次のレベルまで残り</string>
     <string name="next_rank">次のランクまで残り</string>
+    <string name="vocaloid_point">VOCALOID POINT</string>
 </resources>

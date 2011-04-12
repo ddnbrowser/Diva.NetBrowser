@@ -61,6 +61,7 @@ public class LocalStore extends ContextWrapper {
 		record.player_name = prefs.getString("player_name", null);
 		record.level = prefs.getString("level_rank", null);
 		record.title_id = prefs.getString("title_id", null);
+		record.vocaloid_point = prefs.getInt("vocaloid_point", 0);
 		record.musics = findMusic();
 		return record;
 	}
@@ -216,6 +217,7 @@ public class LocalStore extends ContextWrapper {
 		editor.putString("player_name", record.player_name);
 		editor.putString("level_rank", record.level);
 		editor.putString("title_id", record.title_id);
+		editor.putInt("vocaloid_point", record.vocaloid_point);
 		editor.commit();
 	}
 

@@ -15,10 +15,13 @@ import android.view.MenuItem;
 import android.widget.TabHost;
 
 public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener {
+	private CharSequence m_defaultTitle;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
+		m_defaultTitle = getTitle();
 
 		final Context context = getApplicationContext();
 		final Resources res = getResources();
@@ -27,11 +30,13 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		String[] names = res.getStringArray(R.array.tab_names);
 		TypedArray icons = res.obtainTypedArray(R.array.tab_icons);
 		Intent[] intents = {
+				new Intent(context, InformationActivity.class),
 				new Intent(context, MusicListActivity.class),
 				new Intent(context, MusicListActivity.class).putExtra("is_favorite", true),
 		};
 
 		TabHost host = getTabHost();
+		host.setOnTabChangedListener(this);
 		for (int i = 0; i < tags.length; ++i) {
 			TabHost.TabSpec tab = host.newTabSpec(tags[i]);
 			tab.setIndicator(names[i], icons.getDrawable(i));
@@ -56,8 +61,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 
 	public void onTabChanged(String tagId) {
 		CharSequence title = getCurrentActivity().getTitle();
-		if (title != null)
-			setTitle(title);
+		setTitle(title != null ? title : m_defaultTitle);
 	}
 
 	@Override

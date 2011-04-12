@@ -80,4 +80,9 @@
     <string name="input_reading">読み仮名入力</string>
     <string name="default_tab">初期表示タブ</string>
     <string name="summary_default_tab">起動時に表示するタブを選択します</string>
+    <string name="no_record">プレイ記録がありません。</string>
+    <string name="player_name">プレイヤー名</string>
+    <string name="level_rank">LEVEL / RANK</string>
+    <string name="next_level">次のレベルまで残り</string>
+    <string name="next_rank">次のランクまで残り</string>
 </resources>

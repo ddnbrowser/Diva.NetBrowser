@@ -29,6 +29,8 @@ public class DdN extends Application {
 	}
 
 	public static final URI URL = URI.create("http://project-diva-ac.net/divanet/");
+	public static int[] RANK_POINTS;
+	public static final int EXPERIENCE_UNIT = 13979;
 
 	private static DdN m_instance;
 
@@ -45,6 +47,7 @@ public class DdN extends Application {
 	public void onCreate() {
 		super.onCreate();
 		CookieSyncManager.createInstance(this);
+		RANK_POINTS = getResources().getIntArray(R.array.rank_points);
 
 		m_instance = this;
 		m_handler = new Handler();

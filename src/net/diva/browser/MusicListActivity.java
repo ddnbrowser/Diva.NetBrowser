@@ -229,24 +229,9 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	}
 
 	private String rankText(PlayRecord record, String title) {
-		final int[] rank_points = getResources().getIntArray(R.array.rank_points);
-
-		int point = rankPoint(record);
-		int rank = 0;
-		while (rank < rank_points.length && point >= rank_points[rank])
-			point -= rank_points[rank++];
-		rank += point/150;
-		point %= 150;
-
-		int next = point - (rank < rank_points.length ? rank_points[rank] : 150);
-		return String.format("%s %s (%dpts)", record.level, title, next);
-	}
-
-	private int rankPoint(PlayRecord record) {
-		int point = 0;
-		for (MusicInfo m: record.musics)
-			point += m.rankPoint();
-		return point;
+		int[] next = new int[1];
+		record.rank(next);
+		return String.format("%s %s (-%dpts)", record.level, title, next[0]);
 	}
 
 	private void updateAll() {

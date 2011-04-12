@@ -43,6 +43,16 @@ public class MusicInfo {
 		return max;
 	}
 
+	public long experience() {
+		long points = 0;
+		for (int difficulty = 0; difficulty < records.length; ++difficulty) {
+			ScoreRecord score = records[difficulty];
+			if (score != null)
+				points += score.achievement;
+		}
+		return points;
+	}
+
 	public File getCoverArtPath(Context context) {
 		return context.getFileStreamPath(new File(coverart).getName());
 	}

@@ -10,6 +10,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".InformationActivity"></activity>
         <activity android:name=".MusicListActivity"></activity>
         <activity android:name=".MusicDetailActivity" android:theme="@style/Theme.Translucent"></activity>
         <activity android:name=".WebBrowseActivity" android:configChanges="keyboardHidden|orientation"></activity>

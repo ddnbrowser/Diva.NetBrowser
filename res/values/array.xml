@@ -12,14 +12,17 @@
 <item>200</item>
 </integer-array>
 <string-array name="tab_tags">
+    <item>information</item>
     <item>all</item>
     <item>favorite</item>
 </string-array>
 <string-array name="tab_names">
+    <item>プレイヤー情報</item>
     <item>全て</item>
     <item>お気に入り</item>
 </string-array>
 <array name="tab_icons">
+    <item>@drawable/ic_menu_home</item>
     <item>@drawable/ic_menu_agenda</item>
     <item>@drawable/ic_menu_star</item>
 </array>

@@ -1,6 +1,5 @@
 package net.diva.browser;
 
-import java.io.IOException;
 import java.util.List;
 
 import net.diva.browser.common.DownloadPlayRecord;
@@ -8,8 +7,6 @@ import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
-import net.diva.browser.model.TitleInfo;
-import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.settings.ModuleListActivity;
@@ -20,7 +17,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
@@ -201,13 +197,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
-		String title = DdN.getTitle(record.title_id);
-		if (title == null) {
-			title = "取得中...";
-			new TitleDownloader().execute(record);
-		}
-		setTitle(rankText(record, title));
-
+		setTitle(rankText(record, DdN.getTitle(record.title_id)));
 		if (!noMusic)
 			m_adapter.setData(record.musics);
 	}
@@ -420,39 +410,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		protected void onResult(Boolean result) {
 			if (result != null && result)
 				refreshList(false);
-		}
-	}
-
-	private class TitleDownloader extends AsyncTask<PlayRecord, Void, String> {
-		@Override
-		protected String doInBackground(PlayRecord... params) {
-			PlayRecord record = params[0];
-			try {
-				ServiceClient service = DdN.getServiceClient();
-				if (!service.isLogin()) {
-					record = DdN.setPlayRecord(service.login());
-					m_store.update(record);
-				}
-
-				List<TitleInfo> titles = service.getTitles(DdN.getTitles());
-				m_store.updateTitles(titles);
-				DdN.setTitles(titles);
-				String title = DdN.getTitle(record.title_id);
-				if (title != null)
-					return rankText(record, title);
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
-			}
-			return rankText(record, "取得失敗");
-		}
-
-		@Override
-		protected void onPostExecute(String result) {
-			setTitle(result);
 		}
 	}
 

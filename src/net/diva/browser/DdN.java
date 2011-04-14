@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +10,7 @@ import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.TitleInfo;
+import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -32,7 +34,7 @@ public class DdN extends Application {
 	public static int[] RANK_POINTS;
 	public static final int EXPERIENCE_UNIT = 13979;
 
-	private static DdN m_instance;
+	private static DdN s_instance;
 
 	private ServiceClient m_service;
 
@@ -43,13 +45,16 @@ public class DdN extends Application {
 	private Handler m_handler;
 	private List<Observer> m_observers;
 
+	private AsyncTask<?, ?, ?> m_updateTitles;
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		CookieSyncManager.createInstance(this);
 		RANK_POINTS = getResources().getIntArray(R.array.rank_points);
 
-		m_instance = this;
+		s_instance = this;
+
 		m_handler = new Handler();
 		m_observers = new ArrayList<Observer>();
 
@@ -73,6 +78,11 @@ public class DdN extends Application {
 			record.musics = m_record.musics;
 		m_record = record;
 
+		notifyUpdate(noMusic);
+		return m_record;
+	}
+
+	private void notifyUpdate(final boolean noMusic) {
 		m_handler.post(new Runnable() {
 			public void run() {
 				synchronized (m_observers) {
@@ -81,7 +91,23 @@ public class DdN extends Application {
 				}
 			}
 		});
-		return m_record;
+	}
+
+	private String getTitle_(String id) {
+		if (id == null)
+			return getString(R.string.unknown_title);
+
+		if (m_titles != null) {
+			for (TitleInfo title: m_titles) {
+				if (id.equals(title.image_id))
+					return title.name;
+			}
+		}
+
+		if (m_updateTitles == null)
+			m_updateTitles = new UpdateTitles().execute();
+
+		return getString(R.string.title_getting);
 	}
 
 	private List<ModuleGroup> getModules_() {
@@ -99,57 +125,49 @@ public class DdN extends Application {
 	}
 
 	public static ServiceClient getServiceClient(Account account) {
-		return m_instance == null ? null : m_instance.getServiceClient_(account);
+		return s_instance == null ? null : s_instance.getServiceClient_(account);
 	}
 
 	public static ServiceClient getServiceClient() {
-		return getServiceClient(Account.load(PreferenceManager.getDefaultSharedPreferences(m_instance)));
+		return getServiceClient(Account.load(PreferenceManager.getDefaultSharedPreferences(s_instance)));
 	}
 
 	public static LocalStore getLocalStore() {
-		return m_instance == null ? null : LocalStore.instance(m_instance);
+		return s_instance == null ? null : LocalStore.instance(s_instance);
 	}
 
 	public static PlayRecord getPlayRecord() {
-		return m_instance == null ? null : m_instance.m_record;
+		return s_instance == null ? null : s_instance.m_record;
 	}
 
 	public static PlayRecord setPlayRecord(PlayRecord record) {
-		return m_instance != null ? m_instance.setPlayRecord_(record) : null;
+		return s_instance != null ? s_instance.setPlayRecord_(record) : null;
 	}
 
 	public static List<TitleInfo> getTitles() {
-		return m_instance == null ? null : m_instance.m_titles;
+		return s_instance == null ? null : s_instance.m_titles;
 	}
 
 	public static void setTitles(List<TitleInfo> titles) {
-		if (m_instance != null)
-			m_instance.m_titles = titles;
+		if (s_instance != null)
+			s_instance.m_titles = titles;
 	}
 
 	public static String getTitle(String id) {
-		if (id == null || m_instance == null || m_instance.m_titles == null)
-			return null;
-
-		for (TitleInfo title: m_instance.m_titles) {
-			if (id.equals(title.image_id))
-				return title.name;
-		}
-
-		return null;
+		return s_instance.getTitle_(id);
 	}
 
 	public static List<ModuleGroup> getModules() {
-		return m_instance == null ? null : m_instance.getModules_();
+		return s_instance == null ? null : s_instance.getModules_();
 	}
 
 	public static void setModules(List<ModuleGroup> modules) {
-		if (m_instance != null)
-			m_instance.m_modules = modules;
+		if (s_instance != null)
+			s_instance.m_modules = modules;
 	}
 
 	public static Module getModule(String id) {
-		if (id == null || m_instance == null)
+		if (id == null || s_instance == null)
 			return null;
 
 		for (ModuleGroup group: getModules()) {
@@ -163,14 +181,14 @@ public class DdN extends Application {
 	}
 
 	public static void registerObserver(Observer observer) {
-		synchronized (m_instance.m_observers) {
-			m_instance.m_observers.add(observer);
+		synchronized (s_instance.m_observers) {
+			s_instance.m_observers.add(observer);
 		}
 	}
 
 	public static void unregisterObserver(Observer observer) {
-		synchronized (m_instance.m_observers) {
-			m_instance.m_observers.remove(observer);
+		synchronized (s_instance.m_observers) {
+			s_instance.m_observers.remove(observer);
 		}
 	}
 
@@ -221,6 +239,39 @@ public class DdN extends Application {
 			editor.putString(ACCESS_CODE, access_code);
 			editor.putString(PASSWORD, password);
 			return editor;
+		}
+	}
+
+	private class UpdateTitles extends AsyncTask<Void, Void, Void> {
+		@Override
+		protected Void doInBackground(Void... params) {
+			PlayRecord newRecord = null;
+			LocalStore store = DdN.getLocalStore();
+			try {
+				ServiceClient service = DdN.getServiceClient();
+				if (!service.isLogin())
+					newRecord = service.login();
+
+				m_titles = service.getTitles(m_titles);
+				store.updateTitles(m_titles);
+				m_updateTitles = null;
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+			catch (LoginFailedException e) {
+				e.printStackTrace();
+			}
+
+			if (newRecord != null) {
+				store.update(newRecord);
+				setPlayRecord_(newRecord);
+			}
+			else {
+				notifyUpdate(true);
+			}
+
+			return null;
 		}
 	}
 }

@@ -66,12 +66,6 @@ public class DdN extends Application {
 		}
 	}
 
-	private ServiceClient getServiceClient_(Account account) {
-		if (m_service == null && account != null)
-			m_service = new ServiceClient(account.access_code, account.password);
-		return m_service;
-	}
-
 	private PlayRecord setPlayRecord_(PlayRecord record) {
 		final boolean noMusic = record.musics == null;
 		if (noMusic && m_record != null)
@@ -125,10 +119,12 @@ public class DdN extends Application {
 	}
 
 	public static ServiceClient getServiceClient(Account account) {
-		return s_instance == null ? null : s_instance.getServiceClient_(account);
+		return s_instance.m_service = new ServiceClient(account.access_code, account.password);
 	}
 
 	public static ServiceClient getServiceClient() {
+		if (s_instance.m_service != null)
+			return s_instance.m_service;
 		return getServiceClient(Account.load(PreferenceManager.getDefaultSharedPreferences(s_instance)));
 	}
 

@@ -9,6 +9,7 @@
     <string name="item_update_all">全曲更新</string>
     <string name="item_update_new">新曲取得</string>
     <string name="item_update_selction">更新</string>
+    <string name="item_search">検索</string>
     <string name="item_sort">ソート</string>
     <string name="item_sort_by_name">曲名</string>
     <string name="item_sort_by_difficulty">難易度</string>

@@ -3,6 +3,8 @@
  */
 package net.diva.browser;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -12,29 +14,37 @@ import net.diva.browser.util.ReverseComparator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-class MusicAdapter extends ArrayAdapter<MusicInfo> {
+class MusicAdapter extends BaseAdapter implements Filterable {
 	private static final int LIST_ITEM_ID = R.layout.music_item;
 
-	private LayoutInflater m_inflater;
+	private Context m_context;
 	private String[] m_trial_labels;
 	private Drawable[] m_clear_icons;
 
-	private List<MusicInfo> m_musics;
+	private List<MusicInfo> m_original;
+	private List<MusicInfo> m_musics = Collections.emptyList();
+
+	private Filter m_filter;
+	private String m_constraint;
 	private boolean m_favorite;
 	private int m_difficulty;
 	private int m_sortOrder;
 	private boolean m_reverseOrder;
 
 	public MusicAdapter(Context context, boolean favoriteOnly) {
-		super(context, LIST_ITEM_ID);
-		m_inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		super();
+		m_context = context;
+
 		Resources resources = context.getResources();
 		m_trial_labels = resources.getStringArray(R.array.trial_labels);
 		m_clear_icons = new Drawable[] {
@@ -50,8 +60,20 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 		m_reverseOrder = false;
 	}
 
+	public int getCount() {
+		return m_musics.size();
+	}
+
+	public MusicInfo getItem(int position) {
+		return m_musics.get(position);
+	}
+
+	public long getItemId(int position) {
+		return position;
+	}
+
 	public void setData(List<MusicInfo> music) {
-		m_musics = music;
+		m_original = music;
 		update();
 	}
 
@@ -66,17 +88,7 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 	}
 
 	private void update() {
-		setNotifyOnChange(false);
-		clear();
-		for (MusicInfo music: m_musics) {
-			if (m_favorite && !music.favorite)
-				continue;
-			if (music.records[m_difficulty] != null)
-				add(music);
-		}
-		sortBy(m_sortOrder, m_reverseOrder);
-		setNotifyOnChange(true);
-		notifyDataSetChanged();
+		getFilter().filter(m_constraint);
 	}
 
 	private void setText(View view, int id, String text) {
@@ -93,13 +105,16 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 		iv.setImageDrawable(image);
 	}
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		View view = convertView != null ? convertView : m_inflater.inflate(LIST_ITEM_ID, null);
+	public View getView(int position, View view, ViewGroup parent) {
+		if (view == null) {
+			LayoutInflater inflater = LayoutInflater.from(m_context);
+			view = inflater.inflate(LIST_ITEM_ID, parent, false);
+		}
+
 		MusicInfo music = getItem(position);
 		if (music != null) {
 			setText(view, R.id.music_title, music.title);
-			setImage(view, R.id.cover_art, music.getCoverArt(getContext()));
+			setImage(view, R.id.cover_art, music.getCoverArt(m_context));
 			ScoreRecord score = music.records[m_difficulty];
 			setText(view, R.id.difficulty, "★%d", score.difficulty);
 			setImage(view, R.id.clear_status, m_clear_icons[score.clear_status]);
@@ -120,6 +135,13 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 	}
 
 	public void sortBy(int order, boolean reverse) {
+		Collections.sort(m_musics, comparator(order, reverse));
+		m_sortOrder = order;
+		m_reverseOrder = reverse;
+		notifyDataSetChanged();
+	}
+
+	private Comparator<MusicInfo> comparator(int order, boolean reverse) {
 		Comparator<MusicInfo> cmp = null;
 		switch (order) {
 		case R.id.item_sort_by_name:
@@ -141,14 +163,11 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 			cmp = byTrialStatus();
 			break;
 		default:
-			return;
+			assert(false);
 		}
 		if (reverse)
 			cmp = new ReverseComparator<MusicInfo>(cmp);
-
-		sort(cmp);
-		m_sortOrder = order;
-		m_reverseOrder = reverse;
+		return cmp;
 	}
 
 	private Comparator<MusicInfo> byName() {
@@ -215,5 +234,55 @@ class MusicAdapter extends ArrayAdapter<MusicInfo> {
 				return lhs.records[m_difficulty].difficulty - rhs.records[m_difficulty].difficulty;
 			}
 		};
+	}
+
+	public Filter getFilter() {
+		if (m_filter == null)
+			m_filter = new MusicFilter();
+		return m_filter;
+	}
+
+	private class MusicFilter extends Filter {
+		@Override
+		protected FilterResults performFiltering(CharSequence constraint) {
+			m_constraint = TextUtils.isEmpty(constraint) ? null : constraint.toString().toLowerCase();
+
+			List<MusicInfo> musics;
+			List<MusicInfo> original = m_original;
+			if (original == null || original.isEmpty()) {
+				musics = Collections.emptyList();
+			}
+			else {
+				musics = new ArrayList<MusicInfo>(original.size());
+				for (MusicInfo m: original) {
+					if (m_favorite && !m.favorite)
+						continue;
+					if (m.records[m_difficulty] == null)
+						continue;
+					if (m_constraint == null ||
+							m.reading.toLowerCase().indexOf(m_constraint) >= 0 ||
+							m.title.toLowerCase().indexOf(m_constraint) >= 0)
+						musics.add(m);
+				}
+
+				if (!musics.isEmpty())
+					Collections.sort(musics, comparator(m_sortOrder, m_reverseOrder));
+			}
+
+			FilterResults results = new FilterResults();
+			results.values = musics;
+			results.count = musics.size();
+			return results;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		protected void publishResults(CharSequence constraint, FilterResults results) {
+			m_musics = (List<MusicInfo>)results.values;
+			if (results.count > 0)
+				notifyDataSetChanged();
+			else
+				notifyDataSetInvalidated();
+		}
 	}
 }

@@ -18,6 +18,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
@@ -27,13 +28,16 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MusicListActivity extends ListActivity implements DdN.Observer {
 	private View m_buttons[];
 	private MusicAdapter m_adapter;
+	private Handler m_handler = new Handler();
 
 	private SharedPreferences m_preferences;
 	private LocalStore m_store;
@@ -66,7 +70,10 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 				}
 			});
 		}
-		getListView().setOnTouchListener(new OnTouchListener());
+		ListView list = getListView();
+		list.setFocusable(true);
+		list.setTextFilterEnabled(true);
+		list.setOnTouchListener(new OnTouchListener());
 	}
 
 	@Override
@@ -120,6 +127,9 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			break;
 		case R.id.item_update_new:
 			new UpdateNewTask().execute();
+			break;
+		case R.id.item_search:
+			activateTextFilter();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -234,6 +244,16 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		}
 
 		task.execute(account);
+	}
+
+	private void activateTextFilter() {
+		getListView().requestFocus();
+		m_handler.postDelayed(new Runnable() {
+			public void run() {
+				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+				imm.showSoftInput(getListView(), InputMethodManager.SHOW_IMPLICIT);
+			}
+		}, 100);
 	}
 
 	private void updateFavorite(MusicInfo music, boolean register) {

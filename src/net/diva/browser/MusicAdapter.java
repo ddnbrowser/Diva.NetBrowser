@@ -80,12 +80,20 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		return m_favorite;
 	}
 
+	public int getDifficulty() {
+		return m_difficulty;
+	}
+
 	public void setDifficulty(int difficulty) {
 		m_difficulty = difficulty;
 	}
 
 	public void update() {
-		getFilter().filter(m_constraint);
+		m_musics = getFilteredList();
+		if (m_musics.isEmpty())
+			notifyDataSetInvalidated();
+		else
+			notifyDataSetChanged();
 	}
 
 	private void setText(View view, int id, String text) {
@@ -127,14 +135,22 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		return m_sortOrder;
 	}
 
+	public boolean isReverseOrder() {
+		return m_reverseOrder;
+	}
+
+	public void setSortOrder(int order, boolean reverse) {
+		m_sortOrder = order;
+		m_reverseOrder = reverse;
+	}
+
 	public void sortBy(int order) {
 		sortBy(order, order == m_sortOrder && !m_reverseOrder);
 	}
 
 	public void sortBy(int order, boolean reverse) {
+		setSortOrder(order, reverse);
 		Collections.sort(m_musics, comparator(order, reverse));
-		m_sortOrder = order;
-		m_reverseOrder = reverse;
 		notifyDataSetChanged();
 	}
 
@@ -239,32 +255,37 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		return m_filter;
 	}
 
+	private List<MusicInfo> getFilteredList() {
+		List<MusicInfo> musics;
+		List<MusicInfo> original = m_original;
+		if (original == null || original.isEmpty()) {
+			musics = Collections.emptyList();
+		}
+		else {
+			musics = new ArrayList<MusicInfo>(original.size());
+			for (MusicInfo m: original) {
+				if (m_favorite && !m.favorite)
+					continue;
+				if (m.records[m_difficulty] == null)
+					continue;
+				if (m_constraint == null ||
+						m.reading.toLowerCase().indexOf(m_constraint) >= 0 ||
+						m.title.toLowerCase().indexOf(m_constraint) >= 0)
+					musics.add(m);
+			}
+
+			if (!musics.isEmpty())
+				Collections.sort(musics, comparator(m_sortOrder, m_reverseOrder));
+		}
+		return musics;
+	}
+
 	private class MusicFilter extends Filter {
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
 			m_constraint = TextUtils.isEmpty(constraint) ? null : constraint.toString().toLowerCase();
 
-			List<MusicInfo> musics;
-			List<MusicInfo> original = m_original;
-			if (original == null || original.isEmpty()) {
-				musics = Collections.emptyList();
-			}
-			else {
-				musics = new ArrayList<MusicInfo>(original.size());
-				for (MusicInfo m: original) {
-					if (m_favorite && !m.favorite)
-						continue;
-					if (m.records[m_difficulty] == null)
-						continue;
-					if (m_constraint == null ||
-							m.reading.toLowerCase().indexOf(m_constraint) >= 0 ||
-							m.title.toLowerCase().indexOf(m_constraint) >= 0)
-						musics.add(m);
-				}
-
-				if (!musics.isEmpty())
-					Collections.sort(musics, comparator(m_sortOrder, m_reverseOrder));
-			}
+			List<MusicInfo> musics = getFilteredList();
 
 			FilterResults results = new FilterResults();
 			results.values = musics;

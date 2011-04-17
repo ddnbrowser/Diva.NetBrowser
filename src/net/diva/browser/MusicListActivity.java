@@ -17,6 +17,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -80,6 +81,9 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	protected void onResume() {
 		super.onResume();
 		setDifficulty(m_preferences.getInt("difficulty", 3), false);
+		m_adapter.setSortOrder(
+				m_preferences.getInt("sort_order", R.id.item_sort_by_name),
+				m_preferences.getBoolean("sort_reverse", false));
 		PlayRecord record = DdN.getPlayRecord();
 		if (record != null)
 			onUpdate(record, false);
@@ -90,6 +94,11 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	protected void onPause() {
 		super.onPause();
 		DdN.unregisterObserver(this);
+		final Editor editor = m_preferences.edit();
+		editor.putInt("difficulty", m_adapter.getDifficulty());
+		editor.putInt("sort_order", m_adapter.sortOrder());
+		editor.putBoolean("sort_reverse", m_adapter.isReverseOrder());
+		editor.commit();
 	}
 
 	@Override
@@ -218,10 +227,8 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 
 	public void setDifficulty(int difficulty, boolean update) {
 		m_adapter.setDifficulty(difficulty);
-		if (update) {
+		if (update)
 			m_adapter.update();
-			m_preferences.edit().putInt("difficulty", difficulty).commit();
-		}
 		for (int i = 0; i < m_buttons.length; ++i)
 			m_buttons[i].setEnabled(i != difficulty);
 	}

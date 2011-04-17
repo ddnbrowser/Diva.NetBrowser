@@ -208,22 +208,20 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		setTitle(rankText(record, DdN.getTitle(record.title_id)));
-		if (!noMusic)
-			m_adapter.setData(record.musics);
-	}
-
-	public void refreshList(boolean reload) {
-		PlayRecord record = DdN.getPlayRecord();
-		if (reload)
-			m_adapter.setData(record.musics);
-		else
+		if (noMusic)
 			m_adapter.notifyDataSetChanged();
+		else {
+			m_adapter.setData(record.musics);
+			m_adapter.update();
+		}
 	}
 
 	public void setDifficulty(int difficulty, boolean update) {
-		m_adapter.setDifficulty(difficulty, update);
-		if (update)
+		m_adapter.setDifficulty(difficulty);
+		if (update) {
+			m_adapter.update();
 			m_preferences.edit().putInt("difficulty", difficulty).commit();
+		}
 		for (int i = 0; i < m_buttons.length; ++i)
 			m_buttons[i].setEnabled(i != difficulty);
 	}
@@ -260,7 +258,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		music.favorite = register;
 		m_store.updateFavorite(music);
 		if (m_adapter.isFavorite())
-			refreshList(true);
+			m_adapter.update();
 	}
 
 	private void setModule(Intent data) {
@@ -310,7 +308,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 				music.reading = edit.getText().toString();
 				m_store.update(music);
 				dialog.dismiss();
-				refreshList(false);
+				DdN.notifyPlayRecordChanged();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, null);
@@ -429,7 +427,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		@Override
 		protected void onResult(Boolean result) {
 			if (result != null && result)
-				refreshList(false);
+				DdN.notifyPlayRecordChanged();
 		}
 	}
 

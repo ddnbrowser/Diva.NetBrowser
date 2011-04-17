@@ -74,20 +74,17 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 
 	public void setData(List<MusicInfo> music) {
 		m_original = music;
-		update();
 	}
 
 	public boolean isFavorite() {
 		return m_favorite;
 	}
 
-	public void setDifficulty(int difficulty, boolean update) {
+	public void setDifficulty(int difficulty) {
 		m_difficulty = difficulty;
-		if (update)
-			update();
 	}
 
-	private void update() {
+	public void update() {
 		getFilter().filter(m_constraint);
 	}
 

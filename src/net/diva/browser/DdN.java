@@ -188,6 +188,10 @@ public class DdN extends Application {
 		}
 	}
 
+	public static void notifyPlayRecordChanged() {
+		s_instance.notifyUpdate(false);
+	}
+
 	public static class Account {
 		private static final String ACCESS_CODE = "access_code";
 		private static final String PASSWORD = "password";

@@ -9,6 +9,13 @@
 			android:entryValues="@array/tab_tags"
 			android:entries="@array/tab_names"
 			/>
+		<ListPreference
+			android:key="music_layout"
+			android:title="@string/music_layout"
+			android:summary="@string/summary_music_layout"
+			android:entryValues="@array/music_layout_types"
+			android:entries="@array/music_layout_names"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/category_web">
 		<CheckBoxPreference

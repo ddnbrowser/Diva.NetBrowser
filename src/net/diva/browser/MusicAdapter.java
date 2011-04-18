@@ -25,7 +25,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 class MusicAdapter extends BaseAdapter implements Filterable {
-	private static final int LIST_ITEM_ID = R.layout.music_item;
+	private int m_itemLayout = R.layout.music_item;
 
 	private Context m_context;
 	private String[] m_trial_labels;
@@ -72,6 +72,12 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		return position;
 	}
 
+	public boolean setLayout(int resId) {
+		boolean changed = resId != m_itemLayout;
+		m_itemLayout = resId;
+		return changed;
+	}
+
 	public void setData(List<MusicInfo> music) {
 		m_original = music;
 	}
@@ -113,7 +119,7 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	public View getView(int position, View view, ViewGroup parent) {
 		if (view == null) {
 			LayoutInflater inflater = LayoutInflater.from(m_context);
-			view = inflater.inflate(LIST_ITEM_ID, parent, false);
+			view = inflater.inflate(m_itemLayout, parent, false);
 		}
 
 		MusicInfo music = getItem(position);
@@ -125,8 +131,8 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			setImage(view, R.id.clear_status, m_clear_icons[score.clear_status]);
 			setText(view, R.id.trial_status, m_trial_labels[score.trial_status]);
 			setText(view, R.id.ranking, score.isRankIn() ? "%d位" : "", score.ranking);
-			setText(view, R.id.high_score, "スコア: %dpts", score.high_score);
-			setText(view, R.id.achivement, "達成率: %d.%02d%%", score.achievement/100, score.achievement%100);
+			setText(view, R.id.high_score, "%d pts", score.high_score);
+			setText(view, R.id.achivement, "%d.%02d %%", score.achievement/100, score.achievement%100);
 		}
 		return view;
 	}
@@ -157,6 +163,7 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	private Comparator<MusicInfo> comparator(int order, boolean reverse) {
 		Comparator<MusicInfo> cmp = null;
 		switch (order) {
+		default:
 		case R.id.item_sort_by_name:
 			cmp = byName();
 			break;
@@ -175,8 +182,6 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		case R.id.item_sort_by_trial_status:
 			cmp = byTrialStatus();
 			break;
-		default:
-			assert(false);
 		}
 		if (reverse)
 			cmp = new ReverseComparator<MusicInfo>(cmp);

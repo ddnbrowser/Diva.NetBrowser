@@ -81,6 +81,8 @@
     <string name="input_reading">読み仮名入力</string>
     <string name="default_tab">初期表示タブ</string>
     <string name="summary_default_tab">起動時に表示するタブを選択します</string>
+    <string name="music_layout">楽曲レイアウト</string>
+    <string name="summary_music_layout">楽曲一覧の表示形式を選択します</string>
     <string name="no_record">プレイ記録がありません。</string>
     <string name="player_name">プレイヤー名</string>
     <string name="level_rank">LEVEL / RANK</string>

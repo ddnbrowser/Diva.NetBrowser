@@ -7,8 +7,8 @@
 	<ImageView
 		android:id="@+id/cover_art"
 		android:scaleType="fitCenter"
-		android:layout_height="48dip"
-		android:layout_width="48dip"
+		android:layout_height="64dip"
+		android:layout_width="64dip"
 		android:layout_alignParentLeft="true"
 		android:layout_centerVertical="true"
 		android:layout_margin="3dp"
@@ -59,48 +59,64 @@
 		android:layout_below="@+id/difficulty"
 		android:text="ワールドイズマイン"
 		/>
-	<LinearLayout
-		android:orientation="horizontal"
-		android:layout_width="fill_parent"
+	<TextView
+		android:id="@+id/high_score_title"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_toRightOf="@+id/cover_art"
 		android:layout_below="@+id/music_title"
-		>
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:ellipsize="end"
-			android:text="スコア:"
-			/>
-		<TextView
-			android:id="@+id/high_score"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:layout_marginRight="6dip"
-			android:maxLines="1"
-			android:ellipsize="end"
-			android:gravity="right"
-			android:text="378260pts"
-			/>
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:ellipsize="end"
-			android:text="達成率:"
-			/>
-		<TextView
-			android:id="@+id/achivement"
-			android:layout_width="0dip"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:layout_marginRight="6dip"
-			android:maxLines="1"
-			android:ellipsize="end"
-			android:gravity="right"
-			android:text="89.91%"
-			/>
-	</LinearLayout>
+		android:layout_marginLeft="16dip"
+		android:maxLines="1"
+		android:ellipsize="end"
+		android:text="スコア:"
+		/>
+	<TextView
+		android:id="@+id/high_score"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginRight="6dip"
+		android:layout_alignTop="@+id/high_score_title"
+		android:layout_alignParentRight="true"
+		android:maxLines="1"
+		android:ellipsize="end"
+		android:gravity="right"
+		android:text="378260pts"
+		/>
+	<TextView
+		android:id="@+id/achivement_title"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_toRightOf="@+id/cover_art"
+		android:layout_below="@+id/high_score_title"
+		android:layout_marginLeft="16dip"
+		android:maxLines="1"
+		android:ellipsize="end"
+		android:text="達成率:"
+		/>
+	<TextView
+		android:id="@+id/achivement"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginRight="6dip"
+		android:layout_alignTop="@+id/achivement_title"
+		android:layout_toLeftOf="@+id/difference_to_saturation"
+		android:layout_alignWithParentIfMissing="true"
+		android:maxLines="1"
+		android:ellipsize="end"
+		android:gravity="right"
+		android:text="89.91%"
+		/>
+	<TextView
+		android:id="@+id/difference_to_saturation"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginRight="6dip"
+		android:layout_alignTop="@+id/achivement_title"
+		android:layout_alignParentRight="true"
+		android:maxLines="1"
+		android:ellipsize="end"
+		android:gravity="right"
+		android:text="(89.91%)"
+		android:visibility="visible"
+		/>
 </RelativeLayout>

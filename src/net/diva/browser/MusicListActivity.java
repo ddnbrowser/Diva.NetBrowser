@@ -80,6 +80,13 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	@Override
 	protected void onResume() {
 		super.onResume();
+		String name = m_preferences.getString("music_layout", null);
+		if (name != null) {
+			int id = getResources().getIdentifier(name, "layout", getPackageName());
+			if (id != 0 && m_adapter.setLayout(id))
+				setListAdapter(m_adapter);
+		}
+
 		setDifficulty(m_preferences.getInt("difficulty", 3), false);
 		m_adapter.setSortOrder(
 				m_preferences.getInt("sort_order", R.id.item_sort_by_name),

@@ -6,6 +6,7 @@ public class ScoreRecord {
 	public int trial_status;
 	public int high_score;
 	public int achievement;
+	public int saturation;
 	public int ranking;
 
 	public boolean isRankIn() {

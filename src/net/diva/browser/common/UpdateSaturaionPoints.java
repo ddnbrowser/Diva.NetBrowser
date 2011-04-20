@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.util.ProgressTask;
@@ -50,7 +51,9 @@ public class UpdateSaturaionPoints extends ProgressTask<Void, Void, String> {
 	@Override
 	protected String doInBackground(Void... args) {
 		try {
-			List<MusicInfo> updated = parse(read(PAGE_URI), musicMap());
+			final LocalStore store = DdN.getLocalStore();
+			for (MusicInfo music: parse(read(PAGE_URI), musicMap()))
+				store.updateSaturation(music);
 		}
 		catch (IOException e) {
 			e.printStackTrace();

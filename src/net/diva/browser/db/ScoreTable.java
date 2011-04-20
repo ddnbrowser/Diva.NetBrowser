@@ -16,6 +16,7 @@ final class ScoreTable implements BaseColumns {
 	public static final String TRIAL_STATUS = "trial_status";
 	public static final String HIGH_SCORE = "high_score";
 	public static final String ACHIEVEMENT = "achievement";
+	public static final String SATURATION = "saturation";
 
 	public static final String RANKING = "ranking";
 	public static final String RANKIN_DATE = "rankin_date";
@@ -36,6 +37,7 @@ final class ScoreTable implements BaseColumns {
 		.append(TRIAL_STATUS).append(" integer,")
 		.append(HIGH_SCORE).append(" integer,")
 		.append(ACHIEVEMENT).append(" integer,")
+		.append(SATURATION).append(" integer,")
 		.append(RANKING).append(" integer,")
 		.append(RANKIN_DATE).append(" integer,")
 		.append(RANKIN_SCORE).append(" integer,")
@@ -49,6 +51,10 @@ final class ScoreTable implements BaseColumns {
 		db.execSQL(String.format(format, NAME, RANKING));
 		db.execSQL(String.format(format, NAME, RANKIN_DATE));
 		db.execSQL(String.format(format, NAME, RANKIN_SCORE));
+	}
+
+	static void addSaturationColumn(SQLiteDatabase db) {
+		db.execSQL(String.format("ALTER TABLE %s ADD %s INTEGER", NAME, SATURATION));
 	}
 
 	static long insert(SQLiteDatabase db, String music_id, int rank, ScoreRecord score) {
@@ -74,6 +80,15 @@ final class ScoreTable implements BaseColumns {
 		values.put(TRIAL_STATUS, score.trial_status);
 		values.put(HIGH_SCORE, score.high_score);
 		values.put(ACHIEVEMENT, score.achievement);
+		return db.update(NAME, values, WHERE_IDENTITY,
+				new String[] { music_id, String.valueOf(rank) }) == 1;
+	}
+
+	static boolean updateSaturation(SQLiteDatabase db, String music_id, int rank, ScoreRecord score) {
+		if (score == null)
+			return false;
+		ContentValues values = new ContentValues(1);
+		values.put(SATURATION, score.saturation);
 		return db.update(NAME, values, WHERE_IDENTITY,
 				new String[] { music_id, String.valueOf(rank) }) == 1;
 	}

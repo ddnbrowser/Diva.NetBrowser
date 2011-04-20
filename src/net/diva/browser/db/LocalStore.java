@@ -25,7 +25,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 12;
+	private static final int VERSION = 13;
 
 	private static LocalStore m_instance;
 
@@ -110,6 +110,7 @@ public class LocalStore extends ContextWrapper {
 				ScoreTable.HIGH_SCORE,
 				ScoreTable.ACHIEVEMENT,
 				ScoreTable.RANKING,
+				ScoreTable.SATURATION,
 		}, null, null, null, null, null);
 		try {
 			while (cs.moveToNext()) {
@@ -120,6 +121,7 @@ public class LocalStore extends ContextWrapper {
 				score.high_score = cs.getInt(5);
 				score.achievement = cs.getInt(6);
 				score.ranking = cs.isNull(7) ? -1 : cs.getInt(7);
+				score.saturation = cs.isNull(8) ? 0 : cs.getInt(8);
 
 				MusicInfo music = id2music.get(cs.getString(0));
 				if (music != null)
@@ -228,6 +230,20 @@ public class LocalStore extends ContextWrapper {
 			MusicTable.update(db, music);
 			for (int i = 0; i < music.records.length; ++i)
 				ScoreTable.update(db, music.id, i, music.records[i]);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
+	public void updateSaturation(MusicInfo music) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			for (int i = 0; i < music.records.length; ++i)
+				ScoreTable.updateSaturation(db, music.id, i, music.records[i]);
 			db.setTransactionSuccessful();
 		}
 		finally {
@@ -455,6 +471,8 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.addReadingColumn(db);
 			case 11:
 				MusicTable.addFavoriteColumn(db);
+			case 12:
+				ScoreTable.addSaturationColumn(db);
 			default:
 				break;
 			}

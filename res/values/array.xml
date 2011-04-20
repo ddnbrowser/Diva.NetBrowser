@@ -27,11 +27,13 @@
     <item>@drawable/ic_menu_star</item>
 </array>
 <string-array name="music_layout_names">
-    <item>3行表示</item>
+    <item>3行表示 (達成率)</item>
+    <item>3行表示 (差分)</item>
     <item>4行表示</item>
 </string-array>
 <string-array name="music_layout_types">
     <item>music_item</item>
+    <item>music_item3s</item>
     <item>music_item4</item>
 </string-array>
 </resources>

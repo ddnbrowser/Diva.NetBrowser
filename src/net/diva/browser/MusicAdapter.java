@@ -102,38 +102,65 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			notifyDataSetChanged();
 	}
 
-	private void setText(View view, int id, String text) {
-		TextView tv = (TextView)view.findViewById(id);
-		tv.setText(text);
-	}
+	private class Holder {
+		ImageView cover;
+		TextView title;
+		TextView difficulty;
+		ImageView clear_status;
+		TextView trial_status;
+		TextView ranking;
+		TextView high_score;
+		TextView achivement;
+		TextView saturation;
 
-	private void setText(View view, int id, String format, Object... args) {
-		setText(view, id, String.format(format, args));
-	}
+		Holder(View view) {
+			cover = (ImageView)view.findViewById(R.id.cover_art);
+			title = (TextView)view.findViewById(R.id.music_title);
+			difficulty = (TextView)view.findViewById(R.id.difficulty);
+			clear_status = (ImageView)view.findViewById(R.id.clear_status);
+			trial_status = (TextView)view.findViewById(R.id.trial_status);
+			ranking = (TextView)view.findViewById(R.id.ranking);
+			high_score = (TextView)view.findViewById(R.id.high_score);
+			achivement = (TextView)view.findViewById(R.id.achivement);
+			saturation = (TextView)view.findViewById(R.id.difference_to_saturation);
+		}
 
-	private void setImage(View view, int id, Drawable image) {
-		ImageView iv = (ImageView)view.findViewById(id);
-		iv.setImageDrawable(image);
+		void attach(MusicInfo music, ScoreRecord score) {
+			cover.setImageDrawable(music.getCoverArt(m_context));
+			title.setText(music.title);
+			difficulty.setText(String.format("★%d", score.difficulty));
+			clear_status.setImageDrawable(m_clear_icons[score.clear_status]);
+			trial_status.setText(m_trial_labels[score.trial_status]);
+			ranking.setText(score.isRankIn() ? String.format("%d位", score.ranking) : "");
+			high_score.setText(String.format("%dpts", score.high_score));
+			if (achivement != null)
+				achivement.setText(String.format("%d.%02d%%", score.achievement/100, score.achievement%100));
+			if (saturation != null) {
+				boolean visible = score.saturation > 0;
+				saturation.setVisibility(visible ? View.VISIBLE : View.GONE);
+				if (visible) {
+					int diff = score.saturation - score.achievement;
+					saturation.setText(String.format("(%d.%02d%%)", diff/100, diff%100));
+				}
+			}
+		}
 	}
 
 	public View getView(int position, View view, ViewGroup parent) {
-		if (view == null) {
+		Holder holder;
+		if (view != null)
+			holder = (Holder)view.getTag();
+		else {
 			LayoutInflater inflater = LayoutInflater.from(m_context);
 			view = inflater.inflate(m_itemLayout, parent, false);
+			holder = new Holder(view);
+			view.setTag(holder);
 		}
 
 		MusicInfo music = getItem(position);
-		if (music != null) {
-			setText(view, R.id.music_title, music.title);
-			setImage(view, R.id.cover_art, music.getCoverArt(m_context));
-			ScoreRecord score = music.records[m_difficulty];
-			setText(view, R.id.difficulty, "★%d", score.difficulty);
-			setImage(view, R.id.clear_status, m_clear_icons[score.clear_status]);
-			setText(view, R.id.trial_status, m_trial_labels[score.trial_status]);
-			setText(view, R.id.ranking, score.isRankIn() ? "%d位" : "", score.ranking);
-			setText(view, R.id.high_score, "%d pts", score.high_score);
-			setText(view, R.id.achivement, "%d.%02d %%", score.achievement/100, score.achievement%100);
-		}
+		if (music != null)
+			holder.attach(music, music.records[m_difficulty]);
+
 		return view;
 	}
 

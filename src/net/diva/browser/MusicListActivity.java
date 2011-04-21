@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.diva.browser.common.DownloadPlayRecord;
@@ -31,6 +32,7 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -89,7 +91,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 
 		setDifficulty(m_preferences.getInt("difficulty", 3), false);
 		m_adapter.setSortOrder(
-				m_preferences.getInt("sort_order", R.id.item_sort_by_name),
+				SortOrder.fromOrdinal(m_preferences.getInt("sort_order", 0)),
 				m_preferences.getBoolean("sort_reverse", false));
 		PlayRecord record = DdN.getPlayRecord();
 		if (record != null)
@@ -103,7 +105,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		DdN.unregisterObserver(this);
 		final Editor editor = m_preferences.edit();
 		editor.putInt("difficulty", m_adapter.getDifficulty());
-		editor.putInt("sort_order", m_adapter.sortOrder());
+		editor.putInt("sort_order", m_adapter.sortOrder().ordinal());
 		editor.putBoolean("sort_reverse", m_adapter.isReverseOrder());
 		editor.commit();
 	}
@@ -120,24 +122,12 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		boolean enable_all = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
 		menu.findItem(R.id.item_update).setVisible(enable_all);
 		menu.findItem(R.id.item_update_new).setVisible(!enable_all);
-		MenuItem sort = menu.findItem(m_adapter.sortOrder());
-		if (sort != null)
-			sort.setChecked(true);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		switch (item.getGroupId()) {
-		case R.id.group_sort:
-			m_adapter.sortBy(id);
-			return true;
-		default:
-			break;
-		}
-
-		switch (id) {
+		switch (item.getItemId()) {
 		case R.id.item_update:
 			updateAll();
 			break;
@@ -146,6 +136,9 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			break;
 		case R.id.item_search:
 			activateTextFilter();
+			break;
+		case R.id.item_sort:
+			selectSortOrder();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -266,6 +259,27 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 				imm.showSoftInput(getListView(), InputMethodManager.SHOW_IMPLICIT);
 			}
 		}, 100);
+	}
+
+	private void selectSortOrder() {
+		final List<String> values = Arrays.asList(getResources().getStringArray(R.array.sort_order_values));
+		final int checked = values.indexOf(m_adapter.sortOrder().name());
+
+		View custom = getLayoutInflater().inflate(R.layout.descending_order, null);
+		final CheckBox descending = (CheckBox)custom.findViewById(R.id.descending);
+		descending.setChecked(m_adapter.isReverseOrder());
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.item_sort);
+		builder.setSingleChoiceItems(R.array.sort_order_names, checked,
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				m_adapter.sortBy(SortOrder.valueOf(values.get(which)), descending.isChecked());
+				dialog.dismiss();
+			}
+		});
+		builder.setView(custom);
+		builder.show();
 	}
 
 	private void updateFavorite(MusicInfo music, boolean register) {

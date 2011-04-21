@@ -11,12 +11,6 @@
     <string name="item_update_selction">更新</string>
     <string name="item_search">検索</string>
     <string name="item_sort">ソート</string>
-    <string name="item_sort_by_name">曲名</string>
-    <string name="item_sort_by_difficulty">難易度</string>
-    <string name="item_sort_by_score">スコア</string>
-    <string name="item_sort_by_achievement">達成率</string>
-    <string name="item_sort_by_clear_status">クリア状況</string>
-    <string name="item_sort_by_trial_status">トライアル状況</string>
     <string name="item_open_web">DIVA.NET</string>
     <string name="item_news">ニュース</string>
     <string name="item_contest">コンテスト情報</string>
@@ -31,6 +25,7 @@
     <string name="item_ranking">ランキング表示</string>
     <string name="item_update">更新</string>
     <string name="item_toggle_show_all">表示切替</string>
+    <string name="descending">降順</string>
     <string name="message_downloading">プレイデータの取得中...</string>
     <string name="message_loading">読み込み中...</string>
     <string name="message_login_processing">ログイン中...</string>

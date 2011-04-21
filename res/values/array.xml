@@ -36,4 +36,20 @@
     <item>music_item3s</item>
     <item>music_item4</item>
 </string-array>
+<string-array name="sort_order_names">
+    <item>曲名</item>
+    <item>難易度</item>
+    <item>スコア</item>
+    <item>達成率</item>
+    <item>クリア状況</item>
+    <item>トライアル状況</item>
+</string-array>
+<string-array name="sort_order_values">
+    <item>by_name</item>
+    <item>by_difficulty</item>
+    <item>by_score</item>
+    <item>by_achivement</item>
+    <item>by_clear_status</item>
+    <item>by_trial_status</item>
+</string-array>
 </resources>

@@ -38,7 +38,7 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	private String m_constraint;
 	private boolean m_favorite;
 	private int m_difficulty;
-	private int m_sortOrder;
+	private SortOrder m_sortOrder;
 	private boolean m_reverseOrder;
 
 	public MusicAdapter(Context context, boolean favoriteOnly) {
@@ -56,7 +56,7 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 
 		m_difficulty = 0;
 		m_favorite = favoriteOnly;
-		m_sortOrder = R.id.item_sort_by_name;
+		m_sortOrder = SortOrder.by_name;
 		m_reverseOrder = false;
 	}
 
@@ -164,7 +164,7 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		return view;
 	}
 
-	public int sortOrder() {
+	public SortOrder sortOrder() {
 		return m_sortOrder;
 	}
 
@@ -172,41 +172,37 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		return m_reverseOrder;
 	}
 
-	public void setSortOrder(int order, boolean reverse) {
+	public void setSortOrder(SortOrder order, boolean reverse) {
 		m_sortOrder = order;
 		m_reverseOrder = reverse;
 	}
 
-	public void sortBy(int order) {
-		sortBy(order, order == m_sortOrder && !m_reverseOrder);
-	}
-
-	public void sortBy(int order, boolean reverse) {
+	public void sortBy(SortOrder order, boolean reverse) {
 		setSortOrder(order, reverse);
 		Collections.sort(m_musics, comparator(order, reverse));
 		notifyDataSetChanged();
 	}
 
-	private Comparator<MusicInfo> comparator(int order, boolean reverse) {
+	private Comparator<MusicInfo> comparator(SortOrder order, boolean reverse) {
 		Comparator<MusicInfo> cmp = null;
 		switch (order) {
 		default:
-		case R.id.item_sort_by_name:
+		case by_name:
 			cmp = byName();
 			break;
-		case R.id.item_sort_by_difficulty:
+		case by_difficulty:
 			cmp = byDifficulty();
 			break;
-		case R.id.item_sort_by_score:
+		case by_score:
 			cmp = byScore();
 			break;
-		case R.id.item_sort_by_achievement:
+		case by_achivement:
 			cmp = byAchievement();
 			break;
-		case R.id.item_sort_by_clear_status:
+		case by_clear_status:
 			cmp = byClearStatus();
 			break;
-		case R.id.item_sort_by_trial_status:
+		case by_trial_status:
 			cmp = byTrialStatus();
 			break;
 		}

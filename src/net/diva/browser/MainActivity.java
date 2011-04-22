@@ -26,6 +26,17 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		final Context context = getApplicationContext();
 		final Resources res = getResources();
 
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		if (preferences.getBoolean("fix_sort_order", false)) {
+			String order = preferences.getString("initial_sort_order", null);
+			if (order != null) {
+				SharedPreferences.Editor editor = preferences.edit();
+				editor.putInt("sort_order", SortOrder.valueOf(order).ordinal());
+				editor.putBoolean("reverse_order", preferences.getBoolean("initial_reverse_order", false));
+				editor.commit();
+			}
+		}
+
 		String[] tags = res.getStringArray(R.array.tab_tags);
 		String[] names = res.getStringArray(R.array.tab_names);
 		TypedArray icons = res.obtainTypedArray(R.array.tab_icons);
@@ -45,10 +56,9 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		}
 		icons.recycle();
 
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		host.setCurrentTabByTag(prefs.getString("default_tab", tags[0]));
+		host.setCurrentTabByTag(preferences.getString("default_tab", tags[0]));
 
-		DdN.Account account = DdN.Account.load(prefs);
+		DdN.Account account = DdN.Account.load(preferences);
 		if (account == null)
 			DdN.Account.input(this, new DownloadPlayRecord(this));
 	}

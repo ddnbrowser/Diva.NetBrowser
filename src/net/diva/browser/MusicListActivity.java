@@ -92,7 +92,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		setDifficulty(m_preferences.getInt("difficulty", 3), false);
 		m_adapter.setSortOrder(
 				SortOrder.fromOrdinal(m_preferences.getInt("sort_order", 0)),
-				m_preferences.getBoolean("sort_reverse", false));
+				m_preferences.getBoolean("reverse_order", false));
 		PlayRecord record = DdN.getPlayRecord();
 		if (record != null)
 			onUpdate(record, false);
@@ -106,7 +106,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		final Editor editor = m_preferences.edit();
 		editor.putInt("difficulty", m_adapter.getDifficulty());
 		editor.putInt("sort_order", m_adapter.sortOrder().ordinal());
-		editor.putBoolean("sort_reverse", m_adapter.isReverseOrder());
+		editor.putBoolean("reverse_order", m_adapter.isReverseOrder());
 		editor.commit();
 	}
 

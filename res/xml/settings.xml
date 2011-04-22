@@ -9,12 +9,32 @@
 			android:entryValues="@array/tab_tags"
 			android:entries="@array/tab_names"
 			/>
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/category_music_list">
 		<ListPreference
 			android:key="music_layout"
 			android:title="@string/music_layout"
 			android:summary="@string/summary_music_layout"
 			android:entryValues="@array/music_layout_types"
 			android:entries="@array/music_layout_names"
+			/>
+		<CheckBoxPreference
+			android:key="fix_sort_order"
+			android:title="@string/fix_sort_order"
+			android:summary="@string/summary_fix_sort_order"
+			/>
+		<ListPreference
+			android:key="initial_sort_order"
+			android:title="@string/initial_sort_order"
+			android:entryValues="@array/sort_order_values"
+			android:entries="@array/sort_order_names"
+			android:dependency="fix_sort_order"
+			/>
+		<CheckBoxPreference
+			android:key="initial_reverse_order"
+			android:title="@string/initial_reverse_order"
+			android:summary="@string/summary_initial_reverse_order"
+			android:dependency="fix_sort_order"
 			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/category_web">

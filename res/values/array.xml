@@ -43,6 +43,7 @@
     <item>達成率</item>
     <item>クリア状況</item>
     <item>トライアル状況</item>
+    <item>理論値との差分</item>
 </string-array>
 <string-array name="sort_order_values">
     <item>by_name</item>
@@ -51,5 +52,6 @@
     <item>by_achivement</item>
     <item>by_clear_status</item>
     <item>by_trial_status</item>
+    <item>by_difference_to_saturation</item>
 </string-array>
 </resources>

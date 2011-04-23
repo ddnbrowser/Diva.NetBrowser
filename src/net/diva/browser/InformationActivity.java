@@ -46,13 +46,12 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		m_record = record;
-		if (!noMusic) {
-			m_experience = (int)(m_record.experience() % DdN.EXPERIENCE_UNIT);
 
-			int[] next = new int[1];
-			m_record.rank(next);
-			m_rankPoints = next[0];
-		}
+		m_experience = (int)(m_record.experience() % DdN.EXPERIENCE_UNIT);
+
+		int[] next = new int[1];
+		m_record.rank(next);
+		m_rankPoints = next[0];
 
 		m_adapter.notifyDataSetChanged();
 	}

@@ -76,6 +76,7 @@
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
     <string name="message_updating">更新しています...</string>
+    <string name="variant_normal">[NORMAL]</string>
     <string name="not_purchased">(未購入)</string>
     <string name="failed_load_details">詳細情報の取得に失敗しました</string>
     <string name="button_buy">購入する</string>

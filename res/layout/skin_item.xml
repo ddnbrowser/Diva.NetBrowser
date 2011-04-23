@@ -4,7 +4,14 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:minHeight="?android:attr/listPreferredItemHeight"
-	android:paddingLeft="6dip">
+	android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft">
+	<ImageView
+		android:id="@+id/thumbnail"
+		android:layout_width="wrap_content"
+		android:layout_height="fill_parent"
+		android:adjustViewBounds="true"
+		android:scaleType="fitCenter"
+		/>
 	<TextView
 		android:id="@android:id/text1"
 		android:layout_height="wrap_content"
@@ -12,7 +19,9 @@
 		android:textAppearance="?android:attr/textAppearanceLarge"
 		android:gravity="center_vertical"
 		android:paddingLeft="6dip"
-		android:layout_alignParentTop="true"></TextView>
+		android:layout_toRightOf="@id/thumbnail"
+		android:layout_alignTop="@id/thumbnail"
+		/>
 	<TextView
 		android:id="@android:id/text2"
 		android:layout_height="wrap_content"
@@ -21,13 +30,6 @@
 		android:gravity="center_vertical"
 		android:paddingLeft="6dip"
 		android:layout_below="@android:id/text1"
-		android:layout_alignLeft="@android:id/text1"/>
-	<ImageView
-		android:id="@+id/thumbnail"
-		android:layout_width="wrap_content"
-		android:layout_height="fill_parent"
-		android:adjustViewBounds="true"
-		android:scaleType="fitCenter"
-		android:layout_below="@android:id/text1"
-		android:layout_alignRight="@android:id/text1"></ImageView>
+		android:layout_alignLeft="@android:id/text1"
+		/>
 </RelativeLayout>

@@ -212,19 +212,25 @@ public class ServiceClient {
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {
 			HttpResponse response = getFrom("/divanet/skin/select/%s/0", group_id);
-			Parser.Skin.parse(response.getEntity().getContent(), skins);
+			Parser.Skin.parse(response.getEntity().getContent(), skins, true);
 		}
 
 		return skins;
 	}
 
 	public List<SkinInfo> getSkinsFromShop() throws IOException {
-		List<SkinInfo> skins = new ArrayList<SkinInfo>();
+		List<String> groups = new ArrayList<String>();
 
 		String path = "/divanet/skin/shop/0";
 		while (path != null) {
 			HttpResponse response = getFrom(path);
-			path = Parser.Skin.parseShop(response.getEntity().getContent(), skins);
+			path = Parser.Skin.parse(response.getEntity().getContent(), groups);
+		}
+
+		List<SkinInfo> skins = new ArrayList<SkinInfo>();
+		for (String group_id: groups) {
+			HttpResponse response = getFrom("/divanet/skin/commodity/%s/0", group_id);
+			Parser.Skin.parse(response.getEntity().getContent(), skins, false);
 		}
 
 		return skins;

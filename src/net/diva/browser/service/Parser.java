@@ -269,8 +269,8 @@ public final class Parser {
 	}
 
 	static class Skin {
-		private static final Pattern RE_GROUP = Pattern.compile("<a href=\"/divanet/skin/select/(\\w+)/\\d+\">(.+)</a>");
-		private static final Pattern RE_SKIN = Pattern.compile("<a href=\"/divanet/skin/confirm/(\\w+)/(\\w+)/\\d+\">(.+)</a>");
+		private static final Pattern RE_GROUP = Pattern.compile("<a href=\"/divanet/skin/(?:select|commodity)/(\\w+)/\\d+\">(.+)</a>");
+		private static final Pattern RE_SKIN = Pattern.compile("<a href=\"/divanet/skin/(?:confirm|detail)/(\\w+)/(\\w+)/\\d+\">(.+)</a>");
 		private static final Pattern RE_IMAGE = Pattern.compile("<img src=\"(/divanet/img/skin/\\w+)\"");
 
 		static String parse(InputStream content, List<String> groups) {
@@ -283,11 +283,11 @@ public final class Parser {
 			return m.find() ? m.group(1) : null;
 		}
 
-		static void parse(InputStream content, List<SkinInfo> skins) {
+		static void parse(InputStream content, List<SkinInfo> skins, boolean purchased) {
 			String body = read(content);
 			Matcher m = RE_SKIN.matcher(body);
 			while (m.find())
-				skins.add(new SkinInfo(m.group(2), m.group(1), m.group(3), true));
+				skins.add(new SkinInfo(m.group(2), m.group(1), m.group(3), purchased));
 		}
 
 		static void parse(InputStream content, SkinInfo skin) {
@@ -295,18 +295,6 @@ public final class Parser {
 			Matcher m = RE_IMAGE.matcher(body);
 			if (m.find())
 				skin.image_path = m.group(1);
-		}
-
-		private static final Pattern RE_SHOP_ITEM = Pattern.compile("<a href=\"/divanet/skin/detail/(\\w+)/(\\w+)/\\d+\">(.+)</a>");
-
-		static String parseShop(InputStream content, List<SkinInfo> skins) {
-			String body = read(content);
-			Matcher m = RE_SHOP_ITEM.matcher(body);
-			while (m.find())
-				skins.add(new SkinInfo(m.group(2), m.group(1), m.group(3), false));
-
-			m = m.usePattern(RE_NEXT);
-			return m.find() ? m.group(1) : null;
 		}
 	}
 

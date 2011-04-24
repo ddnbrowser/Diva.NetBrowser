@@ -10,6 +10,7 @@ import java.util.List;
 
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.ScoreRecord;
+import net.diva.browser.util.StringUtils;
 import net.diva.browser.util.ReverseComparator;
 import android.content.Context;
 import android.content.res.Resources;
@@ -35,7 +36,9 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	private List<MusicInfo> m_musics = Collections.emptyList();
 
 	private Filter m_filter;
-	private String m_constraint;
+	private String m_constraintTitle;
+	private String m_constraintReading;
+
 	private boolean m_favorite;
 	private int m_difficulty;
 	private SortOrder m_sortOrder;
@@ -217,6 +220,9 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	private Comparator<MusicInfo> byName() {
 		return new Comparator<MusicInfo>() {
 			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				int result = lhs.ordinal.compareTo(rhs.ordinal);
+				if (result != 0)
+					return result;
 				return lhs.reading.compareTo(rhs.reading);
 			}
 		};
@@ -313,9 +319,9 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 					continue;
 				if (m.records[m_difficulty] == null)
 					continue;
-				if (m_constraint == null ||
-						m.reading.toLowerCase().indexOf(m_constraint) >= 0 ||
-						m.title.toLowerCase().indexOf(m_constraint) >= 0)
+				if (m_constraintTitle == null ||
+						m.reading.toLowerCase().contains(m_constraintReading) ||
+						m.title.toLowerCase().contains(m_constraintTitle))
 					musics.add(m);
 			}
 
@@ -328,7 +334,12 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	private class MusicFilter extends Filter {
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
-			m_constraint = TextUtils.isEmpty(constraint) ? null : constraint.toString().toLowerCase();
+			if (TextUtils.isEmpty(constraint))
+				m_constraintTitle = null;
+			else {
+				m_constraintTitle = constraint.toString().toLowerCase();
+				m_constraintReading = StringUtils.toKatakana(m_constraintTitle);
+			}
 
 			List<MusicInfo> musics = getFilteredList();
 

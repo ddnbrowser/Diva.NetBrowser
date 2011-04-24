@@ -14,6 +14,7 @@ import net.diva.browser.model.Ranking;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
+import net.diva.browser.util.StringUtils;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.SharedPreferences;
@@ -25,7 +26,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 13;
+	private static final int VERSION = 14;
 
 	private static LocalStore m_instance;
 
@@ -92,6 +93,7 @@ public class LocalStore extends ContextWrapper {
 				music.reading = cm.getString(6);
 				if (music.reading == null)
 					music.reading = getReading(music.title);
+				music.ordinal = StringUtils.forLexicographical(music.reading);
 				music.favorite = cm.getInt(7) == 1;
 				musics.add(music);
 				id2music.put(music.id, music);
@@ -473,6 +475,8 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.addFavoriteColumn(db);
 			case 12:
 				ScoreTable.addSaturationColumn(db);
+			case 13:
+				db.execSQL(String.format("UPDATE %s SET %s = null;", MusicTable.NAME, MusicTable.READING));
 			default:
 				break;
 			}

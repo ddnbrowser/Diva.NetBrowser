@@ -11,6 +11,7 @@ import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.settings.ModuleListActivity;
+import net.diva.browser.util.StringUtils;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -334,6 +335,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				music.reading = edit.getText().toString();
+				music.ordinal = StringUtils.forLexicographical(music.reading);
 				m_store.update(music);
 				dialog.dismiss();
 				DdN.notifyPlayRecordChanged();

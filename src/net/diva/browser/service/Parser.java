@@ -269,8 +269,8 @@ public final class Parser {
 	}
 
 	static class Skin {
-		private static final Pattern RE_GROUP = Pattern.compile("<a href=\"/divanet/skin/(?:select|commodity)/(\\w+)/\\d+\">(.+)</a>");
-		private static final Pattern RE_SKIN = Pattern.compile("<a href=\"/divanet/skin/(?:confirm|detail)/(\\w+)/(\\w+)/\\d+\">(.+)</a>");
+		private static final Pattern RE_GROUP = Pattern.compile("<a href=\"/divanet/skin/(?:select/COMMON|commodity)/(\\w+)/\\d+(?:/\\d+)?\">(.+)</a>");
+		private static final Pattern RE_SKIN = Pattern.compile("<a href=\"/divanet/skin/(?:confirm/COMMON|detail)/(\\w+)/(\\w+)/\\d+(?:/\\d+)?\">(.+)</a>");
 		private static final Pattern RE_IMAGE = Pattern.compile("<img src=\"(/divanet/img/skin/\\w+)\"");
 
 		static String parse(InputStream content, List<String> groups) {

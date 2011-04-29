@@ -23,6 +23,7 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.ClipboardManager;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
@@ -197,6 +198,11 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			return true;
 		case R.id.item_ranking:
 			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", music.id));
+			return true;
+		case R.id.item_copy_title:
+			ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+			if (clipboard != null)
+				clipboard.setText(music.title);
 			return true;
 		default:
 			return super.onContextItemSelected(item);

@@ -203,7 +203,7 @@ public class ServiceClient {
 	public List<SkinInfo> getSkins() throws IOException {
 		List<String> groups = new ArrayList<String>();
 
-		String path = "/divanet/skin/list/0";
+		String path = "/divanet/skin/list/COMMON/0/0";
 		while (path != null) {
 			HttpResponse response = getFrom(path);
 			path = Parser.Skin.parse(response.getEntity().getContent(), groups);
@@ -211,7 +211,7 @@ public class ServiceClient {
 
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {
-			HttpResponse response = getFrom("/divanet/skin/select/%s/0", group_id);
+			HttpResponse response = getFrom("/divanet/skin/select/COMMON/%s/0/0", group_id);
 			Parser.Skin.parse(response.getEntity().getContent(), skins, true);
 		}
 
@@ -237,8 +237,9 @@ public class ServiceClient {
 	}
 
 	public void getSkinDetail(SkinInfo skin) throws IOException {
-		HttpResponse response = getFrom("/divanet/skin/%s/%s/%s/0",
-				skin.purchased ? "confirm" : "detail", skin.id, skin.group_id);
+		HttpResponse response = getFrom(skin.purchased
+				? "/divanet/skin/confirm/COMMON/%s/%s/0/0" : "/divanet/skin/detail/%s/%s/0",
+				skin.id, skin.group_id);
 		Parser.Skin.parse(response.getEntity().getContent(), skin);
 	}
 
@@ -327,11 +328,11 @@ public class ServiceClient {
 	}
 
 	public void setSkin(String group_id, String skin_id) throws IOException {
-		postTo(String.format("/divanet/skin/update/%s/%s", skin_id, group_id));
+		postTo(String.format("/divanet/skin/update/COMMON/%s/%s/0", skin_id, group_id));
 	}
 
 	public void unsetSkin() throws IOException {
-		postTo("/divanet/skin/unset/");
+		postTo("/divanet/skin/unset/COMMON/0/0");
 	}
 
 	public void buyModule(String id) throws OperationFailedException, IOException {

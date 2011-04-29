@@ -26,6 +26,7 @@
     <string name="item_reset_module">モジュールを初期化</string>
     <string name="item_edit_reading">読み仮名編集</string>
     <string name="item_ranking">ランキング表示</string>
+    <string name="item_copy_title">曲名をコピー</string>
     <string name="item_update">更新</string>
     <string name="item_toggle_show_all">表示切替</string>
     <string name="descending">降順</string>

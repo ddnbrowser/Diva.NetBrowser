@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<item type="id" name="item_confirm_buying"></item>
-	<item type="id" name="item_set_module"></item>
+	<item type="id" name="item_confirm_buying"/>
+	<item type="id" name="item_set_module"/>
+	<item type="id" name="item_set_skin"/>
 </resources>

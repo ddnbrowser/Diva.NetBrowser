@@ -35,6 +35,7 @@
 				android:layout_width="0dip"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
+				android:onClick="setSkin"
 				/>
 			<Button
 				android:text="@string/button_se"
@@ -60,6 +61,7 @@
 				android:layout_width="0dip"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
+				android:onClick="resetSkin"
 				/>
 			<Button
 				android:text="@string/unset"

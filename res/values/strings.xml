@@ -36,6 +36,8 @@
     <string name="message_login_processing">ログイン中...</string>
     <string name="message_set_module">楽曲別モジュールを設定します。よろしいですか?</string>
     <string name="message_reset_module">楽曲別モジュールを未設定にします。よろしいですか?</string>
+    <string name="message_set_skin">楽曲別スキンを設定します。よろしいですか?</string>
+    <string name="message_reset_skin">楽曲別スキンを未設定にします。よろしいですか?</string>
     <string name="category_basic">基本設定</string>
     <string name="default_tab">初期表示タブ</string>
     <string name="summary_default_tab">起動時に表示するタブを選択します</string>

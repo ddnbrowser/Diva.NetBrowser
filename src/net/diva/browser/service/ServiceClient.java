@@ -328,11 +328,19 @@ public class ServiceClient {
 	}
 
 	public void setSkin(String group_id, String skin_id) throws IOException {
-		postTo(String.format("/divanet/skin/update/COMMON/%s/%s/0", skin_id, group_id));
+		setSkin("COMMON", group_id, skin_id);
 	}
 
 	public void unsetSkin() throws IOException {
-		postTo("/divanet/skin/unset/COMMON/0/0");
+		resetSkin("COMMON");
+	}
+
+	public void setSkin(String music_id, String group_id, String skin_id) throws IOException {
+		postTo(String.format("/divanet/skin/update/%s/%s/%s/0", music_id, skin_id, group_id));
+	}
+
+	public void resetSkin(String music_id) throws IOException {
+		postTo(String.format("/divanet/skin/unset/%s/0/0", music_id));
 	}
 
 	public void buyModule(String id) throws OperationFailedException, IOException {

@@ -251,7 +251,7 @@ public class ServiceClient {
 		return getFrom(String.format(relative, args));
 	}
 
-	private HttpResponse getFrom(String relative) throws IOException {
+	private synchronized HttpResponse getFrom(String relative) throws IOException {
 		HttpResponse response = m_client.execute(new HttpGet(DdN.URL.resolve(relative)));
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 			throw new IOException();
@@ -264,7 +264,7 @@ public class ServiceClient {
 		return postTo(relative, null);
 	}
 
-	private HttpResponse postTo(String relative, HttpEntity entity) throws IOException {
+	private synchronized HttpResponse postTo(String relative, HttpEntity entity) throws IOException {
 		HttpPost request = new HttpPost(DdN.URL.resolve(relative));
 		if (entity != null)
 			request.setEntity(entity);
@@ -313,14 +313,17 @@ public class ServiceClient {
 		postTo(String.format("/divanet/module/resetIndividual/%s", music_id));
 	}
 
-	public void resetIndividualModules() throws IOException {
-		postTo("/divanet/module/resetIndividualAll/");
+	public void resetIndividualAll() throws IOException {
+		postTo("/divanet/setting/resetIndividualAll/");
 	}
 
-	public void activateIndividualModules(boolean on) throws IOException {
-		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
-		params.add(new BasicNameValuePair("activation", on ? "true" : "false"));
-		postTo("/divanet/module/updateConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
+	public void activateIndividual(String[] keys, boolean[] values) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(keys.length);
+		for (int i = 0; i < keys.length; ++i) {
+			if (values[i])
+				params.add(new BasicNameValuePair(keys[i], "on"));
+		}
+		postTo("/divanet/setting/updateConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
 	}
 
 	public void setSkin(String group_id, String skin_id) throws IOException {

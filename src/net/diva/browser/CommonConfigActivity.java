@@ -23,12 +23,15 @@ public class CommonConfigActivity extends ConfigActivity {
 				new ConfigCommonModule(this, 1),
 				new ConfigCommonModule(this, 2),
 				new ConfigResetCommon(this),
-				new ConfigCategory(getText(R.string.category_module_individual)),
-				new ConfigResetIndividual(this),
-				new ConfigActivationIndividual(this),
-				new ConfigCategory(getText(R.string.category_skin)),
+				new ConfigCategory(getText(R.string.category_skin_common)),
 				new ConfigSetSkin(this),
 				new ConfigUnsetSkin(this),
+				new ConfigCategory(getText(R.string.category_individual)),
+				new ConfigResetIndividual(this),
+				new ConfigCategory(getText(R.string.category_activation_individual)),
+				new ConfigActivationIndividual(this, 0, R.string.module, R.string.summary_activation_individual),
+				new ConfigActivationIndividual(this, 1, R.string.skin, R.string.summary_activation_individual),
+				new ConfigActivationIndividual(this, 2, R.string.button_se, R.string.summary_activation_individual_se),
 		};
 	}
 }

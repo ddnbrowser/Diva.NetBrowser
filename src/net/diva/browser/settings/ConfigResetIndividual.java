@@ -34,7 +34,7 @@ public class ConfigResetIndividual extends ConfigItem {
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
-		service.resetIndividualModules();
+		service.resetIndividualAll();
 		store.resetIndividualModules();
 		return Boolean.TRUE;
 	}

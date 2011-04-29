@@ -1,15 +1,6 @@
-package net.diva.browser;
+package net.diva.browser.settings;
 
-import net.diva.browser.settings.ConfigActivationIndividual;
-import net.diva.browser.settings.ConfigCategory;
-import net.diva.browser.settings.ConfigCommonModule;
-import net.diva.browser.settings.ConfigItem;
-import net.diva.browser.settings.ConfigRename;
-import net.diva.browser.settings.ConfigResetCommon;
-import net.diva.browser.settings.ConfigResetIndividual;
-import net.diva.browser.settings.ConfigSetSkin;
-import net.diva.browser.settings.ConfigTitle;
-import net.diva.browser.settings.ConfigUnsetSkin;
+import net.diva.browser.R;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -19,29 +10,17 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 
-public class ConfigActivity extends ListActivity {
+public abstract class ConfigActivity extends ListActivity {
 	private ConfigAdapter m_adapter;
+
+	protected abstract ConfigItem[] createItems();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.basic_list);
 
-		m_adapter = new ConfigAdapter(this,
-				new ConfigCategory(getText(R.string.category_player)),
-				new ConfigRename(this),
-				new ConfigTitle(this),
-				new ConfigCategory(getText(R.string.category_module_common)),
-				new ConfigCommonModule(this, 1),
-				new ConfigCommonModule(this, 2),
-				new ConfigResetCommon(this),
-				new ConfigCategory(getText(R.string.category_module_individual)),
-				new ConfigResetIndividual(this),
-				new ConfigActivationIndividual(this),
-				new ConfigCategory(getText(R.string.category_skin)),
-				new ConfigSetSkin(this),
-				new ConfigUnsetSkin(this)
-		);
+		m_adapter = new ConfigAdapter(this, createItems());
 		setListAdapter(m_adapter);
 	}
 

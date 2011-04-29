@@ -5,12 +5,10 @@ import java.util.List;
 
 import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.db.LocalStore;
-import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
-import net.diva.browser.settings.ModuleListActivity;
 import net.diva.browser.util.StringUtils;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -180,19 +178,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		case R.id.item_remove_favorite:
 			updateFavorite(music, false);
 			return true;
-		case R.id.item_set_module: {
-			Intent intent = new Intent(getApplicationContext(), ModuleListActivity.class);
-			intent.putExtra("request", 1);
-			intent.putExtra("id", music.id);
-			intent.putExtra("part", music.part);
-			intent.putExtra("vocal1", music.vocal1);
-			intent.putExtra("vocal2", music.vocal2);
-			startActivityForResult(intent, R.id.item_set_module);
-		}
-			return true;
-		case R.id.item_reset_module:
-			resetModule(music);
-			return true;
 		case R.id.item_edit_reading:
 			editTitleReading(music);
 			return true;
@@ -207,19 +192,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		default:
 			return super.onContextItemSelected(item);
 		}
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		switch (requestCode) {
-		case R.id.item_set_module:
-			if (resultCode == RESULT_OK)
-				setModule(data);
-			break;
-		default:
-			break;
-		}
-		super.onActivityResult(requestCode, resultCode, data);
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
@@ -294,38 +266,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		m_store.updateFavorite(music);
 		if (m_adapter.isFavorite())
 			m_adapter.update();
-	}
-
-	private void setModule(Intent data) {
-		final MusicInfo music = DdN.getPlayRecord().getMusic(data.getStringExtra("id"));
-		final Module vocal1 = DdN.getModule(data.getStringExtra("vocal1"));
-		final Module vocal2 = DdN.getModule(data.getStringExtra("vocal2"));
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(music.title);
-		builder.setMessage(R.string.message_set_module);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				new SetModuleTask(music).execute(vocal1, vocal2);
-				dialog.dismiss();
-			}
-		});
-		builder.setNegativeButton(R.string.cancel, null);
-		builder.show();
-	}
-
-	private void resetModule(final MusicInfo music) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(music.title);
-		builder.setMessage(R.string.message_reset_module);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				new ResetModuleTask().execute(music);
-				dialog.dismiss();
-			}
-		});
-		builder.setNegativeButton(R.string.cancel, null);
-		builder.show();
 	}
 
 	private void editTitleReading(final MusicInfo music) {
@@ -464,49 +404,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		protected void onResult(Boolean result) {
 			if (result != null && result)
 				DdN.notifyPlayRecordChanged();
-		}
-	}
-
-	private class SetModuleTask extends ServiceTask<Module, Void, Boolean> {
-		private MusicInfo m_music;
-
-		public SetModuleTask(MusicInfo music) {
-			super(MusicListActivity.this, R.string.summary_applying);
-			m_music = music;
-		}
-
-		@Override
-		protected Boolean doTask(ServiceClient service, Module... params) throws Exception {
-			Module vocal1 = params[0];
-			Module vocal2 = params[1];
-
-			if (vocal2 == null) {
-				service.setIndividualModule(m_music.id, vocal1.id);
-				m_music.vocal1 = vocal1.id;
-				m_music.vocal2 = null;
-			}
-			else {
-				service.setIndividualModule(m_music.id, vocal1.id, vocal2.id);
-				m_music.vocal1 = vocal1.id;
-				m_music.vocal2 = vocal2.id;
-			}
-			m_store.updateModule(m_music);
-			return Boolean.TRUE;
-		}
-	}
-
-	private class ResetModuleTask extends ServiceTask<MusicInfo, Void, Boolean> {
-		public ResetModuleTask() {
-			super(MusicListActivity.this, R.string.summary_applying);
-		}
-
-		@Override
-		protected Boolean doTask(ServiceClient service, MusicInfo... params) throws Exception {
-			MusicInfo music = params[0];
-			service.resetIndividualModule(music.id);
-			music.vocal1 = music.vocal2 = null;
-			m_store.updateModule(music);
-			return Boolean.TRUE;
 		}
 	}
 }

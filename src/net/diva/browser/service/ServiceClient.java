@@ -311,7 +311,7 @@ public class ServiceClient {
 	}
 
 	public void resetIndividualModule(String music_id) throws IOException {
-		postTo(String.format("/divanet/module/resetIndividual/%s", music_id));
+		postTo(String.format("/divanet/module/resetIndividual/%s/0", music_id));
 	}
 
 	public void resetIndividualAll() throws IOException {

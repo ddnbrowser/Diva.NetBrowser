@@ -39,7 +39,7 @@ public class SkinListActivity extends ExpandableListActivity {
 	private class Skin {
 		int id;
 		String name;
-		boolean hasPurchased = false;
+		int purchased;
 		List<Variant> variants = new ArrayList<Variant>();
 	}
 
@@ -48,8 +48,10 @@ public class SkinListActivity extends ExpandableListActivity {
 		SkinInfo detail;
 	}
 
+	private int m_mode = R.id.item_show_purchased;
 	private Map<String, Skin> m_skins;
 	private List<Skin> m_purchased;
+	private List<Skin> m_notPurchased;
 
 	private SkinAdapter m_adapter;
 	private LocalStore m_store;
@@ -61,17 +63,17 @@ public class SkinListActivity extends ExpandableListActivity {
 		m_store = LocalStore.instance(this);
 
 		m_skins = reconstruct(m_store.loadSkins());
-		m_purchased = filterPurchased(m_skins.values());
+		m_purchased = filter(m_skins.values(), true);
 
 		m_adapter = new SkinAdapter(this);
-		refresh(savedInstanceState != null && savedInstanceState.getBoolean("showAll"));
+		refresh(savedInstanceState != null ? savedInstanceState.getInt("displayMode") : m_mode);
 		setListAdapter(m_adapter);
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		outState.putBoolean("showAll", m_adapter.getSkins() != m_purchased);
+		outState.putInt("displayMode", m_mode);
 	}
 
 	@Override
@@ -115,13 +117,24 @@ public class SkinListActivity extends ExpandableListActivity {
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem item = menu.findItem(m_mode);
+		if (item != null)
+			item.setChecked(true);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+		final int id = item.getItemId();
+		switch (id) {
 		case R.id.item_update:
 			new SkinDownloader().execute();
 			break;
-		case R.id.item_toggle_show_all:
-			refresh(!isShowAll());
+		case R.id.item_show_all:
+		case R.id.item_show_purchased:
+		case R.id.item_show_not_purchased:
+			refresh(id);
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -130,15 +143,21 @@ public class SkinListActivity extends ExpandableListActivity {
 		return true;
 	}
 
-	private boolean isShowAll() {
-		return m_adapter.getSkins() != m_purchased;
-	}
-
-	private void refresh(boolean showAll) {
-		if (showAll)
+	private void refresh(int mode) {
+		switch (mode) {
+		case R.id.item_show_all:
 			m_adapter.setSkins(new ArrayList<Skin>(m_skins.values()));
-		else
+			break;
+		case R.id.item_show_purchased:
 			m_adapter.setSkins(m_purchased);
+			break;
+		case R.id.item_show_not_purchased:
+			if (m_notPurchased == null)
+				m_notPurchased = filter(m_skins.values(), false);
+			m_adapter.setSkins(m_notPurchased);
+			break;
+		}
+		m_mode = mode;
 	}
 
 	private Map<String, Skin> reconstruct(List<SkinInfo> skins) {
@@ -167,28 +186,29 @@ public class SkinListActivity extends ExpandableListActivity {
 				skin.name = sName;
 				map.put(s.group_id, skin);
 			}
-			skin.hasPurchased |= s.purchased;
+			if (s.purchased)
+				++skin.purchased;
 			skin.variants.add(variant);
 		}
 		return map;
 	}
 
-	private List<Skin> filterPurchased(Collection<Skin> skins) {
-		List<Skin> purchased = new ArrayList<Skin>(skins.size());
+	private List<Skin> filter(Collection<Skin> skins, boolean purchased) {
+		List<Skin> filtered = new ArrayList<Skin>(skins.size());
 		for (Skin s: skins) {
-			if (!s.hasPurchased)
+			if (s.purchased == (purchased ? 0 : s.variants.size()))
 				continue;
 
 			Skin skin = new Skin();
 			skin.id = s.id;
 			skin.name = s.name;
 			for (Variant v: s.variants) {
-				if (v.detail.purchased)
+				if (v.detail.purchased == purchased)
 					skin.variants.add(v);
 			}
-			purchased.add(skin);
+			filtered.add(skin);
 		}
-		return purchased;
+		return filtered;
 	}
 
 	SkinInfo getSkinInfo(String id, String group_id) {
@@ -219,10 +239,6 @@ public class SkinListActivity extends ExpandableListActivity {
 				notifyDataSetInvalidated();
 			else
 				notifyDataSetChanged();
-		}
-
-		List<Skin> getSkins() {
-			return m_skins;
 		}
 
 		public Variant getChild(int group, int child) {
@@ -344,8 +360,9 @@ public class SkinListActivity extends ExpandableListActivity {
 				return;
 
 			m_skins = reconstruct(result);
-			m_purchased = filterPurchased(m_skins.values());
-			m_adapter.setSkins(m_purchased);
+			m_purchased = filter(m_skins.values(), true);
+			m_notPurchased = null;
+			refresh(m_mode);
 		}
 	}
 
@@ -368,9 +385,9 @@ public class SkinListActivity extends ExpandableListActivity {
 		@Override
 		protected void onResult(Boolean result) {
 			if (result) {
-				boolean showAll = isShowAll();
-				m_purchased = filterPurchased(m_skins.values());
-				refresh(showAll);
+				m_purchased = filter(m_skins.values(), true);
+				m_notPurchased = null;
+				refresh(m_mode);
 			}
 			else
 				Toast.makeText(SkinListActivity.this, R.string.faile_buying, Toast.LENGTH_SHORT).show();

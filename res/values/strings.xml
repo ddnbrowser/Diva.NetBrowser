@@ -30,6 +30,10 @@
     <string name="item_copy_title">曲名をコピー</string>
     <string name="item_update">更新</string>
     <string name="item_toggle_show_all">表示切替</string>
+    <string name="item_switch_display">表示切替</string>
+    <string name="item_show_all">全て</string>
+    <string name="item_show_purchased">購入済み</string>
+    <string name="item_show_not_purchased">未購入</string>
     <string name="descending">降順</string>
     <string name="message_downloading">プレイデータの取得中...</string>
     <string name="message_loading">読み込み中...</string>

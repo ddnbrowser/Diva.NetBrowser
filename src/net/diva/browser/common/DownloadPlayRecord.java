@@ -15,6 +15,7 @@ import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.NoLoginException;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.util.StringUtils;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -59,18 +60,22 @@ public class DownloadPlayRecord extends AsyncTask<DdN.Account, Integer, PlayReco
 	protected PlayRecord doInBackground(DdN.Account... args) {
 		final Account account = args[0];
 		ServiceClient service = DdN.getServiceClient(account);
+		LocalStore store = DdN.getLocalStore();
 		try {
 			PlayRecord record = service.login();
 			record.musics = mergeMusicList(service.getMusics());
 			publishProgress(0, record.musics.size());
 
 			for (MusicInfo music: record.musics) {
+				if (music.reading == null)
+					music.reading = store.getReading(music.title);
+				if (music.ordinal == null)
+					music.ordinal = StringUtils.forLexicographical(music.reading);
 				service.update(music);
 				service.cacheContent(music.coverart, music.getCoverArtPath(m_context));
 				publishProgress(1);
 			}
 
-			LocalStore store = DdN.getLocalStore();
 			store.insert(record);
 
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(m_context);

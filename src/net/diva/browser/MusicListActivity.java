@@ -360,6 +360,8 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 
 			publishProgress(0, musics.size());
 			for (MusicInfo music: musics) {
+				music.reading = m_store.getReading(music.title);
+				music.ordinal = StringUtils.forLexicographical(music.reading);
 				service.update(music);
 				service.cacheContent(music.coverart, music.getCoverArtPath(m_context));
 				publishProgress(1);

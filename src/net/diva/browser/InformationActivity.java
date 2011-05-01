@@ -1,9 +1,14 @@
 package net.diva.browser;
 
 import net.diva.browser.model.PlayRecord;
+import net.diva.browser.service.ServiceClient;
+import net.diva.browser.util.ProgressTask;
 import android.app.ListActivity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -42,6 +47,24 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 	protected void onPause() {
 		super.onPause();
 		DdN.unregisterObserver(this);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.information_options, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.item_update:
+			new UpdateTask(this).execute();
+			break;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
@@ -155,5 +178,26 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 
 	private void setText(View view, int targetId, int resId) {
 		setText(view, targetId, getText(resId));
+	}
+
+	private static class UpdateTask extends ProgressTask<Void, Void, Boolean> {
+		public UpdateTask(Context context) {
+			super(context, R.string.message_updating);
+		}
+
+		@Override
+		protected Boolean doInBackground(Void... params) {
+			ServiceClient service = DdN.getServiceClient();
+			try {
+				PlayRecord record = service.login();
+				DdN.getLocalStore().update(record);
+				DdN.setPlayRecord(record);
+				return Boolean.TRUE;
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+			return Boolean.FALSE;
+		}
 	}
 }

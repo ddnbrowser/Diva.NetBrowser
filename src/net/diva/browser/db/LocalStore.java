@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.diva.browser.R;
+import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -26,7 +27,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 14;
+	private static final int VERSION = 15;
 
 	private static LocalStore m_instance;
 
@@ -432,6 +433,45 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public List<ButtonSE> loadButtonSEs() {
+		List<ButtonSE> buttonSEs = new ArrayList<ButtonSE>();
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(ButtonSETable.TABLE_NAME, new String[] {
+				ButtonSETable.ID,
+				ButtonSETable.NAME,
+				ButtonSETable.SAMPLE,
+		}, null, null, null, null, ButtonSETable._ID);
+		try {
+			while (c.moveToNext()) {
+				ButtonSE se = new ButtonSE(c.getString(0), c.getString(1));
+				se.sample = c.getString(2);
+				buttonSEs.add(se);
+			}
+		}
+		finally {
+			c.close();
+		}
+
+		return buttonSEs;
+	}
+
+	public void updateButtonSEs(List<ButtonSE> buttonSEs) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			for (ButtonSE se: buttonSEs) {
+				if (!ButtonSETable.update(db, se))
+					ButtonSETable.insert(db, se);
+			}
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	private static class OpenHelper extends SQLiteOpenHelper {
 		public OpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
@@ -445,6 +485,7 @@ public class LocalStore extends ContextWrapper {
 			db.execSQL(ModuleGroupTable.create_statement());
 			db.execSQL(ModuleTable.create_statement());
 			db.execSQL(SkinTable.create_statement());
+			db.execSQL(ButtonSETable.create_statement());
 		}
 
 		@Override
@@ -477,6 +518,8 @@ public class LocalStore extends ContextWrapper {
 				ScoreTable.addSaturationColumn(db);
 			case 13:
 				db.execSQL(String.format("UPDATE %s SET %s = null;", MusicTable.NAME, MusicTable.READING));
+			case 14:
+				db.execSQL(ButtonSETable.create_statement());
 			default:
 				break;
 			}

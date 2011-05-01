@@ -5,6 +5,7 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.settings.ModuleListActivity;
+import net.diva.browser.settings.SEListActivity;
 import net.diva.browser.settings.SkinListActivity;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -38,6 +39,11 @@ public class MusicDetailActivity extends Activity {
 		case R.id.item_set_skin:
 			if (resultCode == RESULT_OK)
 				setSkin(data);
+			break;
+		case R.id.item_set_button_se:
+			if (resultCode == RESULT_OK)
+				setButtonSE(data);
+			break;
 		default:
 			break;
 		}
@@ -151,6 +157,34 @@ public class MusicDetailActivity extends Activity {
 		confirm(R.string.message_reset_skin, new Task() {
 			public void run(ServiceClient service) throws Exception {
 				service.resetSkin(m_music.id);
+			}
+		});
+	}
+
+	/* ----------------------------------------------------------------------
+	 * ボタン音を設定する
+	 * ---------------------------------------------------------------------- */
+	public void setButtonSE(View view) {
+		Intent intent = new Intent(getApplicationContext(), SEListActivity.class);
+		startActivityForResult(intent, R.id.item_set_button_se);
+	}
+
+	private void setButtonSE(Intent data) {
+		final String id = data.getStringExtra("id");
+		confirm(R.string.message_set_button_se, new Task() {
+			public void run(ServiceClient service) throws Exception {
+				service.setButtonSE(m_music.id, id);
+			}
+		});
+	}
+
+	/* ----------------------------------------------------------------------
+	 * ボタン音を未設定にする
+	 * ---------------------------------------------------------------------- */
+	public void resetButtonSE(View view) {
+		confirm(R.string.message_reset_button_se, new Task() {
+			public void run(ServiceClient service) throws Exception {
+				service.resetButtonSE(m_music.id);
 			}
 		});
 	}

@@ -6,9 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.diva.browser.DdN;
+import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -248,6 +251,31 @@ public class ServiceClient {
 		return Parser.Shop.parse(response.getEntity().getContent(), details);
 	}
 
+	public List<ButtonSE> getButtonSEs(String music_id) throws IOException {
+		List<ButtonSE> ses = new ArrayList<ButtonSE>();
+		String path = String.format("/divanet/buttonSE/list/%s/0/0", music_id);
+		while (path != null) {
+			HttpResponse response = getFrom(path);
+			path = Parser.SE.parse(response.getEntity().getContent(), ses);
+		}
+
+		Map<String, String> samples = getSESamples(music_id);
+		for (ButtonSE se: ses)
+			se.sample = samples.get(se.name);
+
+		return ses;
+	}
+
+	private Map<String, String> getSESamples(String music_id) throws IOException {
+		Map<String, String> map = new HashMap<String, String>();
+		String path = String.format("/divanet/buttonSE/sample/%s/0/0", music_id);
+		while (path != null) {
+			HttpResponse response = getFrom(path);
+			path = Parser.SE.parse(response.getEntity().getContent(), map);
+		}
+		return map;
+	}
+
 	private HttpResponse getFrom(String relative, Object... args) throws IOException {
 		return getFrom(String.format(relative, args));
 	}
@@ -341,6 +369,14 @@ public class ServiceClient {
 
 	public void resetSkin(String music_id) throws IOException {
 		postTo(String.format("/divanet/skin/unset/%s/0/0", music_id));
+	}
+
+	public void setButtonSE(String music_id, String se_id) throws IOException {
+		postTo(String.format("/divanet/buttonSE/update/%s/%s/0/0", music_id, se_id));
+	}
+
+	public void resetButtonSE(String music_id) throws IOException {
+		postTo(String.format("/divanet/buttonSE/unset/%s/0/0", music_id));
 	}
 
 	public void buyModule(String id) throws OperationFailedException, IOException {

@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -315,6 +317,31 @@ public final class Parser {
 		static boolean isSuccess(InputStream content) {
 			String body = read(content);
 			return body.contains("購入しました");
+		}
+	}
+
+	static class SE {
+		private static final Pattern RE_BUTTONSE = Pattern.compile("<a href=\"/divanet/buttonSE/confirm/\\w+/(\\w+)/\\d+/\\d+\">(.+)</a>");
+		private static final Pattern RE_SAMPLE = Pattern.compile("<a href=\"(/divanet/sound/se/\\w+)\">(.+)</a>");
+
+		static String parse(InputStream content, List<ButtonSE> buttonSEs) {
+			String body = read(content);
+			Matcher m = RE_BUTTONSE.matcher(body);
+			while (m.find())
+				buttonSEs.add(new ButtonSE(m.group(1), m.group(2)));
+
+			m = m.usePattern(RE_NEXT);
+			return m.find() ? m.group(1) : null;
+		}
+
+		static String parse(InputStream content, Map<String, String> map) {
+			String body = read(content);
+			Matcher m = RE_SAMPLE.matcher(body);
+			while (m.find())
+				map.put(m.group(2), m.group(1));
+
+			m = m.usePattern(RE_NEXT);
+			return m.find() ? m.group(1) : null;
 		}
 	}
 }

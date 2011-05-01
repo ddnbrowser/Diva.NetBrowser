@@ -29,7 +29,6 @@
     <string name="item_ranking">ランキング表示</string>
     <string name="item_copy_title">曲名をコピー</string>
     <string name="item_update">更新</string>
-    <string name="item_toggle_show_all">表示切替</string>
     <string name="item_switch_display">表示切替</string>
     <string name="item_show_all">全て</string>
     <string name="item_show_purchased">購入済み</string>

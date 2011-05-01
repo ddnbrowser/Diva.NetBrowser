@@ -31,10 +31,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ModuleListActivity extends ExpandableListActivity implements AdapterView.OnItemClickListener {
+	private static class Group {
+		ModuleGroup group;
+		List<Module> modules;
+		int purchased;
+	}
+
 	private ModuleAdapter m_adapter;
 	private int m_request;
 	private int m_part;
 	private String m_key;
+
+	private int m_mode = R.id.item_show_purchased;
+	private List<Group> m_modules;
+	private List<Group> m_purchased;
+	private List<Group> m_notPurchased;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +63,18 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 				listView.setOnItemClickListener(this);
 			}
 		}
-		m_adapter = new ModuleAdapter(this, DdN.getModules());
+		m_modules = reconstruct(DdN.getModules());
+		m_purchased = filter(m_modules, true);
+
+		m_adapter = new ModuleAdapter(this);
+		refresh(savedInstanceState != null ? savedInstanceState.getInt("displayMode") : m_mode);
 		setListAdapter(m_adapter);
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		outState.putInt("displayMode", m_mode);
 	}
 
 	@Override
@@ -63,13 +84,24 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		MenuItem item = menu.findItem(m_mode);
+		if (item != null)
+			item.setChecked(true);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
+		final int id = item.getItemId();
+		switch (id) {
 		case R.id.item_update:
 			new UpdateTask().execute();
 			return true;
-		case R.id.item_toggle_show_all:
-			m_adapter.toggleShowAll();
+		case R.id.item_show_all:
+		case R.id.item_show_purchased:
+		case R.id.item_show_not_purchased:
+			refresh(id);
 			return true;
 		default:
 			break;
@@ -127,6 +159,56 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			super.onActivityResult(requestCode, resultCode, data);
 			break;
 		}
+	}
+
+	private void refresh(int mode) {
+		switch (mode) {
+		case R.id.item_show_all:
+			m_adapter.setModules(m_modules);
+			break;
+		case R.id.item_show_purchased:
+			m_adapter.setModules(m_purchased);
+			break;
+		case R.id.item_show_not_purchased:
+			if (m_notPurchased == null)
+				m_notPurchased = filter(m_modules, false);
+			m_adapter.setModules(m_notPurchased);
+			break;
+		}
+		m_mode = mode;
+	}
+
+	private List<Group> reconstruct(List<ModuleGroup> groups) {
+		List<Group> result = new ArrayList<Group>(groups.size());
+		for (ModuleGroup group: groups) {
+			Group g = new Group();
+			g.group = group;
+			g.modules = group.modules;
+			for (Module m: group.modules) {
+				if (m.purchased)
+					++g.purchased;
+			}
+			result.add(g);
+		}
+		return result;
+	}
+
+	private List<Group> filter(List<Group> groups, boolean purchased) {
+		List<Group> filtered = new ArrayList<Group>(groups.size());
+		for (Group g: groups) {
+			if (g.purchased == (purchased ? 0 : g.modules.size()))
+				continue;
+
+			Group group = new Group();
+			group.group = g.group;
+			group.modules = new ArrayList<Module>();
+			for (Module m: g.modules) {
+				if (m.purchased == purchased)
+					group.modules.add(m);
+			}
+			filtered.add(group);
+		}
+		return filtered;
 	}
 
 	private static View getModuleView(Context context, Module module, View view, ViewGroup parent) {
@@ -188,8 +270,12 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 
 		@Override
 		protected void onResult(Boolean result) {
-			if (result != null && result)
-				m_adapter.setModules(DdN.getModules());
+			if (result != null && result) {
+				m_modules = reconstruct(DdN.getModules());
+				m_purchased = filter(m_modules, true);
+				m_notPurchased = null;
+				refresh(m_mode);
+			}
 		}
 	}
 
@@ -211,8 +297,11 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 
 		@Override
 		protected void onResult(Boolean result) {
-			if (result != null && result)
-				m_adapter.notifyDataSetChanged();
+			if (result != null && result) {
+				m_purchased = filter(m_modules, true);
+				m_notPurchased = null;
+				refresh(m_mode);
+			}
 			else
 				Toast.makeText(ModuleListActivity.this, R.string.faile_buying, Toast.LENGTH_SHORT).show();
 		}
@@ -220,48 +309,22 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 
 	private static class ModuleAdapter extends BaseExpandableListAdapter {
 		Context m_context;
-		List<ModuleGroup> m_modules;
-		List<ModuleGroup> m_groups;
-		List<List<Module>> m_purchased;
-		boolean m_showAll = false;
+		List<Group> m_modules;
 
-		ModuleAdapter(Context context, List<ModuleGroup> modules) {
+		ModuleAdapter(Context context) {
 			m_context = context;
-			setModules(modules);
 		}
 
-		void setModules(List<ModuleGroup> modules) {
+		void setModules(List<Group> modules) {
 			m_modules = modules;
-
-			List<ModuleGroup> groups = new ArrayList<ModuleGroup>();;
-			List<List<Module>> purchased = new ArrayList<List<Module>>();
-			for (ModuleGroup group: modules) {
-				List<Module> list = new ArrayList<Module>();
-				for (Module module: group.modules) {
-					if (module.purchased)
-						list.add(module);
-				}
-				if (!list.isEmpty()) {
-					groups.add(group);
-					purchased.add(list);
-				}
-			}
-			m_groups = groups;
-			m_purchased = purchased;
-
-			notifyDataSetChanged();
-		}
-
-		void toggleShowAll() {
-			m_showAll = !m_showAll;
-			notifyDataSetChanged();
+			if (m_modules.isEmpty())
+				notifyDataSetInvalidated();
+			else
+				notifyDataSetChanged();
 		}
 
 		public Module getChild(int group, int position) {
-			if (m_showAll)
-				return m_modules.get(group).modules.get(position);
-			else
-				return m_purchased.get(group).get(position);
+			return m_modules.get(group).modules.get(position);
 		}
 
 		public long getChildId(int group, int position) {
@@ -273,22 +336,19 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		}
 
 		public int getChildrenCount(int group) {
-			if (m_showAll)
-				return m_modules.get(group).modules.size();
-			else
-				return m_purchased.get(group).size();
+			return m_modules.get(group).modules.size();
 		}
 
-		public ModuleGroup getGroup(int position) {
-			return m_showAll ? m_modules.get(position) : m_groups.get(position);
+		public Group getGroup(int position) {
+			return m_modules.get(position);
 		}
 
 		public int getGroupCount() {
-			return m_showAll ? m_modules.size() : m_groups.size();
+			return m_modules.size();
 		}
 
 		public long getGroupId(int position) {
-			return getGroup(position).id;
+			return getGroup(position).group.id;
 		}
 
 		public View getGroupView(int position, boolean flag, View view, ViewGroup parent) {
@@ -297,8 +357,8 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 				view = inflater.inflate(android.R.layout.simple_expandable_list_item_1, parent, false);
 			}
 			TextView tv = (TextView)view.findViewById(android.R.id.text1);
-			ModuleGroup group = getGroup(position);
-			tv.setText(group.name);
+			Group group = getGroup(position);
+			tv.setText(group.group.name);
 			return view;
 		}
 

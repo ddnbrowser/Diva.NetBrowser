@@ -415,4 +415,8 @@ public class ServiceClient {
 		params.add(new BasicNameValuePair("cryptoPvIdList", music_id));
 		postTo(String.format("/divanet/myList/deletePv/%d/true", id), new UrlEncodedFormEntity(params, "UTF-8"));
 	}
+
+	public void deleteMyList(int id) throws IOException {
+		postTo(String.format("/divanet/myList/deleteMyList/%d", id));
+	}
 }

@@ -551,6 +551,19 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public void clearMyList(int id) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			MyListEntryTable.clear(db, id);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	public void updateMyList(int id, List<String> ids) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();

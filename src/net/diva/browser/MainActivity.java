@@ -58,9 +58,13 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		icons.recycle();
 
 		for (MyList mylist: DdN.getLocalStore().loadMyLists()) {
+			final Intent intent = new Intent(context, MyListActivity.class);
+			intent.putExtra("id", mylist.id);
+			intent.putExtra("name", mylist.name);
+
 			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);
 			tab.setIndicator(mylist.name, res.getDrawable(R.drawable.ic_menu_star));
-			tab.setContent(new Intent(context, MyListActivity.class).putExtra("id", mylist.id));
+			tab.setContent(intent);
 			host.addTab(tab);
 		}
 

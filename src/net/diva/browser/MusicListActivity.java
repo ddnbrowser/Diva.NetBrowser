@@ -441,7 +441,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 				else
 					service.removeFromMyList(myList.id, m_music.id);
 
-				m_store.updateMyList(myList.id, service.getMyList(myList.id));
+				m_store.updateMyList(myList.id, service.getMyListEntries(myList.id));
 			}
 			return Boolean.TRUE;
 		}

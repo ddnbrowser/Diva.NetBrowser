@@ -17,6 +17,7 @@ import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.ScoreRecord;
@@ -345,8 +346,16 @@ public final class Parser {
 		}
 	}
 
-	static class MyList {
+	static class MyListParser {
+		private static final Pattern RE_NAME = Pattern.compile("\\[マイリスト名\\]</font><br>\\s+(.+)<br>");
 		private static final Pattern RE_MUSIC = Pattern.compile("name=\"cryptoPvIdList\" value=\"(\\w+)\">");
+
+		static void parseSummary(InputStream content, MyList myList) {
+			String body = read(content);
+			Matcher m = RE_NAME.matcher(body);
+			if (m.find())
+				myList.name = m.group(1);
+		}
 
 		static void parseList(InputStream content, List<String> ids) {
 			String body = read(content);

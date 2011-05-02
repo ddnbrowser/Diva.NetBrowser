@@ -538,6 +538,19 @@ public class LocalStore extends ContextWrapper {
 		return values;
 	}
 
+	public void updateMyList(MyList myList) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			MyListTable.update(db, myList.id, myList.name);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	public void updateMyList(int id, List<String> ids) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();

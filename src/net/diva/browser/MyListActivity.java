@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
+import net.diva.browser.service.ServiceClient;
+import net.diva.browser.service.ServiceTask;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -29,7 +32,20 @@ public class MyListActivity extends MusicListActivity {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
+		switch (item.getItemId()) {
+		case R.id.item_sync_mylist:
+			new SyncMyList().execute(m_myListId);
+			break;
+		case R.id.item_edit_name:
+			break;
+		case R.id.item_delete_mylist:
+			break;
+		case R.id.item_activate_mylist:
+			break;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
 	}
 
 	@Override
@@ -39,5 +55,26 @@ public class MyListActivity extends MusicListActivity {
 		for (String id: ids)
 			musics.add(record.getMusic(id));
 		return musics;
+	}
+
+	private class SyncMyList extends ServiceTask<Integer, Void, Boolean> {
+		SyncMyList() {
+			super(MyListActivity.this, R.string.synchronizing);
+		}
+
+		@Override
+		protected Boolean doTask(ServiceClient service, Integer... params) throws Exception {
+			int id = params[0];
+			MyList myList = service.getMyList(id);
+			m_store.updateMyList(myList);
+			m_store.updateMyList(id, service.getMyListEntries(id));
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			if (result)
+				onUpdate(DdN.getPlayRecord(), false);
+		}
 	}
 }

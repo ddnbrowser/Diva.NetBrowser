@@ -15,6 +15,7 @@ import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.SkinInfo;
@@ -391,10 +392,17 @@ public class ServiceClient {
 			throw new OperationFailedException();
 	}
 
-	public List<String> getMyList(int id) throws IOException {
+	public MyList getMyList(int id) throws IOException {
+		HttpResponse response = getFrom("/divanet/myList/selectMyList/%d", id);
+		final MyList myList = new MyList(id, null);
+		Parser.MyListParser.parseSummary(response.getEntity().getContent(), myList);
+		return myList;
+	}
+
+	public List<String> getMyListEntries(int id) throws IOException {
 		List<String> ids = new ArrayList<String>();
 		HttpResponse response = getFrom("/divanet/myList/edit/%d/delete", id);
-		Parser.MyList.parseList(response.getEntity().getContent(), ids);
+		Parser.MyListParser.parseList(response.getEntity().getContent(), ids);
 		return ids;
 	}
 

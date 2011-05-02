@@ -111,4 +111,5 @@
     <string name="item_update_saturations">達成率理論値を更新</string>
     <string name="message_update_saturations">理論値の更新中...</string>
     <string name="no_button_se">ボタン音がありません。\nメニューを開いて更新を選択して下さい</string>
+    <string name="synchronizing">同期しています...</string>
 </resources>

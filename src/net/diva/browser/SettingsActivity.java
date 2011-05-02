@@ -1,6 +1,11 @@
 package net.diva.browser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import net.diva.browser.common.UpdateSaturaionPoints;
+import net.diva.browser.model.MyList;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -13,6 +18,8 @@ public class SettingsActivity extends PreferenceActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.settings);
+
+		addMyLists((ListPreference)findPreference("default_tab"));
 
 		final ListPreference sortOrder = (ListPreference)findPreference("initial_sort_order");
 		sortOrder.setSummary(sortOrder.getEntry());
@@ -41,5 +48,16 @@ public class SettingsActivity extends PreferenceActivity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void addMyLists(final ListPreference lp) {
+		List<CharSequence> names = new ArrayList<CharSequence>(Arrays.asList(lp.getEntries()));
+		List<CharSequence> values = new ArrayList<CharSequence>(Arrays.asList(lp.getEntryValues()));
+		for (MyList mylist: DdN.getLocalStore().loadMyLists()) {
+			names.add(mylist.name);
+			values.add(mylist.tag);
+		}
+		lp.setEntries(names.toArray(new CharSequence[names.size()]));
+		lp.setEntryValues(values.toArray(new CharSequence[values.size()]));
 	}
 }

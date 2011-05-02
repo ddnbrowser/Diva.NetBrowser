@@ -10,6 +10,7 @@ import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.ScoreRecord;
@@ -27,7 +28,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 15;
+	private static final int VERSION = 16;
 
 	private static LocalStore m_instance;
 
@@ -472,6 +473,86 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public List<MyList> loadMyLists() {
+		List<MyList> mylists = new ArrayList<MyList>();
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(MyListTable.TABLE_NAME, new String[] {
+				MyListTable.ID,
+				MyListTable.NAME,
+		}, null, null, null, null, MyListTable.ID);
+		try {
+			while (c.moveToNext())
+				mylists.add(new MyList(c.getInt(0), c.getString(1)));
+		}
+		finally {
+			c.close();
+		}
+
+		return mylists;
+	}
+
+	public List<String> loadMyList(int id) {
+		List<String> mylist = new ArrayList<String>();
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(MyListEntryTable.TABLE_NAME, new String[] {
+				MyListEntryTable.MUSIC_ID,
+		}, MyListEntryTable.WHERE_BY_ID, new String[] { String.valueOf(id) },
+		null, null, MyListEntryTable.NUMBER);
+		try {
+			while (c.moveToNext())
+				mylist.add(c.getString(0));
+		}
+		finally {
+			c.close();
+		}
+
+		return mylist;
+	}
+
+	public boolean[] containedInMyLists(List<MyList> myLists, String music_id) {
+		final int size = myLists.size();
+		boolean[] values = new boolean[size];
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(MyListEntryTable.TABLE_NAME, new String[] {
+				MyListEntryTable.ID,
+		}, MyListEntryTable.WHERE_BY_MUSIC, new String[] { music_id },
+		null, null, MyListEntryTable.ID);
+		try {
+			while (c.moveToNext()) {
+				int id = c.getInt(0);
+				for (int i = 0; i < size; ++i) {
+					if (myLists.get(i).id == id) {
+						values[i] = true;
+						break;
+					}
+				}
+			}
+		}
+		finally {
+			c.close();
+		}
+
+		return values;
+	}
+
+	public void updateMyList(int id, List<String> ids) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			MyListEntryTable.clear(db, id);
+			for (int i = 0; i < ids.size(); ++i)
+				MyListEntryTable.update(db, id, i, ids.get(i));
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	private static class OpenHelper extends SQLiteOpenHelper {
 		public OpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
@@ -486,6 +567,9 @@ public class LocalStore extends ContextWrapper {
 			db.execSQL(ModuleTable.create_statement());
 			db.execSQL(SkinTable.create_statement());
 			db.execSQL(ButtonSETable.create_statement());
+			db.execSQL(MyListTable.create_statement());
+			db.execSQL(MyListEntryTable.create_statement());
+			initializeMyList(db);
 		}
 
 		@Override
@@ -520,8 +604,20 @@ public class LocalStore extends ContextWrapper {
 				db.execSQL(String.format("UPDATE %s SET %s = null;", MusicTable.NAME, MusicTable.READING));
 			case 14:
 				db.execSQL(ButtonSETable.create_statement());
+			case 15:
+				db.execSQL(MyListTable.create_statement());
+				db.execSQL(MyListEntryTable.create_statement());
+				initializeMyList(db);
 			default:
 				break;
+			}
+		}
+
+		private void initializeMyList(SQLiteDatabase db) {
+			for (int i = 0; i < 5; ++i) {
+				MyListTable.insert(db, i, String.format("マイリスト%d", i+1));
+				for (int j = 0; j < 20; ++j)
+					MyListEntryTable.insert(db, i, j, null);
 			}
 		}
 	}

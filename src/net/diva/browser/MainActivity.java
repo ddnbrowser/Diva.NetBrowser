@@ -1,6 +1,7 @@
 package net.diva.browser;
 
 import net.diva.browser.common.DownloadPlayRecord;
+import net.diva.browser.model.MyList;
 import android.app.Activity;
 import android.app.TabActivity;
 import android.content.Context;
@@ -13,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TabHost;
+import android.widget.TabWidget;
 
 public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener {
 	private CharSequence m_defaultTitle;
@@ -43,7 +45,6 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		Intent[] intents = {
 				new Intent(context, InformationActivity.class),
 				new Intent(context, MusicListActivity.class),
-				new Intent(context, MusicListActivity.class).putExtra("is_favorite", true),
 		};
 
 		TabHost host = getTabHost();
@@ -55,6 +56,18 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 			host.addTab(tab);
 		}
 		icons.recycle();
+
+		for (MyList mylist: DdN.getLocalStore().loadMyLists()) {
+			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);
+			tab.setIndicator(mylist.name, res.getDrawable(R.drawable.ic_menu_star));
+			tab.setContent(new Intent(context, MyListActivity.class).putExtra("id", mylist.id));
+			host.addTab(tab);
+		}
+
+		final int minWidth = 140;
+		TabWidget widget = getTabWidget();
+		for (int i = 0; i < widget.getTabCount(); ++i)
+			widget.getChildTabViewAt(i).setMinimumWidth(minWidth);
 
 		host.setCurrentTabByTag(preferences.getString("default_tab", tags[0]));
 

@@ -6,6 +6,7 @@ import java.util.List;
 import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
@@ -42,8 +43,8 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	private MusicAdapter m_adapter;
 	private Handler m_handler = new Handler();
 
-	private SharedPreferences m_preferences;
-	private LocalStore m_store;
+	protected SharedPreferences m_preferences;
+	protected LocalStore m_store;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -55,8 +56,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		m_preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		m_store = LocalStore.instance(this);
 
-		final boolean favorite = getIntent().getBooleanExtra("is_favorite", false);
-		m_adapter = new MusicAdapter(this, favorite);
+		m_adapter = new MusicAdapter(this);
 		setListAdapter(m_adapter);
 
 		m_buttons = new View[] {
@@ -154,14 +154,6 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		MusicInfo music = m_adapter.getItem(info.position);
 		menu.setHeaderTitle(music.title);
-		if (m_adapter.isFavorite()) {
-			menu.findItem(R.id.item_add_favorite).setVisible(false);
-			menu.findItem(R.id.item_remove_favorite).setEnabled(music.favorite);
-		}
-		else {
-			menu.findItem(R.id.item_add_favorite).setEnabled(!music.favorite);
-			menu.findItem(R.id.item_remove_favorite).setVisible(false);
-		}
 	}
 
 	@Override
@@ -172,11 +164,8 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		case R.id.item_update:
 			new MusicUpdateTask().execute(music);
 			return true;
-		case R.id.item_add_favorite:
-			updateFavorite(music, true);
-			return true;
-		case R.id.item_remove_favorite:
-			updateFavorite(music, false);
+		case R.id.item_edit_mylist:
+			editMyList(music);
 			return true;
 		case R.id.item_edit_reading:
 			editTitleReading(music);
@@ -199,7 +188,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		if (noMusic)
 			m_adapter.notifyDataSetChanged();
 		else {
-			m_adapter.setData(record.musics);
+			m_adapter.setData(getMusics(record));
 			m_adapter.update();
 		}
 	}
@@ -216,6 +205,10 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		int[] next = new int[1];
 		record.rank(next);
 		return String.format("%s %s (-%dpts)", record.level, title, next[0]);
+	}
+
+	protected List<MusicInfo> getMusics(PlayRecord record) {
+		return record.musics;
 	}
 
 	private void updateAll() {
@@ -261,11 +254,27 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		builder.show();
 	}
 
-	private void updateFavorite(MusicInfo music, boolean register) {
-		music.favorite = register;
-		m_store.updateFavorite(music);
-		if (m_adapter.isFavorite())
-			m_adapter.update();
+	private void editMyList(final MusicInfo music) {
+		final List<MyList> myLists = m_store.loadMyLists();
+		final int size = myLists.size();
+		CharSequence[] items = new CharSequence[size];
+		for (int i = 0; i < size; ++i)
+			items[i] = myLists.get(i).name;
+		final boolean[] values = m_store.containedInMyLists(myLists, music.id);
+		final boolean[] before = values.clone();
+
+		AlertDialog.Builder b = new AlertDialog.Builder(this);
+		b.setTitle(music.title);
+		b.setMultiChoiceItems(items, values, new DialogInterface.OnMultiChoiceClickListener() {
+			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+			}
+		});
+		b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				new UploadMyListTask(myLists, music).execute(before, values);
+			}
+		});
+		b.show();
 	}
 
 	private void editTitleReading(final MusicInfo music) {
@@ -406,6 +415,35 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		protected void onResult(Boolean result) {
 			if (result != null && result)
 				DdN.notifyPlayRecordChanged();
+		}
+	}
+
+	private class UploadMyListTask extends ServiceTask<boolean[], Void, Boolean> {
+		List<MyList> m_myLists;
+		MusicInfo m_music;
+
+		public UploadMyListTask(List<MyList> myLists, MusicInfo music) {
+			super(MusicListActivity.this, R.string.message_updating);
+			m_myLists = myLists;
+			m_music = music;
+		}
+
+		@Override
+		protected Boolean doTask(ServiceClient service, boolean[]... params) throws Exception {
+			boolean[] oldValues = params[0];
+			boolean[] newValues = params[1];
+			for (int i = 0; i < oldValues.length; ++i) {
+				if (oldValues[i] == newValues[i])
+					continue;
+				MyList myList = m_myLists.get(i);
+				if (newValues[i])
+					service.addToMyList(myList.id, m_music.id);
+				else
+					service.removeFromMyList(myList.id, m_music.id);
+
+				m_store.updateMyList(myList.id, service.getMyList(myList.id));
+			}
+			return Boolean.TRUE;
 		}
 	}
 }

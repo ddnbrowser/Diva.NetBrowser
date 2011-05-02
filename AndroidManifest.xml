@@ -12,6 +12,7 @@
         </activity>
         <activity android:name=".InformationActivity"></activity>
         <activity android:name=".MusicListActivity"></activity>
+        <activity android:name=".MyListActivity"></activity>
         <activity android:name=".MusicDetailActivity" android:theme="@style/Theme.Translucent"></activity>
         <activity android:name=".WebBrowseActivity" android:configChanges="keyboardHidden|orientation"></activity>
         <activity android:name=".CommonConfigActivity"></activity>

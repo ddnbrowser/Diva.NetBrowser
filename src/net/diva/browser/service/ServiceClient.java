@@ -390,4 +390,21 @@ public class ServiceClient {
 		if (!Parser.Shop.isSuccess(response.getEntity().getContent()))
 			throw new OperationFailedException();
 	}
+
+	public List<String> getMyList(int id) throws IOException {
+		List<String> ids = new ArrayList<String>();
+		HttpResponse response = getFrom("/divanet/myList/edit/%d/delete", id);
+		Parser.MyList.parseList(response.getEntity().getContent(), ids);
+		return ids;
+	}
+
+	public void addToMyList(int id, String music_id) throws IOException {
+		postTo(String.format("/divanet/myList/update/%d/%s/0", id, music_id));
+	}
+
+	public void removeFromMyList(int id, String music_id) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+		params.add(new BasicNameValuePair("cryptoPvIdList", music_id));
+		postTo(String.format("/divanet/myList/deletePv/%d/true", id), new UrlEncodedFormEntity(params, "UTF-8"));
+	}
 }

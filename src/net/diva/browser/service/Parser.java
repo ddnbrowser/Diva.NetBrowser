@@ -344,4 +344,15 @@ public final class Parser {
 			return m.find() ? m.group(1) : null;
 		}
 	}
+
+	static class MyList {
+		private static final Pattern RE_MUSIC = Pattern.compile("name=\"cryptoPvIdList\" value=\"(\\w+)\">");
+
+		static void parseList(InputStream content, List<String> ids) {
+			String body = read(content);
+			Matcher m = RE_MUSIC.matcher(body);
+			while (m.find())
+				ids.add(m.group(1));
+		}
+	}
 }

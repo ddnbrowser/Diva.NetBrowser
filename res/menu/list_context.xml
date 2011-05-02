@@ -2,8 +2,7 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/item_update" android:title="@string/item_update_selction"></item>
-    <item android:id="@+id/item_add_favorite" android:title="@string/item_add_favorite"></item>
-    <item android:id="@+id/item_remove_favorite" android:title="@string/item_remove_favorite"></item>
+    <item android:id="@+id/item_edit_mylist" android:title="@string/item_edit_mylist"></item>
 	<item android:id="@+id/item_edit_reading" android:title="@string/item_edit_reading"></item>
     <item android:id="@+id/item_copy_title" android:title="@string/item_copy_title"></item>
     <item android:id="@+id/item_ranking" android:title="@string/item_ranking"></item>

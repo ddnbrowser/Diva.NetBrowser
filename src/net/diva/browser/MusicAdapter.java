@@ -39,12 +39,11 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	private String m_constraintTitle;
 	private String m_constraintReading;
 
-	private boolean m_favorite;
 	private int m_difficulty;
 	private SortOrder m_sortOrder;
 	private boolean m_reverseOrder;
 
-	public MusicAdapter(Context context, boolean favoriteOnly) {
+	public MusicAdapter(Context context) {
 		super();
 		m_context = context;
 
@@ -58,7 +57,6 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		};
 
 		m_difficulty = 0;
-		m_favorite = favoriteOnly;
 		m_sortOrder = SortOrder.by_name;
 		m_reverseOrder = false;
 	}
@@ -83,10 +81,6 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 
 	public void setData(List<MusicInfo> music) {
 		m_original = music;
-	}
-
-	public boolean isFavorite() {
-		return m_favorite;
 	}
 
 	public int getDifficulty() {
@@ -315,8 +309,6 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		else {
 			musics = new ArrayList<MusicInfo>(original.size());
 			for (MusicInfo m: original) {
-				if (m_favorite && !m.favorite)
-					continue;
 				if (m.records[m_difficulty] == null)
 					continue;
 				if (m_constraintTitle == null ||

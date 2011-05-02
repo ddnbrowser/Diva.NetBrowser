@@ -406,6 +406,16 @@ public class ServiceClient {
 		return ids;
 	}
 
+	public void renameMyList(int id, String newName) throws IOException, OperationFailedException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+		params.add(new BasicNameValuePair("name", newName));
+		final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "UTF-8");
+		HttpResponse response = postTo(String.format("/divanet/myList/updateName/%d", id), entity);
+		String error = Parser.parseRenameResult(response.getEntity().getContent());
+		if (error != null)
+			throw new OperationFailedException(error);
+	}
+
 	public void activateMyList(int id) throws IOException {
 		postTo(String.format("/divanet/myList/activate/%d", id));
 	}

@@ -406,6 +406,10 @@ public class ServiceClient {
 		return ids;
 	}
 
+	public void activateMyList(int id) throws IOException {
+		postTo(String.format("/divanet/myList/activate/%d", id));
+	}
+
 	public void addToMyList(int id, String music_id) throws IOException {
 		postTo(String.format("/divanet/myList/update/%d/%s/0", id, music_id));
 	}

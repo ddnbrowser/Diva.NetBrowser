@@ -114,4 +114,6 @@
     <string name="synchronizing">同期しています...</string>
     <string name="confirm_delete_mylist">マイリストを削除します。よろしいですか?</string>
     <string name="deleting">削除しています...</string>
+    <string name="confirm_activate_mylist">筐体で使用するマイリストとして設定します。よろしいですか?</string>
+    <string name="activating">設定しています...</string>
 </resources>

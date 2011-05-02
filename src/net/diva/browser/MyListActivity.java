@@ -44,6 +44,7 @@ public class MyListActivity extends MusicListActivity {
 			deleteMyList();
 			break;
 		case R.id.item_activate_mylist:
+			activateMyList();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -67,6 +68,20 @@ public class MyListActivity extends MusicListActivity {
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
 				new DeleteMyList().execute(m_myList.id);
+				dialog.dismiss();
+			}
+		});
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void activateMyList() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(m_myList.name);
+		builder.setMessage(R.string.confirm_activate_mylist);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				new ActivateMyList().execute(m_myList.id);
 				dialog.dismiss();
 			}
 		});
@@ -114,6 +129,19 @@ public class MyListActivity extends MusicListActivity {
 		protected void onResult(MyList result) {
 			if (result != null)
 				onUpdate(DdN.getPlayRecord(), false);
+		}
+	}
+
+	private class ActivateMyList extends ServiceTask<Integer, Void, Boolean> {
+		ActivateMyList() {
+			super(MyListActivity.this, R.string.activating);
+		}
+
+		@Override
+		protected Boolean doTask(ServiceClient service, Integer... params) throws Exception {
+			int id = params[0];
+			service.activateMyList(id);
+			return Boolean.TRUE;
 		}
 	}
 }

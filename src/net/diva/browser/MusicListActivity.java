@@ -39,9 +39,9 @@ import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MusicListActivity extends ListActivity implements DdN.Observer {
-	private View m_buttons[];
-	private MusicAdapter m_adapter;
-	private Handler m_handler = new Handler();
+	protected View m_buttons[];
+	protected MusicAdapter m_adapter;
+	protected Handler m_handler = new Handler();
 
 	protected SharedPreferences m_preferences;
 	protected LocalStore m_store;

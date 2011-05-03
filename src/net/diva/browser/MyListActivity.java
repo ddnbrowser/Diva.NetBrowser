@@ -64,8 +64,10 @@ public class MyListActivity extends MusicListActivity {
 			return;
 
 		m_myList = myList;
-		if (!noMusic)
-			onUpdate(DdN.getPlayRecord(), false);
+		if (!noMusic) {
+			m_adapter.setData(getMusics(DdN.getPlayRecord()));
+			m_adapter.update();
+		}
 	}
 
 	@Override

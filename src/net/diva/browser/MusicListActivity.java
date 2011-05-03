@@ -193,6 +193,10 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		}
 	}
 
+	public void onUpdate(MyList myList, boolean noMusic) {
+		// do nothing.
+	}
+
 	public void setDifficulty(int difficulty, boolean update) {
 		m_adapter.setDifficulty(difficulty);
 		if (update)

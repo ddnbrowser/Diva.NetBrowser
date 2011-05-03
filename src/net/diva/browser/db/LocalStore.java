@@ -579,6 +579,17 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public int getActiveMyList() {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		return preferences.getInt("active_mylist", -1);
+	}
+
+	public void activateMyList(int id) {
+		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+		editor.putInt("active_mylist", id);
+		editor.commit();
+	}
+
 	private static class OpenHelper extends SQLiteOpenHelper {
 		public OpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);

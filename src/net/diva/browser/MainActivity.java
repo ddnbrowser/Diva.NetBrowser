@@ -1,7 +1,12 @@
 package net.diva.browser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.diva.browser.common.DownloadPlayRecord;
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MyList;
+import net.diva.browser.model.PlayRecord;
 import android.app.Activity;
 import android.app.TabActivity;
 import android.content.Context;
@@ -9,15 +14,32 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+import android.widget.TextView;
 
-public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener {
+public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener, DdN.Observer {
+	private class TabHolder {
+		int myListId;
+		TextView title;
+		ImageView icon;
+
+		TabHolder(int id, View view) {
+			myListId = id;
+			title = (TextView)view.findViewById(android.R.id.title);
+			icon = (ImageView)view.findViewById(android.R.id.icon);
+		}
+	}
+
 	private CharSequence m_defaultTitle;
+	private List<TabHolder> m_myListTabs = new ArrayList<TabHolder>();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,10 +47,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		setContentView(R.layout.main);
 		m_defaultTitle = getTitle();
 
-		final Context context = getApplicationContext();
-		final Resources res = getResources();
-
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		if (preferences.getBoolean("fix_sort_order", false)) {
 			String order = preferences.getString("initial_sort_order", null);
 			if (order != null) {
@@ -39,45 +58,36 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 			}
 		}
 
-		String[] tags = res.getStringArray(R.array.tab_tags);
-		String[] names = res.getStringArray(R.array.tab_names);
-		TypedArray icons = res.obtainTypedArray(R.array.tab_icons);
-		Intent[] intents = {
-				new Intent(context, InformationActivity.class),
-				new Intent(context, MusicListActivity.class),
-		};
-
 		TabHost host = getTabHost();
 		host.setOnTabChangedListener(this);
-		for (int i = 0; i < tags.length; ++i) {
-			TabHost.TabSpec tab = host.newTabSpec(tags[i]);
-			tab.setIndicator(names[i], icons.getDrawable(i));
-			tab.setContent(intents[i]);
-			host.addTab(tab);
-		}
-		icons.recycle();
-
-		for (MyList mylist: DdN.getLocalStore().loadMyLists()) {
-			final Intent intent = new Intent(context, MyListActivity.class);
-			intent.putExtra("id", mylist.id);
-			intent.putExtra("name", mylist.name);
-
-			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);
-			tab.setIndicator(mylist.name, res.getDrawable(R.drawable.ic_menu_star));
-			tab.setContent(intent);
-			host.addTab(tab);
-		}
-
-		final int minWidth = 140;
 		TabWidget widget = getTabWidget();
-		for (int i = 0; i < widget.getTabCount(); ++i)
-			widget.getChildTabViewAt(i).setMinimumWidth(minWidth);
 
-		host.setCurrentTabByTag(preferences.getString("default_tab", tags[0]));
+		addFixedTabs(host);
+		addMyListTabs(host, widget);
+
+		final int width = getResources().getDimensionPixelSize(R.dimen.tab_width);
+		for (int i = 0; i < widget.getTabCount(); ++i)
+			widget.getChildTabViewAt(i).getLayoutParams().width = width;
+
+		final String tag = preferences.getString("default_tab", null);
+		if (tag != null)
+			host.setCurrentTabByTag(tag);
 
 		DdN.Account account = DdN.Account.load(preferences);
 		if (account == null)
 			DdN.Account.input(this, new DownloadPlayRecord(this));
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		DdN.registerObserver(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		DdN.unregisterObserver(this);
 	}
 
 	@Override
@@ -140,5 +150,60 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 			break;
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	public void onUpdate(PlayRecord record, boolean noMusic) {
+		// do nothing.
+	}
+
+	public void onUpdate(MyList myList, boolean noMusic) {
+		final int active = DdN.getLocalStore().getActiveMyList();
+		for (TabHolder holder: m_myListTabs) {
+			if (holder.myListId == myList.id)
+				holder.title.setText(myList.name);
+			holder.icon.setImageDrawable(getMyListIcon(holder.myListId == active));
+		}
+	}
+
+	private void addFixedTabs(TabHost host) {
+		final Context context = getApplicationContext();
+		final Resources resources = getResources();
+
+		String[] tags = resources.getStringArray(R.array.tab_tags);
+		String[] names = resources.getStringArray(R.array.tab_names);
+		TypedArray icons = resources.obtainTypedArray(R.array.tab_icons);
+		Intent[] intents = {
+				new Intent(context, InformationActivity.class),
+				new Intent(context, MusicListActivity.class),
+		};
+
+		for (int i = 0; i < tags.length; ++i) {
+			TabHost.TabSpec tab = host.newTabSpec(tags[i]);
+			tab.setIndicator(names[i], icons.getDrawable(i));
+			tab.setContent(intents[i]);
+			host.addTab(tab);
+		}
+		icons.recycle();
+	}
+
+	private void addMyListTabs(TabHost host, TabWidget widget) {
+		final LocalStore store = DdN.getLocalStore();
+		final int active = store.getActiveMyList();
+		for (MyList mylist: store.loadMyLists()) {
+			final Intent intent = new Intent(getApplicationContext(), MyListActivity.class);
+			intent.putExtra("id", mylist.id);
+			intent.putExtra("name", mylist.name);
+
+			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);
+			tab.setIndicator(mylist.name, getMyListIcon(mylist.id == active));
+			tab.setContent(intent);
+			host.addTab(tab);
+
+			m_myListTabs.add(new TabHolder(mylist.id, widget.getChildTabViewAt(widget.getTabCount()-1)));
+		}
+	}
+
+	private Drawable getMyListIcon(boolean active) {
+		return getResources().getDrawable(active ? R.drawable.checked_star : R.drawable.ic_menu_star);
 	}
 }

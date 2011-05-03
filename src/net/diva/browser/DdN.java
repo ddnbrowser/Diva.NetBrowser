@@ -8,6 +8,7 @@ import java.util.List;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
+import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.TitleInfo;
 import net.diva.browser.service.LoginFailedException;
@@ -28,6 +29,7 @@ import android.widget.TextView;
 public class DdN extends Application {
 	public interface Observer {
 		void onUpdate(PlayRecord record, boolean noMusic);
+		void onUpdate(MyList myList, boolean noMusic);
 	}
 
 	public static final URI URL = URI.create("http://project-diva-ac.net/divanet/");
@@ -82,6 +84,17 @@ public class DdN extends Application {
 				synchronized (m_observers) {
 					for (Observer o: m_observers)
 						o.onUpdate(m_record, noMusic);
+				}
+			}
+		});
+	}
+
+	private void notifyChanged_(final MyList myList, final boolean noMusic) {
+		m_handler.post(new Runnable() {
+			public void run() {
+				synchronized (m_observers) {
+					for (Observer o: m_observers)
+						o.onUpdate(myList, noMusic);
 				}
 			}
 		});
@@ -190,6 +203,10 @@ public class DdN extends Application {
 
 	public static void notifyPlayRecordChanged() {
 		s_instance.notifyUpdate(false);
+	}
+
+	public static void notifyChanged(MyList myList, boolean noMusic) {
+		s_instance.notifyChanged_(myList, noMusic);
 	}
 
 	public static class Account {

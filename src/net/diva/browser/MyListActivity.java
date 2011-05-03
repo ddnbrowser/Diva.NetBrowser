@@ -59,6 +59,16 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	@Override
+	public void onUpdate(MyList myList, boolean noMusic) {
+		if (myList.id != m_myList.id)
+			return;
+
+		m_myList = myList;
+		if (!noMusic)
+			onUpdate(DdN.getPlayRecord(), false);
+	}
+
+	@Override
 	protected List<MusicInfo> getMusics(PlayRecord record) {
 		List<String> ids = m_store.loadMyList(m_myList.id);
 		List<MusicInfo> musics = new ArrayList<MusicInfo>(ids.size());
@@ -124,9 +134,10 @@ public class MyListActivity extends MusicListActivity {
 		protected String doTask(ServiceClient service, String... params) throws Exception {
 			String newName = params[0];
 			try {
-				service.renameMyList(m_myList.id, newName);
-				m_myList.name = newName;
-				m_store.updateMyList(m_myList);
+				MyList myList = new MyList(m_myList.id, newName);
+				service.renameMyList(myList.id, myList.name);
+				m_store.updateMyList(myList);
+				DdN.notifyChanged(myList, true);
 				return null;
 			}
 			catch (OperationFailedException e) {
@@ -158,7 +169,7 @@ public class MyListActivity extends MusicListActivity {
 		@Override
 		protected void onResult(MyList result) {
 			if (result != null)
-				onUpdate(DdN.getPlayRecord(), false);
+				DdN.notifyChanged(result, false);
 		}
 	}
 
@@ -174,13 +185,15 @@ public class MyListActivity extends MusicListActivity {
 			MyList myList = service.getMyList(id);
 			m_store.updateMyList(myList);
 			m_store.clearMyList(id);
+			if (id == m_store.getActiveMyList())
+				m_store.activateMyList(-1);
 			return myList;
 		}
 
 		@Override
 		protected void onResult(MyList result) {
 			if (result != null)
-				onUpdate(DdN.getPlayRecord(), false);
+				DdN.notifyChanged(result, false);
 		}
 	}
 
@@ -193,7 +206,14 @@ public class MyListActivity extends MusicListActivity {
 		protected Boolean doTask(ServiceClient service, Integer... params) throws Exception {
 			int id = params[0];
 			service.activateMyList(id);
+			m_store.activateMyList(id);
 			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			if (result != null)
+				DdN.notifyChanged(m_myList, true);
 		}
 	}
 }

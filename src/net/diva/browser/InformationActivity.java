@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.util.ProgressTask;
@@ -65,6 +66,10 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 			return super.onOptionsItemSelected(item);
 		}
 		return true;
+	}
+
+	public void onUpdate(MyList myList, boolean noMusic) {
+		// do nothing.
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {

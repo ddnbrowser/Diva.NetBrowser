@@ -21,7 +21,7 @@
     <string name="item_statistics">クリア統計情報</string>
     <string name="item_game_settings">ゲーム設定</string>
     <string name="item_tool_settings">ツール設定</string>
-    <string name="item_edit">編集</string>
+    <string name="item_mylist">マイリスト管理</string>
     <string name="item_sync_mylist">同期</string>
     <string name="item_edit_name">名前編集</string>
     <string name="item_delete">削除</string>

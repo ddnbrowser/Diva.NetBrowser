@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/item_edit_mylist" android:title="@string/item_edit" android:icon="@drawable/ic_menu_edit">
+    <item android:id="@+id/item_mylist" android:title="@string/item_mylist" android:icon="@drawable/ic_menu_edit">
         <menu>
             <item android:id="@+id/item_sync_mylist" android:title="@string/item_sync_mylist"></item>
             <item android:id="@+id/item_edit_name" android:title="@string/item_edit_name"></item>

@@ -22,7 +22,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:layout_centerInParent="true"
-			android:text="楽曲情報がありません。"
+			android:text="登録されていません"
 			/>
 	</RelativeLayout>
 

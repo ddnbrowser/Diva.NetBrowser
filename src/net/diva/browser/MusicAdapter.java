@@ -205,6 +205,9 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		case by_difference_to_saturation:
 			cmp = byDifferenceToSaturation();
 			break;
+		case by_original:
+			cmp = byOriginal();
+			break;
 		}
 		if (reverse)
 			cmp = new ReverseComparator<MusicInfo>(cmp);
@@ -290,6 +293,14 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 					return result;
 
 				return lhs.reading.compareTo(rhs.reading);
+			}
+		};
+	}
+
+	private Comparator<MusicInfo> byOriginal() {
+		return new Comparator<MusicInfo>() {
+			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				return m_original.indexOf(lhs) - m_original.indexOf(rhs);
 			}
 		};
 	}

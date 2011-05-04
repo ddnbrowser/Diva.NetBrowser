@@ -34,6 +34,7 @@
     <item>music_item4</item>
 </string-array>
 <string-array name="sort_order_names">
+    <item>登録順</item>
     <item>曲名</item>
     <item>難易度</item>
     <item>スコア</item>
@@ -43,6 +44,7 @@
     <item>理論値との差分</item>
 </string-array>
 <string-array name="sort_order_values">
+    <item>by_original</item>
     <item>by_name</item>
     <item>by_difficulty</item>
     <item>by_score</item>

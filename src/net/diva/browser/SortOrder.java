@@ -9,6 +9,7 @@ public enum SortOrder {
 	by_clear_status,
 	by_trial_status,
 	by_difference_to_saturation,
+	by_original,
 	;
 
 	public static SortOrder fromOrdinal(int ordinal) {

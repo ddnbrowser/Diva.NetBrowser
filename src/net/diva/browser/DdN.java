@@ -131,6 +131,14 @@ public class DdN extends Application {
 		return DdN.URL.resolve(String.format(relative, args));
 	}
 
+	public static void setUpdateTime(SharedPreferences.Editor editor, int count) {
+		editor.putLong("allow_update_time", System.currentTimeMillis() + count * (2 * 60 * 1000));
+	}
+
+	public static boolean isAllowUpdateMusics(SharedPreferences preferences) {
+		return preferences.getLong("allow_update_time", 0) < System.currentTimeMillis();
+	}
+
 	public static ServiceClient getServiceClient(Account account) {
 		return s_instance.m_service = new ServiceClient(account.access_code, account.password);
 	}

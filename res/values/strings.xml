@@ -11,8 +11,9 @@
     <string name="button_se">ボタン音</string>
     <string name="unset">未設定に</string>
     <string name="item_update_all">全曲更新</string>
-    <string name="item_update_new">新曲取得</string>
+    <string name="item_update_new">新曲チェック</string>
     <string name="item_update_selction">更新</string>
+    <string name="item_update_bulk">一括更新</string>
     <string name="item_search">検索</string>
     <string name="item_sort">ソート</string>
     <string name="item_open_web">DIVA.NET</string>

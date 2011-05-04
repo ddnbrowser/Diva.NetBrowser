@@ -81,7 +81,7 @@ public class DownloadPlayRecord extends AsyncTask<DdN.Account, Integer, PlayReco
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(m_context);
 			SharedPreferences.Editor editor = preferences.edit();
 			account.putTo(editor);
-			editor.putLong("last_updated", System.currentTimeMillis());
+			DdN.setUpdateTime(editor, record.musics.size());
 			editor.commit();
 			return record;
 		}

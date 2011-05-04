@@ -38,7 +38,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public class MusicListActivity extends ListActivity implements DdN.Observer {
+public abstract class MusicListActivity extends ListActivity implements DdN.Observer {
 	protected View m_buttons[];
 	protected MusicAdapter m_adapter;
 	protected Handler m_handler = new Handler();
@@ -117,18 +117,9 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		final long now = System.currentTimeMillis();
-		boolean enable_all = now - m_preferences.getLong("last_updated", 0) > 12*60*60*1000;
-		menu.findItem(R.id.item_update).setVisible(enable_all);
-		menu.findItem(R.id.item_update_new).setVisible(!enable_all);
-		return true;
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.item_update:
+		case R.id.item_update_all:
 			updateAll();
 			break;
 		case R.id.item_update_new:
@@ -162,7 +153,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		MusicInfo music = m_adapter.getItem(info.position);
 		switch (item.getItemId()) {
 		case R.id.item_update:
-			new MusicUpdateTask().execute(music);
+			updateMusic(music);
 			return true;
 		case R.id.item_edit_mylist:
 			editMyList(music);
@@ -211,11 +202,9 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		return String.format("%s %s (-%dpts)", record.level, title, next[0]);
 	}
 
-	protected List<MusicInfo> getMusics(PlayRecord record) {
-		return record.musics;
-	}
+	protected abstract List<MusicInfo> getMusics(PlayRecord record);
 
-	private void updateAll() {
+	protected void updateAll() {
 		DownloadPlayRecord task = new DownloadPlayRecord(this);
 
 		DdN.Account account = DdN.Account.load(m_preferences);
@@ -225,6 +214,14 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		}
 
 		task.execute(account);
+	}
+
+	protected void updateMusic(MusicInfo music) {
+		new UpdateSingleMusic().execute(music);
+	}
+
+	protected void updateMusics(List<MusicInfo> musics) {
+		new UpdateMultiMusic().execute(musics.toArray(new MusicInfo[musics.size()]));
 	}
 
 	private void activateTextFilter() {
@@ -341,7 +338,7 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		public boolean onDoubleTap(MotionEvent e) {
 			MusicInfo music = getItem(e);
 			if (music != null) {
-				new MusicUpdateTask().execute(music);
+				new UpdateSingleMusic().execute(music);
 				return true;
 			}
 			return super.onDoubleTap(e);
@@ -379,8 +376,12 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 				service.cacheContent(music.coverart, music.getCoverArtPath(m_context));
 				publishProgress(1);
 			}
-
 			m_store.insert(musics);
+
+			final Editor editor = m_preferences.edit();
+			DdN.setUpdateTime(editor, musics.size());
+			editor.commit();
+
 			musics.addAll(0, record.musics);
 			record.musics = musics;
 			return record;
@@ -402,8 +403,8 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 		}
 	}
 
-	private class MusicUpdateTask extends ServiceTask<MusicInfo, Void, Boolean> {
-		public MusicUpdateTask() {
+	private class UpdateSingleMusic extends ServiceTask<MusicInfo, Void, Boolean> {
+		public UpdateSingleMusic() {
 			super(MusicListActivity.this, R.string.message_updating);
 		}
 
@@ -413,6 +414,42 @@ public class MusicListActivity extends ListActivity implements DdN.Observer {
 			service.update(music);
 			m_store.update(music);
 			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			if (result != null && result)
+				DdN.notifyPlayRecordChanged();
+		}
+	}
+
+	private class UpdateMultiMusic extends ServiceTask<MusicInfo, Integer, Boolean> {
+		public UpdateMultiMusic() {
+			super(MusicListActivity.this, R.string.message_updating);
+			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		}
+
+		@Override
+		protected Boolean doTask(ServiceClient service, MusicInfo... params) throws Exception {
+			publishProgress(0, params.length);
+			for (MusicInfo music: params) {
+				service.update(music);
+				m_store.update(music);
+				publishProgress(1);
+			}
+			final Editor editor = m_preferences.edit();
+			DdN.setUpdateTime(editor, params.length);
+			editor.commit();
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			if (values.length > 1) {
+				m_progress.setMax(values[1]);
+				m_progress.setIndeterminate(false);
+			}
+			m_progress.incrementProgressBy(values[0]);
 		}
 
 		@Override

@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 public class MyListActivity extends MusicListActivity {
 	private MyList m_myList;
+	private List<MusicInfo> m_musics;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,14 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		if (m_musics.isEmpty())
+			menu.findItem(R.id.item_activate_mylist).setEnabled(false);
+		menu.findItem(R.id.item_update_bulk).setEnabled(DdN.isAllowUpdateMusics(m_preferences));
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.item_sync_mylist:
@@ -51,6 +60,9 @@ public class MyListActivity extends MusicListActivity {
 			break;
 		case R.id.item_activate_mylist:
 			activateMyList();
+			break;
+		case R.id.item_update_bulk:
+			updateMusics(m_musics);
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -76,7 +88,7 @@ public class MyListActivity extends MusicListActivity {
 		List<MusicInfo> musics = new ArrayList<MusicInfo>(ids.size());
 		for (String id: ids)
 			musics.add(record.getMusic(id));
-		return musics;
+		return m_musics = musics;
 	}
 
 	private void editMyListName() {

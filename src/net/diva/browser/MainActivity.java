@@ -174,7 +174,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		TypedArray icons = resources.obtainTypedArray(R.array.tab_icons);
 		Intent[] intents = {
 				new Intent(context, InformationActivity.class),
-				new Intent(context, MusicListActivity.class),
+				new Intent(context, AllMusicActivity.class),
 		};
 
 		for (int i = 0; i < tags.length; ++i) {

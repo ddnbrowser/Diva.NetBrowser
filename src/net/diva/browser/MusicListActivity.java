@@ -175,7 +175,10 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
-		setTitle(rankText(record, DdN.getTitle(record.title_id)));
+		StringBuilder sb = new StringBuilder();
+		makeTitle(sb, record);
+		setTitle(sb.toString());
+
 		if (noMusic)
 			m_adapter.notifyDataSetChanged();
 		else {
@@ -203,6 +206,10 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	}
 
 	protected abstract List<MusicInfo> getMusics(PlayRecord record);
+
+	protected void makeTitle(StringBuilder title, PlayRecord record) {
+		title.append(rankText(record, DdN.getTitle(record.title_id)));
+	}
 
 	protected void updateAll() {
 		DownloadPlayRecord task = new DownloadPlayRecord(this);

@@ -71,24 +71,37 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	@Override
+	public void onUpdate(PlayRecord record, boolean noMusic) {
+		List<String> ids = m_store.loadMyList(m_myList.id);
+		List<MusicInfo> musics = new ArrayList<MusicInfo>(ids.size());
+		for (String id: ids)
+			musics.add(record.getMusic(id));
+		m_musics = musics;
+
+		super.onUpdate(record, noMusic);
+	}
+
+	@Override
 	public void onUpdate(MyList myList, boolean noMusic) {
 		if (myList.id != m_myList.id)
 			return;
 
 		m_myList = myList;
-		if (!noMusic) {
-			m_adapter.setData(getMusics(DdN.getPlayRecord()));
-			m_adapter.update();
-		}
+		if (!noMusic)
+			onUpdate(DdN.getPlayRecord(), false);
 	}
 
 	@Override
 	protected List<MusicInfo> getMusics(PlayRecord record) {
-		List<String> ids = m_store.loadMyList(m_myList.id);
-		List<MusicInfo> musics = new ArrayList<MusicInfo>(ids.size());
-		for (String id: ids)
-			musics.add(record.getMusic(id));
-		return m_musics = musics;
+		return m_musics;
+	}
+
+	@Override
+	protected void makeTitle(StringBuilder title, PlayRecord record) {
+		title.append('(');
+		title.append(m_musics.size());
+		title.append("/20) ");
+		super.makeTitle(title, record);
 	}
 
 	private void editMyListName() {

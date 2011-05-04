@@ -44,6 +44,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	protected Handler m_handler = new Handler();
 
 	protected SharedPreferences m_preferences;
+	protected SharedPreferences m_localPrefs;
 	protected LocalStore m_store;
 
 	/** Called when the activity is first created. */
@@ -54,6 +55,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		registerForContextMenu(getListView());
 
 		m_preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		m_localPrefs = getSharedPreferences(getIntent().getStringExtra("tag"), MODE_PRIVATE);
 		m_store = LocalStore.instance(this);
 
 		m_adapter = new MusicAdapter(this);
@@ -89,10 +91,10 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 				setListAdapter(m_adapter);
 		}
 
-		setDifficulty(m_preferences.getInt("difficulty", 3), false);
+		setDifficulty(m_localPrefs.getInt("difficulty", 3), false);
 		m_adapter.setSortOrder(
-				SortOrder.fromOrdinal(m_preferences.getInt("sort_order", 0)),
-				m_preferences.getBoolean("reverse_order", false));
+				SortOrder.fromOrdinal(m_localPrefs.getInt("sort_order", 0)),
+				m_localPrefs.getBoolean("reverse_order", false));
 		PlayRecord record = DdN.getPlayRecord();
 		if (record != null)
 			onUpdate(record, false);
@@ -103,7 +105,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	protected void onPause() {
 		super.onPause();
 		DdN.unregisterObserver(this);
-		final Editor editor = m_preferences.edit();
+		final Editor editor = m_localPrefs.edit();
 		editor.putInt("difficulty", m_adapter.getDifficulty());
 		editor.putInt("sort_order", m_adapter.sortOrder().ordinal());
 		editor.putBoolean("reverse_order", m_adapter.isReverseOrder());

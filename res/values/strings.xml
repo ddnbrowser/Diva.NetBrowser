@@ -55,7 +55,7 @@
     <string name="music_layout">楽曲レイアウト</string>
     <string name="summary_music_layout">楽曲一覧の表示形式を選択します</string>
     <string name="fix_sort_order">ソート順を固定</string>
-    <string name="summary_fix_sort_order">起動時の楽曲ソート順を固定します</string>
+    <string name="summary_fix_sort_order">起動時の「全て」タブの楽曲ソート順を固定します</string>
     <string name="initial_sort_order">初期ソート順</string>
     <string name="initial_reverse_order">降順にする</string>
     <string name="summary_initial_reverse_order">初期ソート順を降順にします</string>

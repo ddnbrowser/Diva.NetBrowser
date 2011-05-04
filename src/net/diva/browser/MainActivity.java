@@ -180,7 +180,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		for (int i = 0; i < tags.length; ++i) {
 			TabHost.TabSpec tab = host.newTabSpec(tags[i]);
 			tab.setIndicator(names[i], icons.getDrawable(i));
-			tab.setContent(intents[i]);
+			tab.setContent(intents[i].putExtra("tag", tags[i]));
 			host.addTab(tab);
 		}
 		icons.recycle();
@@ -193,6 +193,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 			final Intent intent = new Intent(getApplicationContext(), MyListActivity.class);
 			intent.putExtra("id", mylist.id);
 			intent.putExtra("name", mylist.name);
+			intent.putExtra("tag", mylist.tag);
 
 			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);
 			tab.setIndicator(mylist.name, getMyListIcon(mylist.id == active));

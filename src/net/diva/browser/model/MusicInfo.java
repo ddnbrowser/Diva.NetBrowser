@@ -16,6 +16,7 @@ public class MusicInfo {
 	public String reading;
 	public String ordinal;
 	public String coverart;
+	public int publish_order;
 
 	public int part;
 	public String vocal1;
@@ -28,6 +29,7 @@ public class MusicInfo {
 	public MusicInfo(String id_, String title_) {
 		id = id_;
 		title = title_;
+		publish_order = -1;
 		records = new ScoreRecord[4];
 	}
 

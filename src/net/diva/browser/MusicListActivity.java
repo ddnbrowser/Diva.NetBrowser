@@ -368,6 +368,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 			if (musics.isEmpty())
 				return null;
 
+			service.updatePublishOrder(musics, record.nextPublishOrder());
 			publishProgress(0, musics.size());
 			for (MusicInfo music: musics) {
 				music.reading = m_store.getReading(music.title);

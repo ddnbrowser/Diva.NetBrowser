@@ -3,7 +3,7 @@
  */
 package net.diva.browser.common;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.List;
 
 import net.diva.browser.DdN;
@@ -35,16 +35,27 @@ public class DownloadPlayRecord extends AsyncTask<DdN.Account, Integer, PlayReco
 		if (record == null)
 			return newMusics;
 
-		List<MusicInfo> musics = new ArrayList<MusicInfo>(record.musics);
-		for (MusicInfo music: newMusics) {
+		List<MusicInfo> musics = record.musics;
+		final int size = newMusics.size();
+		for (int i = 0; i < size; ++i) {
+			MusicInfo music = newMusics.get(i);
 			int index = musics.indexOf(music);
-			if (index < 0)
-				musics.add(music);
-			else
-				musics.get(index).title = music.title;
+			if (index >= 0) {
+				MusicInfo old = musics.get(index);
+				old.title = music.title;
+				newMusics.set(i, old);
+			}
 		}
 
-		return musics;
+		return newMusics;
+	}
+
+	private boolean hasNoPublishOrder(List<MusicInfo> musics) {
+		for (MusicInfo m: musics) {
+			if (m.publish_order < 0)
+				return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -63,10 +74,12 @@ public class DownloadPlayRecord extends AsyncTask<DdN.Account, Integer, PlayReco
 		LocalStore store = DdN.getLocalStore();
 		try {
 			PlayRecord record = service.login();
-			record.musics = mergeMusicList(service.getMusics());
-			publishProgress(0, record.musics.size());
+			List<MusicInfo> musics = record.musics = mergeMusicList(service.getMusics());
+			if (hasNoPublishOrder(musics))
+				service.updatePublishOrder(musics, record.nextPublishOrder());
+			publishProgress(0, musics.size());
 
-			for (MusicInfo music: record.musics) {
+			for (MusicInfo music: musics) {
 				if (music.reading == null)
 					music.reading = store.getReading(music.title);
 				if (music.ordinal == null)
@@ -81,7 +94,7 @@ public class DownloadPlayRecord extends AsyncTask<DdN.Account, Integer, PlayReco
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(m_context);
 			SharedPreferences.Editor editor = preferences.edit();
 			account.putTo(editor);
-			DdN.setUpdateTime(editor, record.musics.size());
+			DdN.setUpdateTime(editor, musics.size());
 			editor.commit();
 			return record;
 		}
@@ -90,6 +103,9 @@ public class DownloadPlayRecord extends AsyncTask<DdN.Account, Integer, PlayReco
 		}
 		catch (NoLoginException e) {
 			assert(false);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}

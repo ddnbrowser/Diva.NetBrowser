@@ -10,6 +10,7 @@ public enum SortOrder {
 	by_trial_status,
 	by_difference_to_saturation,
 	by_original,
+	by_publish_order,
 	;
 
 	public static SortOrder fromOrdinal(int ordinal) {

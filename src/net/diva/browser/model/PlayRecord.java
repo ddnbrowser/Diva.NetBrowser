@@ -48,4 +48,11 @@ public class PlayRecord {
 			points += m.experience();
 		return points;
 	}
+
+	public int nextPublishOrder() {
+		int order = -1;
+		for (MusicInfo m: musics)
+			order = Math.max(order, m.publish_order);
+		return order + 1;
+	}
 }

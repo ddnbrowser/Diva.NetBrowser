@@ -28,7 +28,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 16;
+	private static final int VERSION = 17;
 
 	private static LocalStore m_instance;
 
@@ -84,6 +84,7 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.VOCAL2,
 				MusicTable.READING,
 				MusicTable.FAVORITE,
+				MusicTable.PUBLISH,
 		}, null, null, null, null, MusicTable._ID);
 		try {
 			while (cm.moveToNext()) {
@@ -97,6 +98,7 @@ public class LocalStore extends ContextWrapper {
 					music.reading = getReading(music.title);
 				music.ordinal = StringUtils.forLexicographical(music.reading);
 				music.favorite = cm.getInt(7) == 1;
+				music.publish_order = cm.getInt(8);
 				musics.add(music);
 				id2music.put(music.id, music);
 			}
@@ -645,6 +647,8 @@ public class LocalStore extends ContextWrapper {
 				db.execSQL(MyListTable.create_statement());
 				db.execSQL(MyListEntryTable.create_statement());
 				initializeMyList(db);
+			case 16:
+				MusicTable.addPublishColumn(db);
 			default:
 				break;
 			}

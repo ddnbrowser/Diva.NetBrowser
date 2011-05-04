@@ -91,22 +91,35 @@ public class ServiceClient {
 		}
 	}
 
-	public List<MusicInfo> getMusics() throws NoLoginException {
+	private List<MusicInfo> getMusics(String path) throws IOException {
 		List<MusicInfo> list = new ArrayList<MusicInfo>();
-		String path = "/divanet/pv/list/0/0";
 		while (path != null) {
-			try {
-				HttpResponse response = getFrom(path);
-				path = Parser.parseListPage(response.getEntity().getContent(), list);
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
+			HttpResponse response = getFrom(path);
+			path = Parser.parseListPage(response.getEntity().getContent(), list);
 		}
+		return list;
+	}
+
+	public List<MusicInfo> getMusics() throws NoLoginException, IOException {
+		List<MusicInfo> list = getMusics("/divanet/pv/sort/0/false/0");
 		if (list.isEmpty())
 			throw new NoLoginException();
-
 		return list;
+	}
+
+	public void updatePublishOrder(List<MusicInfo> musics, int order) throws IOException {
+		List<MusicInfo> list = getMusics("/divanet/pv/sort/0/true/0");
+		final int lSize = musics.size();
+		final int rSize = list.size();
+		int lIndex = 0;
+		for (; lIndex < lSize && musics.get(lIndex).publish_order >= 0; ++lIndex);
+
+		for (; lIndex < lSize; ++order) {
+			MusicInfo m = musics.get(lIndex);
+			int rIndex = list.indexOf(m);
+			for (; lIndex < lSize && rIndex < rSize && musics.get(lIndex).equals(list.get(rIndex)); ++lIndex, ++rIndex)
+				musics.get(lIndex).publish_order = order;
+		}
 	}
 
 	public void update(MusicInfo music) throws NoLoginException {

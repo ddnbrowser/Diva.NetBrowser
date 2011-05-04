@@ -208,6 +208,8 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		case by_original:
 			cmp = byOriginal();
 			break;
+		case by_publish_order:
+			return byPublishOrder(reverse);
 		}
 		if (reverse)
 			cmp = new ReverseComparator<MusicInfo>(cmp);
@@ -301,6 +303,20 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		return new Comparator<MusicInfo>() {
 			public int compare(MusicInfo lhs, MusicInfo rhs) {
 				return m_original.indexOf(lhs) - m_original.indexOf(rhs);
+			}
+		};
+	}
+
+	private Comparator<MusicInfo> byPublishOrder(final boolean reverse) {
+		return new Comparator<MusicInfo>() {
+			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				int result = lhs.publish_order - rhs.publish_order;
+				if (result != 0)
+					return reverse ? -result : result;
+				result = lhs.ordinal.compareTo(rhs.ordinal);
+				if (result != 0)
+					return result;
+				return lhs.reading.compareTo(rhs.reading);
 			}
 		};
 	}

@@ -429,8 +429,11 @@ public class ServiceClient {
 			throw new OperationFailedException(error);
 	}
 
-	public void activateMyList(int id) throws IOException {
-		postTo(String.format("/divanet/myList/activate/%d", id));
+	public void activateMyList(int id) throws IOException, OperationFailedException {
+		HttpResponse response = postTo(String.format("/divanet/myList/activate/%d", id));
+		String error = Parser.MyListParser.parseActivateResult(response.getEntity().getContent());
+		if (error != null)
+			throw new OperationFailedException(error);
 	}
 
 	public void addToMyList(int id, String music_id) throws IOException {

@@ -42,7 +42,8 @@ public class MyListActivity extends MusicListActivity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		if (m_musics.isEmpty())
 			menu.findItem(R.id.item_activate_mylist).setEnabled(false);
-		menu.findItem(R.id.item_update_bulk).setEnabled(DdN.isAllowUpdateMusics(m_preferences));
+		if (!DdN.isAllowUpdateMusics(m_preferences))
+			menu.findItem(R.id.item_update_bulk).setEnabled(false);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -224,22 +225,29 @@ public class MyListActivity extends MusicListActivity {
 		}
 	}
 
-	private class ActivateMyList extends ServiceTask<Integer, Void, Boolean> {
+	private class ActivateMyList extends ServiceTask<Integer, Void, String> {
 		ActivateMyList() {
 			super(MyListActivity.this, R.string.activating);
 		}
 
 		@Override
-		protected Boolean doTask(ServiceClient service, Integer... params) throws Exception {
+		protected String doTask(ServiceClient service, Integer... params) throws Exception {
 			int id = params[0];
-			service.activateMyList(id);
-			m_store.activateMyList(id);
-			return Boolean.TRUE;
+			try {
+				service.activateMyList(id);
+				m_store.activateMyList(id);
+				return null;
+			}
+			catch (Exception e) {
+				return e.getMessage();
+			}
 		}
 
 		@Override
-		protected void onResult(Boolean result) {
-			if (result != null)
+		protected void onResult(String error) {
+			if (error != null)
+				Toast.makeText(MyListActivity.this, error, Toast.LENGTH_LONG).show();
+			else
 				DdN.notifyChanged(m_myList, true);
 		}
 	}

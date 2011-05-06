@@ -363,5 +363,17 @@ public final class Parser {
 			while (m.find())
 				ids.add(m.group(1));
 		}
+
+		static String parseActivateResult(InputStream content)  {
+			String body = read(content);
+			if (body.contains("筐体で使用するマイリストとして設定しました。"))
+				return null;
+
+			String error = "登録されている楽曲がありません。";
+			if (body.contains(error))
+				return error;
+
+			return "設定に失敗しました。";
+		}
 	}
 }

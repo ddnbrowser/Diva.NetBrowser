@@ -28,8 +28,6 @@
     <string name="item_delete">削除</string>
     <string name="item_activate_mylist">筐体使用設定</string>
     <string name="item_edit_mylist">マイリスト</string>
-    <string name="item_set_module">モジュールを設定</string>
-    <string name="item_reset_module">モジュールを初期化</string>
     <string name="item_edit_reading">読み仮名編集</string>
     <string name="item_ranking">ランキング表示</string>
     <string name="item_copy_title">曲名をコピー</string>

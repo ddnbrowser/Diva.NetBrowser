@@ -8,7 +8,6 @@ import net.diva.browser.common.UpdateSaturaionPoints;
 import net.diva.browser.model.MyList;
 import android.os.Bundle;
 import android.preference.ListPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,18 +19,6 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.settings);
 
 		addMyLists((ListPreference)findPreference("default_tab"));
-
-		final ListPreference sortOrder = (ListPreference)findPreference("initial_sort_order");
-		sortOrder.setSummary(sortOrder.getEntry());
-		sortOrder.setOnPreferenceChangeListener(
-				new Preference.OnPreferenceChangeListener() {
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				ListPreference self = (ListPreference)preference;
-				int index = self.findIndexOfValue(newValue.toString());
-				self.setSummary(index < 0 ? "" : self.getEntries()[index]);
-				return true;
-			}
-		});
 	}
 
 	@Override

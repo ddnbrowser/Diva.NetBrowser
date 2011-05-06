@@ -48,15 +48,6 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		m_defaultTitle = getTitle();
 
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		if (preferences.getBoolean("fix_sort_order", false)) {
-			String order = preferences.getString("initial_sort_order", null);
-			if (order != null) {
-				SharedPreferences.Editor editor = preferences.edit();
-				editor.putInt("sort_order", SortOrder.valueOf(order).ordinal());
-				editor.putBoolean("reverse_order", preferences.getBoolean("initial_reverse_order", false));
-				editor.commit();
-			}
-		}
 
 		TabHost host = getTabHost();
 		host.setOnTabChangedListener(this);

@@ -49,14 +49,8 @@
     <string name="category_basic">基本設定</string>
     <string name="default_tab">初期表示タブ</string>
     <string name="summary_default_tab">起動時に表示するタブを選択します</string>
-    <string name="category_music_list">楽曲一覧設定</string>
     <string name="music_layout">楽曲レイアウト</string>
     <string name="summary_music_layout">楽曲一覧の表示形式を選択します</string>
-    <string name="fix_sort_order">ソート順を固定</string>
-    <string name="summary_fix_sort_order">起動時の「全て」タブの楽曲ソート順を固定します</string>
-    <string name="initial_sort_order">初期ソート順</string>
-    <string name="initial_reverse_order">降順にする</string>
-    <string name="summary_initial_reverse_order">初期ソート順を降順にします</string>
     <string name="category_web">Web画面設定</string>
     <string name="enable_builtin_zoom">ズームボタン表示</string>
     <string name="summary_enable_builtin_zoom">ズームボタンの表示/非表示を切り替えます</string>

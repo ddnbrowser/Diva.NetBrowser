@@ -26,7 +26,6 @@ import android.text.ClipboardManager;
 import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -110,12 +109,6 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		editor.putInt("sort_order", m_adapter.sortOrder().ordinal());
 		editor.putBoolean("reverse_order", m_adapter.isReverseOrder());
 		editor.commit();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.list_options, menu);
-		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override

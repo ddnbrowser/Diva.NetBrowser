@@ -93,10 +93,8 @@ public class ServiceClient {
 
 	private List<MusicInfo> getMusics(String path) throws IOException {
 		List<MusicInfo> list = new ArrayList<MusicInfo>();
-		while (path != null) {
-			HttpResponse response = getFrom(path);
-			path = Parser.parseListPage(response.getEntity().getContent(), list);
-		}
+		while (path != null)
+			path = Parser.parseListPage(getFrom(path), list);
 		return list;
 	}
 
@@ -124,8 +122,7 @@ public class ServiceClient {
 
 	public void update(MusicInfo music) throws NoLoginException {
 		try {
-			HttpResponse response = getFrom("/divanet/pv/info/%s/0/0", music.id);
-			Parser.parseInfoPage(response.getEntity().getContent(), music);
+			Parser.parseInfoPage(getFrom("/divanet/pv/info/%s/0/0", music.id), music);
 		}
 		catch (ParseException e) {
 			throw new NoLoginException(e);
@@ -136,12 +133,11 @@ public class ServiceClient {
 	}
 
 	public InputStream download(String path) throws IOException {
-		HttpResponse response = getFrom(path);
-		return response.getEntity().getContent();
+		return getFrom(path);
 	}
 
 	public void download(String path, OutputStream out) throws IOException {
-		InputStream in = download(path);
+		InputStream in = getFrom(path);
 		byte[] buffer = new byte[1024];
 		for (int read; (read = in.read(buffer)) != -1;)
 			out.write(buffer, 0, read);
@@ -169,10 +165,8 @@ public class ServiceClient {
 	public List<Ranking> getRankInList() throws IOException, ParseException {
 		List<Ranking> list = new ArrayList<Ranking>();
 		String path = "/divanet/ranking/list/0";
-		while (path != null) {
-			HttpResponse response = getFrom(path);
-			path = Parser.parseRankingList(response.getEntity().getContent(), list);
-		}
+		while (path != null)
+			path = Parser.parseRankingList(getFrom(path), list);
 
 		return list;
 	}
@@ -181,39 +175,32 @@ public class ServiceClient {
 		if (titles == null)
 			titles = new ArrayList<TitleInfo>();
 		String path = "/divanet/title/list/0";
-		while (path != null) {
-			HttpResponse response = getFrom(path);
-			path = Parser.parseTitleList(response.getEntity().getContent(), titles);
-		}
+		while (path != null)
+			path = Parser.parseTitleList(getFrom(path), titles);
 
 		for (TitleInfo title: titles) {
 			if (title.image_id != null)
 				continue;
 
-			HttpResponse response = getFrom("/divanet/title/confirm/%s/0", title.id);
-			title.image_id = Parser.parseTitlePage(response.getEntity().getContent());
+			title.image_id = Parser.parseTitlePage(getFrom("/divanet/title/confirm/%s/0", title.id));
 		}
 
 		return titles;
 	}
 
 	public List<ModuleGroup> getModules() throws IOException {
-		HttpResponse response = getFrom("/divanet/module/");
-		List<ModuleGroup> modules = Parser.parseModuleIndex(response.getEntity().getContent());
+		List<ModuleGroup> modules = Parser.parseModuleIndex(getFrom("/divanet/module/"));
 		for (ModuleGroup group: modules) {
 			String path = String.format("/divanet/module/list/%d/0", group.id);
-			while (path != null) {
-				HttpResponse res = getFrom(path);
-				path = Parser.parseModuleList(res.getEntity().getContent(), group.modules);
-			}
+			while (path != null)
+				path = Parser.parseModuleList(getFrom(path), group.modules);
 		}
 
 		return modules;
 	}
 
 	public void getModuleDetail(Module module) throws IOException {
-		HttpResponse response = getFrom("/divanet/module/detail/%s/0/0", module.id);
-		Parser.parseModuleDetail(response.getEntity().getContent(), module);
+		Parser.parseModuleDetail(getFrom("/divanet/module/detail/%s/0/0", module.id), module);
 		module.thumbnail = String.format("/divanet/img/moduleTmb/%s", new File(module.image).getName());
 	}
 
@@ -221,15 +208,13 @@ public class ServiceClient {
 		List<String> groups = new ArrayList<String>();
 
 		String path = "/divanet/skin/list/COMMON/0/0";
-		while (path != null) {
-			HttpResponse response = getFrom(path);
-			path = Parser.Skin.parse(response.getEntity().getContent(), groups);
-		}
+		while (path != null)
+			path = Parser.Skin.parse(getFrom(path), groups);
 
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {
-			HttpResponse response = getFrom("/divanet/skin/select/COMMON/%s/0/0", group_id);
-			Parser.Skin.parse(response.getEntity().getContent(), skins, true);
+			InputStream content = getFrom("/divanet/skin/select/COMMON/%s/0/0", group_id);
+			Parser.Skin.parse(content, skins, true);
 		}
 
 		return skins;
@@ -239,39 +224,33 @@ public class ServiceClient {
 		List<String> groups = new ArrayList<String>();
 
 		String path = "/divanet/skin/shop/0";
-		while (path != null) {
-			HttpResponse response = getFrom(path);
-			path = Parser.Skin.parse(response.getEntity().getContent(), groups);
-		}
+		while (path != null)
+			path = Parser.Skin.parse(getFrom(path), groups);
 
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {
-			HttpResponse response = getFrom("/divanet/skin/commodity/%s/0", group_id);
-			Parser.Skin.parse(response.getEntity().getContent(), skins, false);
+			InputStream content = getFrom("/divanet/skin/commodity/%s/0", group_id);
+			Parser.Skin.parse(content, skins, false);
 		}
 
 		return skins;
 	}
 
 	public void getSkinDetail(SkinInfo skin) throws IOException {
-		HttpResponse response = getFrom(skin.purchased
-				? "/divanet/skin/confirm/COMMON/%s/%s/0/0" : "/divanet/skin/detail/%s/%s/0",
-				skin.id, skin.group_id);
-		Parser.Skin.parse(response.getEntity().getContent(), skin);
+		final String path = skin.purchased
+				? "/divanet/skin/confirm/COMMON/%s/%s/0/0" : "/divanet/skin/detail/%s/%s/0";
+		Parser.Skin.parse(getFrom(path, skin.id, skin.group_id), skin);
 	}
 
 	public String getShopDetail(String path, List<NameValuePair> details) throws IOException {
-		HttpResponse response = getFrom(path);
-		return Parser.Shop.parse(response.getEntity().getContent(), details);
+		return Parser.Shop.parse(getFrom(path), details);
 	}
 
 	public List<ButtonSE> getButtonSEs(String music_id) throws IOException {
 		List<ButtonSE> ses = new ArrayList<ButtonSE>();
 		String path = String.format("/divanet/buttonSE/list/%s/0/0", music_id);
-		while (path != null) {
-			HttpResponse response = getFrom(path);
-			path = Parser.SE.parse(response.getEntity().getContent(), ses);
-		}
+		while (path != null)
+			path = Parser.SE.parse(getFrom(path), ses);
 
 		Map<String, String> samples = getSESamples(music_id);
 		for (ButtonSE se: ses)
@@ -283,24 +262,22 @@ public class ServiceClient {
 	private Map<String, String> getSESamples(String music_id) throws IOException {
 		Map<String, String> map = new HashMap<String, String>();
 		String path = String.format("/divanet/buttonSE/sample/%s/0/0", music_id);
-		while (path != null) {
-			HttpResponse response = getFrom(path);
-			path = Parser.SE.parse(response.getEntity().getContent(), map);
-		}
+		while (path != null)
+			path = Parser.SE.parse(getFrom(path), map);
 		return map;
 	}
 
-	private HttpResponse getFrom(String relative, Object... args) throws IOException {
+	private InputStream getFrom(String relative, Object... args) throws IOException {
 		return getFrom(String.format(relative, args));
 	}
 
-	private synchronized HttpResponse getFrom(String relative) throws IOException {
+	private synchronized InputStream getFrom(String relative) throws IOException {
 		HttpResponse response = m_client.execute(new HttpGet(DdN.URL.resolve(relative)));
 		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 			throw new IOException();
 
 		access();
-		return response;
+		return response.getEntity().getContent();
 	}
 
 	private HttpResponse postTo(String relative) throws IOException {
@@ -406,16 +383,14 @@ public class ServiceClient {
 	}
 
 	public MyList getMyList(int id) throws IOException {
-		HttpResponse response = getFrom("/divanet/myList/selectMyList/%d", id);
 		final MyList myList = new MyList(id, null);
-		Parser.MyListParser.parseSummary(response.getEntity().getContent(), myList);
+		Parser.MyListParser.parseSummary(getFrom("/divanet/myList/selectMyList/%d", id), myList);
 		return myList;
 	}
 
 	public List<String> getMyListEntries(int id) throws IOException {
 		List<String> ids = new ArrayList<String>();
-		HttpResponse response = getFrom("/divanet/myList/edit/%d/delete", id);
-		Parser.MyListParser.parseList(response.getEntity().getContent(), ids);
+		Parser.MyListParser.parseList(getFrom("/divanet/myList/edit/%d/delete", id), ids);
 		return ids;
 	}
 

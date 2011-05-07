@@ -24,8 +24,6 @@ public class MusicInfo {
 
 	public ScoreRecord[] records;
 
-	public boolean favorite;
-
 	public MusicInfo(String id_, String title_) {
 		id = id_;
 		title = title_;

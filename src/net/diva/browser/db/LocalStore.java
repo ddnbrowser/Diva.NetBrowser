@@ -97,7 +97,6 @@ public class LocalStore extends ContextWrapper {
 				if (music.reading == null)
 					music.reading = getReading(music.title);
 				music.ordinal = StringUtils.forLexicographical(music.reading);
-				music.favorite = cm.getInt(7) == 1;
 				music.publish_order = cm.getInt(8);
 				musics.add(music);
 				id2music.put(music.id, music);
@@ -250,19 +249,6 @@ public class LocalStore extends ContextWrapper {
 		try {
 			for (int i = 0; i < music.records.length; ++i)
 				ScoreTable.updateSaturation(db, music.id, i, music.records[i]);
-			db.setTransactionSuccessful();
-		}
-		finally {
-			db.endTransaction();
-			db.close();
-		}
-	}
-
-	public void updateFavorite(MusicInfo music) {
-		SQLiteDatabase db = m_helper.getWritableDatabase();
-		db.beginTransaction();
-		try {
-			MusicTable.updateFavorite(db, music);
 			db.setTransactionSuccessful();
 		}
 		finally {

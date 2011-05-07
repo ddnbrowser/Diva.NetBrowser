@@ -73,7 +73,6 @@ final class MusicTable implements BaseColumns {
 		values.put(PART, music.part);
 		values.putNull(VOCAL1);
 		values.putNull(VOCAL2);
-		values.put(FAVORITE, music.favorite ? 1 : 0);
 		return db.insert(NAME, null, values);
 	}
 
@@ -104,12 +103,6 @@ final class MusicTable implements BaseColumns {
 			values.putNull(VOCAL2);
 		else
 			values.put(VOCAL2, music.vocal2);
-		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
-	}
-
-	static boolean updateFavorite(SQLiteDatabase db, MusicInfo music) {
-		ContentValues values = new ContentValues(1);
-		values.put(FAVORITE, music.favorite ? 1 : 0);
 		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
 	}
 }

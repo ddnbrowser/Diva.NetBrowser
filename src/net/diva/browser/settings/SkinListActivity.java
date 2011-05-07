@@ -88,7 +88,7 @@ public class SkinListActivity extends ExpandableListActivity {
 		}
 		else {
 			Intent intent = new Intent(getApplicationContext(), ShopActivity.class);
-			intent.setData(Uri.parse(DdN.url("/divanet/skin/detail/%s/%s/0", skin.id, skin.group_id).toString()));
+			intent.setData(Uri.parse(DdN.url("/divanet/skin/detail/%s/%s/0", skin.id, skin.group_id)));
 			intent.putExtra("id", skin.id);
 			intent.putExtra("group_id", skin.group_id);
 			startActivityForResult(intent, R.id.item_confirm_buying);

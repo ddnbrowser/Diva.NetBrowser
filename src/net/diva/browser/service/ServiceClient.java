@@ -69,7 +69,7 @@ public class ServiceClient {
 	}
 
 	public PlayRecord login() throws LoginFailedException {
-		Uri url = Uri.parse(DdN.URL.resolve("/divanet/login/").toString()).buildUpon().scheme("https").build();
+		Uri url = Uri.parse(DdN.url("/divanet/login/")).buildUpon().scheme("https").build();
 		HttpPost request = new HttpPost(url.toString());
 		try {
 			request.setHeader("Referer", DdN.URL.toString());

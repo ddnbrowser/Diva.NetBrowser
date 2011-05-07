@@ -134,7 +134,7 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		}
 		else {
 			Intent intent = new Intent(getApplicationContext(), ShopActivity.class);
-			intent.setData(Uri.parse(DdN.url("/divanet/module/detailShop/%s/0/0", module.id).toString()));
+			intent.setData(Uri.parse(DdN.url("/divanet/module/detailShop/%s/0/0", module.id)));
 			intent.putExtra(m_key, module.id);
 			startActivityForResult(intent, R.id.item_confirm_buying);
 		}

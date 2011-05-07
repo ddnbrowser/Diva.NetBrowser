@@ -127,8 +127,8 @@ public class DdN extends Application {
 		return DdN.URL.resolve(relative).toString();
 	}
 
-	public static URI url(String relative, Object...args) {
-		return DdN.URL.resolve(String.format(relative, args));
+	public static String url(String relative, Object...args) {
+		return url(String.format(relative, args));
 	}
 
 	public static void setUpdateTime(SharedPreferences.Editor editor, int count) {

@@ -109,6 +109,7 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		TextView high_score;
 		TextView achivement;
 		TextView saturation;
+		TextView difference;
 
 		Holder(View view) {
 			cover = (ImageView)view.findViewById(R.id.cover_art);
@@ -119,7 +120,8 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			ranking = (TextView)view.findViewById(R.id.ranking);
 			high_score = (TextView)view.findViewById(R.id.high_score);
 			achivement = (TextView)view.findViewById(R.id.achivement);
-			saturation = (TextView)view.findViewById(R.id.difference_to_saturation);
+			saturation = (TextView)view.findViewById(R.id.saturation);
+			difference = (TextView)view.findViewById(R.id.difference_to_saturation);
 		}
 
 		void attach(MusicInfo music, ScoreRecord score) {
@@ -135,9 +137,15 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			if (saturation != null) {
 				boolean visible = score.saturation > 0;
 				saturation.setVisibility(visible ? View.VISIBLE : View.GONE);
+				if (visible)
+					saturation.setText(String.format("/%d.%02d%%", score.saturation/100, score.saturation%100));
+			}
+			if (difference != null) {
+				boolean visible = score.saturation > 0;
+				difference.setVisibility(visible ? View.VISIBLE : View.GONE);
 				if (visible) {
 					int diff = score.saturation - score.achievement;
-					saturation.setText(String.format("(%d.%02d%%)", diff/100, diff%100));
+					difference.setText(String.format("(%d.%02d%%)", diff/100, diff%100));
 				}
 			}
 		}

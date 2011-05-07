@@ -27,11 +27,13 @@
     <item>3行表示 (達成率)</item>
     <item>3行表示 (差分)</item>
     <item>4行表示</item>
+    <item>4行表示 (理論値)</item>
 </string-array>
 <string-array name="music_layout_types">
     <item>music_item</item>
     <item>music_item3s</item>
     <item>music_item4</item>
+    <item>music_item4s</item>
 </string-array>
 <string-array name="sort_order_names">
     <item>登録順</item>

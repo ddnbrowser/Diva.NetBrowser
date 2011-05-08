@@ -486,6 +486,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 					service.removeFromMyList(myList.id, m_music.id);
 
 				m_store.updateMyList(myList.id, service.getMyListEntries(myList.id));
+				DdN.notifyChanged(myList, false);
 			}
 			return Boolean.TRUE;
 		}

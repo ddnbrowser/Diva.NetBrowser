@@ -18,6 +18,8 @@
     <string name="item_sort">ソート</string>
     <string name="item_open_web">DIVA.NET</string>
     <string name="item_news">ニュース</string>
+    <string name="item_vp_history">VP履歴</string>
+    <string name="item_play_history">プレイ履歴</string>
     <string name="item_contest">コンテスト情報</string>
     <string name="item_statistics">クリア統計情報</string>
     <string name="item_game_settings">ゲーム設定</string>

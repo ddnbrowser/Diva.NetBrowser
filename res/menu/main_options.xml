@@ -4,6 +4,8 @@
     <item android:id="@+id/item_open_web" android:title="@string/item_open_web" android:icon="@drawable/ic_menu_info_details">
         <menu>
             <item android:id="@+id/item_news" android:title="@string/item_news"></item>
+            <item android:id="@+id/item_vp_history" android:title="@string/item_vp_history"></item>
+            <item android:id="@+id/item_play_history" android:title="@string/item_play_history"></item>
             <item android:id="@+id/item_contest" android:title="@string/item_contest"></item>
             <item android:id="@+id/item_statistics" android:title="@string/item_statistics"></item>
         </menu>

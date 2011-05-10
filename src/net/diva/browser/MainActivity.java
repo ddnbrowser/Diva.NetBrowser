@@ -105,6 +105,12 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		case R.id.item_news:
 			WebBrowseActivity.open(this, "/divanet/menu/news/");
 			break;
+		case R.id.item_vp_history:
+			WebBrowseActivity.open(this, "/divanet/personal/vpHistory/");
+			break;
+		case R.id.item_play_history:
+			WebBrowseActivity.open(this, "/divanet/personal/playHistory/0");
+			break;
 		case R.id.item_contest:
 			WebBrowseActivity.open(this, "/divanet/contest/info/");
 			break;

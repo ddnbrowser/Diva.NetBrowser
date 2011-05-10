@@ -22,7 +22,7 @@ public final class StringUtils {
 			if ('ァ' <= c && c < 'ヶ')
 				builder.setCharAt(i, NORMALIZE_MAP.charAt(c - 'ァ'));
 			else if (i > 0 && c == 'ー')
-				builder.setCharAt(i, VOWEL_MAP.charAt(i-1));
+				builder.setCharAt(i, VOWEL_MAP.charAt(builder.charAt(i-1) - 'ァ'));
 		}
 		return builder.toString();
 	}

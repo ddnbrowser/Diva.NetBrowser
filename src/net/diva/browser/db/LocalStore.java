@@ -28,7 +28,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 17;
+	private static final int VERSION = 18;
 
 	private static LocalStore m_instance;
 
@@ -85,6 +85,8 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.READING,
 				MusicTable.FAVORITE,
 				MusicTable.PUBLISH,
+				MusicTable.SKIN,
+				MusicTable.BUTTON,
 		}, null, null, null, null, MusicTable._ID);
 		try {
 			while (cm.moveToNext()) {
@@ -93,6 +95,8 @@ public class LocalStore extends ContextWrapper {
 				music.part = cm.getInt(3);
 				music.vocal1 = cm.getString(4);
 				music.vocal2 = cm.getString(5);
+				music.skin = cm.getString(9);
+				music.button = cm.getString(10);
 				music.reading = cm.getString(6);
 				if (music.reading == null)
 					music.reading = getReading(music.title);
@@ -275,6 +279,32 @@ public class LocalStore extends ContextWrapper {
 		db.beginTransaction();
 		try {
 			MusicTable.resetModule(db);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
+	public void updateSkin(MusicInfo music) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			MusicTable.updateSkin(db, music);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
+	public void updateButtonSE(MusicInfo music) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			MusicTable.updateButtonSE(db, music);
 			db.setTransactionSuccessful();
 		}
 		finally {
@@ -635,6 +665,8 @@ public class LocalStore extends ContextWrapper {
 				initializeMyList(db);
 			case 16:
 				MusicTable.addPublishColumn(db);
+			case 17:
+				MusicTable.addIndividualColumns(db);
 			default:
 				break;
 			}

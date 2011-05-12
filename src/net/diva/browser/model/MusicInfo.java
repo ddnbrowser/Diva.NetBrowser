@@ -21,6 +21,8 @@ public class MusicInfo {
 	public int part;
 	public String vocal1;
 	public String vocal2;
+	public String skin;
+	public String button;
 
 	public ScoreRecord[] records;
 

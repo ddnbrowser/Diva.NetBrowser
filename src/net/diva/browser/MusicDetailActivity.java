@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.service.ServiceClient;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 public class MusicDetailActivity extends Activity {
+	private LocalStore m_store;
 	private MusicInfo m_music;
 
 	@Override
@@ -23,6 +25,7 @@ public class MusicDetailActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.music_detail);
 
+		m_store = DdN.getLocalStore();
 		m_music = DdN.getPlayRecord().getMusic(getIntent().getStringExtra("id"));
 
 		ImageView image = (ImageView)findViewById(R.id.cover_art);
@@ -113,7 +116,7 @@ public class MusicDetailActivity extends Activity {
 					m_music.vocal1 = vocal1.id;
 					m_music.vocal2 = vocal2.id;
 				}
-				DdN.getLocalStore().updateModule(m_music);
+				m_store.updateModule(m_music);
 			}
 		});
 	}
@@ -126,7 +129,7 @@ public class MusicDetailActivity extends Activity {
 			public void run(ServiceClient service) throws Exception {
 				service.resetIndividualModule(m_music.id);
 				m_music.vocal1 = m_music.vocal2 = null;
-				DdN.getLocalStore().updateModule(m_music);
+				m_store.updateModule(m_music);
 			}
 		});
 	}
@@ -146,6 +149,8 @@ public class MusicDetailActivity extends Activity {
 		confirm(R.string.message_set_skin, new Task() {
 			public void run(ServiceClient service) throws Exception {
 				service.setSkin(m_music.id, group_id, id);
+				m_music.skin = id;
+				m_store.updateSkin(m_music);
 			}
 		});
 	}
@@ -157,6 +162,8 @@ public class MusicDetailActivity extends Activity {
 		confirm(R.string.message_reset_skin, new Task() {
 			public void run(ServiceClient service) throws Exception {
 				service.resetSkin(m_music.id);
+				m_music.skin = null;
+				m_store.updateSkin(m_music);
 			}
 		});
 	}
@@ -174,6 +181,8 @@ public class MusicDetailActivity extends Activity {
 		confirm(R.string.message_set_button_se, new Task() {
 			public void run(ServiceClient service) throws Exception {
 				service.setButtonSE(m_music.id, id);
+				m_music.button = id;
+				m_store.updateButtonSE(m_music);
 			}
 		});
 	}
@@ -185,6 +194,8 @@ public class MusicDetailActivity extends Activity {
 		confirm(R.string.message_reset_button_se, new Task() {
 			public void run(ServiceClient service) throws Exception {
 				service.resetButtonSE(m_music.id);
+				m_music.button = null;
+				m_store.updateButtonSE(m_music);
 			}
 		});
 	}

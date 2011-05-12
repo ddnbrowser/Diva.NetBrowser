@@ -105,6 +105,9 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		TextView difficulty;
 		ImageView clear_status;
 		TextView trial_status;
+		View module;
+		View skin;
+		View button;
 		TextView ranking;
 		TextView high_score;
 		TextView achivement;
@@ -117,6 +120,9 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			difficulty = (TextView)view.findViewById(R.id.difficulty);
 			clear_status = (ImageView)view.findViewById(R.id.clear_status);
 			trial_status = (TextView)view.findViewById(R.id.trial_status);
+			module = view.findViewById(R.id.module);
+			skin = view.findViewById(R.id.skin);
+			button = view.findViewById(R.id.button);
 			ranking = (TextView)view.findViewById(R.id.ranking);
 			high_score = (TextView)view.findViewById(R.id.high_score);
 			achivement = (TextView)view.findViewById(R.id.achivement);
@@ -130,6 +136,12 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			difficulty.setText(String.format("★%d", score.difficulty));
 			clear_status.setImageDrawable(m_clear_icons[score.clear_status]);
 			trial_status.setText(m_trial_labels[score.trial_status]);
+			if (module != null)
+				module.setVisibility(music.vocal1 != null ? View.VISIBLE : View.INVISIBLE);
+			if (skin != null)
+				skin.setVisibility(music.skin != null ? View.VISIBLE : View.INVISIBLE);
+			if (button != null)
+				button.setVisibility(music.button != null ? View.VISIBLE : View.INVISIBLE);
 			ranking.setText(score.isRankIn() ? String.format("%d位", score.ranking) : "");
 			high_score.setText(String.format("%dpts", score.high_score));
 			if (achivement != null)

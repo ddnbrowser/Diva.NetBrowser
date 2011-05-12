@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_height="wrap_content"
+  android:layout_width="fill_parent"
+  >
+	<TextView
+		android:id="@+id/difficulty"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_alignParentLeft="true"
+		android:text="★8"
+		/>
+	<ImageView
+		android:id="@+id/clear_status"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_toRightOf="@+id/difficulty"
+		android:layout_marginLeft="3dp"
+		android:src="@drawable/clear2"
+		/>
+	<TextView
+		android:id="@+id/trial_status"
+		android:layout_width="80dip"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_toRightOf="@+id/clear_status"
+		android:layout_marginLeft="3dp"
+		android:text="C-TRIAL"
+		/>
+	<TextView
+		android:id="@+id/ranking"
+		android:textColor="#FF0000"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_alignParentRight="true"
+		android:layout_toRightOf="@+id/trial_status"
+		android:gravity="right"
+		android:layout_marginRight="6dp"
+		android:text="300"
+		/>
+</RelativeLayout>

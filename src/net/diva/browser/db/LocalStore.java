@@ -274,11 +274,11 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
-	public void resetIndividualModules() {
+	public void resetIndividualAll() {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			MusicTable.resetModule(db);
+			MusicTable.resetIndividualAll(db);
 			db.setTransactionSuccessful();
 		}
 		finally {

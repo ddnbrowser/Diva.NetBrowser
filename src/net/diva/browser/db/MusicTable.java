@@ -98,10 +98,12 @@ final class MusicTable implements BaseColumns {
 		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
 	}
 
-	static void resetModule(SQLiteDatabase db) {
-		ContentValues values = new ContentValues(2);
+	static void resetIndividualAll(SQLiteDatabase db) {
+		ContentValues values = new ContentValues(4);
 		values.putNull(VOCAL1);
 		values.putNull(VOCAL2);
+		values.putNull(SKIN);
+		values.putNull(BUTTON);
 		db.update(NAME, values, null, null);
 	}
 

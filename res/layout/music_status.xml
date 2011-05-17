@@ -4,28 +4,28 @@
   android:layout_height="wrap_content"
   android:layout_width="wrap_content"
   >
-	<TextView
+	<ImageView
 		android:id="@+id/module"
 		android:layout_width="16dip"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
 		android:layout_alignParentLeft="true"
-		android:text="モ"
+		android:src="@drawable/icon_module"
 		/>
-	<TextView
+	<ImageView
 		android:id="@+id/skin"
 		android:layout_width="16dip"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
 		android:layout_toRightOf="@+id/module"
-		android:text="ス"
+		android:src="@drawable/icon_skin"
 		/>
-	<TextView
+	<ImageView
 		android:id="@+id/button"
 		android:layout_width="16dip"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
 		android:layout_toRightOf="@+id/skin"
-		android:text="音"
+		android:src="@drawable/icon_button_sound"
 		/>
 </RelativeLayout>

@@ -20,8 +20,8 @@
     <item>全て</item>
 </string-array>
 <array name="tab_icons">
-    <item>@drawable/ic_menu_home</item>
-    <item>@drawable/ic_menu_agenda</item>
+    <item>@drawable/ic_tab_user</item>
+    <item>@drawable/ic_tab_all</item>
 </array>
 <string-array name="music_layout_names">
     <item>3行表示 (達成率)</item>

@@ -202,6 +202,6 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 	}
 
 	private Drawable getMyListIcon(boolean active) {
-		return getResources().getDrawable(active ? R.drawable.checked_star : R.drawable.ic_menu_star);
+		return getResources().getDrawable(active ? R.drawable.ic_tab_mylist_checked : R.drawable.ic_tab_mylist);
 	}
 }

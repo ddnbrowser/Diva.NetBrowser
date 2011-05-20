@@ -7,7 +7,7 @@ import net.diva.browser.DdN;
 public class PlayRecord {
 	public String player_name;
 	public String level;
-	public String title_id;
+	public String title;
 	public int vocaloid_point;
 	public List<MusicInfo> musics;
 

@@ -41,7 +41,7 @@ public final class Parser {
 	}
 
 	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\].*<br>\\s*(.+)<br>");
-	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/RANK\\].*<br>\\s*(.+)<br>\\s*<img src=\"/divanet/img/title/(\\w+)\"><br>");
+	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\].*<br>\\s*(.+)\\s*(.+)<br>");
 	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\].*<br>\\s*(\\d+)VP<br>");
 
 	public static PlayRecord parseMenuPage(InputStream content) throws ParseException {
@@ -52,10 +52,10 @@ public final class Parser {
 			throw new ParseException();
 		record.player_name = m.group(1);
 		m = m.usePattern(RE_LEVEL);
-		if (!m.find())
-			throw new ParseException();
-		record.level = m.group(1);
-		record.title_id = m.group(2);
+		if (m.find()) {
+			record.level = m.group(1);
+			record.title = m.group(2);
+		}
 		m = m.usePattern(RE_VP);
 		if (m.find())
 			record.vocaloid_point = Integer.valueOf(m.group(1));
@@ -213,7 +213,7 @@ public final class Parser {
 		return m.find() ? m.group(1) : null;
 	}
 
-	private static final Pattern RE_TITLE_NAME = Pattern.compile("<a href=\"/divanet/title/confirm/(\\w+)/\\d+\">(.+)</a>");
+	private static final Pattern RE_TITLE_NAME = Pattern.compile("<a href=\"/divanet/title/confirmMain/(\\w+)/\\d+\">(.+)</a>");
 
 	public static String parseTitleList(InputStream content, List<TitleInfo> titles) {
 		String body = read(content);

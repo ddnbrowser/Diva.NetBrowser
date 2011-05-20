@@ -36,14 +36,14 @@ public class ConfigTitle extends ConfigItem {
 			return m_applying;
 
 		PlayRecord record = DdN.getPlayRecord();
-		return record == null ? null : DdN.getTitle(record.title_id);
+		return record == null ? null : record.title;
 	}
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
 		service.setTitle(data.getStringExtra("title_id"));
 		PlayRecord record = DdN.getPlayRecord();
-		record.title_id = data.getStringExtra("image_id");
+		record.title = DdN.getTitle(data.getStringExtra("image_id"));
 		store.update(record);
 		return Boolean.TRUE;
 	}

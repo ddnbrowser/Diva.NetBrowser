@@ -174,7 +174,7 @@ public class ServiceClient {
 	public List<TitleInfo> getTitles(List<TitleInfo> titles) throws IOException {
 		if (titles == null)
 			titles = new ArrayList<TitleInfo>();
-		String path = "/divanet/title/list/0";
+		String path = "/divanet/title/selectMain/0";
 		while (path != null)
 			path = Parser.parseTitleList(getFrom(path), titles);
 
@@ -182,7 +182,7 @@ public class ServiceClient {
 			if (title.image_id != null)
 				continue;
 
-			title.image_id = Parser.parseTitlePage(getFrom("/divanet/title/confirm/%s/0", title.id));
+			title.image_id = Parser.parseTitlePage(getFrom("/divanet/title/confirmMain/%s/0", title.id));
 		}
 
 		return titles;
@@ -307,7 +307,7 @@ public class ServiceClient {
 	}
 
 	public void setTitle(String title_id) throws IOException {
-		postTo(String.format("/divanet/title/update/%s", title_id));
+		postTo(String.format("/divanet/title/updateMain/%s/false", title_id));
 	}
 
 	public void setCommonModule(String key, String module_id) throws IOException {

@@ -203,7 +203,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	protected abstract List<MusicInfo> getMusics(PlayRecord record);
 
 	protected void makeTitle(StringBuilder title, PlayRecord record) {
-		title.append(rankText(record, DdN.getTitle(record.title_id)));
+		title.append(rankText(record, record.title));
 	}
 
 	protected void updateAll() {

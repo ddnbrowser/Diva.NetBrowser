@@ -147,7 +147,7 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 				break;
 			case 3:
 				setText(view, R.id.text1, m_record.level);
-				setText(view, R.id.text2, DdN.getTitle(m_record.title_id));
+				setText(view, R.id.text2, m_record.title);
 				break;
 			case 4:
 				ProgressBar progress = (ProgressBar)view.findViewById(R.id.progress);

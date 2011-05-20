@@ -63,7 +63,7 @@ public class LocalStore extends ContextWrapper {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 		record.player_name = prefs.getString("player_name", null);
 		record.level = prefs.getString("level_rank", null);
-		record.title_id = prefs.getString("title_id", null);
+		record.title = prefs.getString("title", null);
 		record.vocaloid_point = prefs.getInt("vocaloid_point", 0);
 		record.musics = findMusic();
 		return record;
@@ -227,7 +227,7 @@ public class LocalStore extends ContextWrapper {
 		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
 		editor.putString("player_name", record.player_name);
 		editor.putString("level_rank", record.level);
-		editor.putString("title_id", record.title_id);
+		editor.putString("title", record.title);
 		editor.putInt("vocaloid_point", record.vocaloid_point);
 		editor.commit();
 	}

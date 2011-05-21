@@ -1,22 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
+	android:orientation="vertical"
 	>
-	<ListView android:id="@id/android:list"
+	<Button
+		android:id="@+id/decor_title"
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="3dp"
+		android:text="設定されていません"
+		android:onClick="selectDecor"
 		/>
-	<RelativeLayout android:id="@id/android:empty"
+	<FrameLayout
 		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1"
 		>
-		<TextView
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:layout_centerInParent="true"
+		<ListView android:id="@id/android:list"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
+			/>
+		<TextView android:id="@id/android:empty"
+			android:layout_width="fill_parent"
+			android:layout_height="fill_parent"
 			android:gravity="center"
 			android:text="設定可能な称号はありません\nメニューを開いて更新を選択して下さい"
 			/>
-	</RelativeLayout>
-</FrameLayout>
+	</FrameLayout>
+</LinearLayout>

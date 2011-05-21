@@ -18,6 +18,7 @@
         <activity android:name=".CommonConfigActivity"></activity>
         <activity android:name=".SettingsActivity"></activity>
         <activity android:name=".settings.TitleListActivity"></activity>
+        <activity android:name=".settings.DecorTitlesActivity"></activity>
         <activity android:name=".settings.ModuleListActivity"></activity>
         <activity android:name=".settings.SkinListActivity"></activity>
         <activity android:name=".settings.SEListActivity"></activity>

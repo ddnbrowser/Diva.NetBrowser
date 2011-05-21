@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.diva.browser.R;
 import net.diva.browser.model.ButtonSE;
+import net.diva.browser.model.DecorTitle;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -28,7 +29,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 18;
+	private static final int VERSION = 19;
 
 	private static LocalStore m_instance;
 
@@ -366,6 +367,40 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public List<DecorTitle> getDecorTitles(boolean pre) {
+		List<DecorTitle> titles = new ArrayList<DecorTitle>();
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(DecorTitleTable.TABLE_NAME, new String[] {
+				DecorTitleTable.ID,
+				DecorTitleTable.NAME,
+				DecorTitleTable.STATUS,
+		}, null, null, null, null, null);
+		try {
+			while (c.moveToNext())
+				titles.add(new DecorTitle(c.getString(0), c.getString(1), c.getInt(2) != 0));
+		}
+		finally {
+			c.close();
+		}
+		return titles;
+	}
+
+	public void updateDecorTitles(List<DecorTitle> titles) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			for (DecorTitle title: titles) {
+				if (!DecorTitleTable.update(db, title))
+					DecorTitleTable.insert(db, title);
+			}
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	public void updateModules(List<ModuleGroup> groups) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
@@ -667,6 +702,8 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.addPublishColumn(db);
 			case 17:
 				MusicTable.addIndividualColumns(db);
+			case 18:
+				db.execSQL(DecorTitleTable.create_statement());
 			default:
 				break;
 			}

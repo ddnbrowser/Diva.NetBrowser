@@ -14,6 +14,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import net.diva.browser.model.ButtonSE;
+import net.diva.browser.model.DecorTitle;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -234,6 +235,50 @@ public final class Parser {
 		String body = read(content);
 		Matcher m = RE_TITLE_IMAGE.matcher(body);
 		return m.find() ? m.group(1) : null;
+	}
+
+	public static class TitleParser {
+		private static final Pattern RE_DECOR = Pattern.compile("<a href=\"/divanet/title/updateDecor/(?:true|false)/(\\w+)\">(.+)</a>");
+		private static final Pattern RE_GROUP = Pattern.compile("<a href=\"(/divanet/title/decorCommodity/\\d+/\\d+)\">(.+)</a>");
+		private static final Pattern RE_COMMODITY = Pattern.compile("<a href=\"/divanet/title/decorDetail/(\\w+)/\\d+/\\d+\">(.+)</a>");
+		private static final Pattern RE_RESULT = Pattern.compile("\\s*(.+)<br><br>\\s*.*メイン称号を設定しました<br>");
+
+		public static String parseDecorTitles(InputStream content, List<DecorTitle> titles) {
+			String body = read(content);
+			Matcher m = RE_DECOR.matcher(body);
+			while (m.find())
+				titles.add(new DecorTitle(m.group(1), m.group(2), true));
+
+			m = m.usePattern(RE_NEXT);
+			return m.find() ? m.group(1) : null;
+		}
+
+		public static List<String> parseDecorShop(InputStream content) {
+			List<String > urls = new ArrayList<String>();
+
+			String body = read(content);
+			Matcher m = RE_GROUP.matcher(body);
+			while (m.find())
+				urls.add(m.group(1));
+
+			return urls;
+		}
+
+		public static String parseShopGroup(InputStream content, List<DecorTitle> titles) {
+			String body = read(content);
+			Matcher m = RE_COMMODITY.matcher(body);
+			while (m.find())
+				titles.add(new DecorTitle(m.group(1), m.group(2), false));
+
+			m = m.usePattern(RE_NEXT);
+			return m.find() ? m.group(1) : null;
+		}
+
+		public static String parseSetResult(InputStream content) {
+			String body = read(content);
+			Matcher m = RE_RESULT.matcher(body);
+			return m.find() ? m.group(1) : null;
+		}
 	}
 
 	private static final Pattern RE_MODULE_GROUP = Pattern.compile("<a href=\"/divanet/module/list/(\\d+)/\\d+\">(.+)\\(\\d+/\\d+\\)</a>");

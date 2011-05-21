@@ -6,6 +6,7 @@ import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.PlayRecord;
+import net.diva.browser.service.OperationFailedException;
 import net.diva.browser.service.ServiceClient;
 import android.content.Context;
 import android.content.Intent;
@@ -41,10 +42,19 @@ public class ConfigTitle extends ConfigItem {
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
-		service.setTitle(data.getStringExtra("title_id"));
-		PlayRecord record = DdN.getPlayRecord();
-		record.title = DdN.getTitle(data.getStringExtra("image_id"));
-		store.update(record);
-		return Boolean.TRUE;
+		String decorId = data.getStringExtra("decor_id");
+		boolean noDecor = "OFF".equals(decorId);
+		if (decorId != null && !noDecor)
+			service.setDecorTitle(decorId, true);
+		try {
+			PlayRecord record = DdN.getPlayRecord();
+			record.title = service.setTitle(data.getStringExtra("title_id"), noDecor);
+			store.update(record);
+			return Boolean.TRUE;
+		}
+		catch (OperationFailedException e) {
+			e.printStackTrace();
+			return Boolean.FALSE;
+		}
 	}
 }

@@ -12,6 +12,7 @@ import java.util.Map;
 
 import net.diva.browser.DdN;
 import net.diva.browser.model.ButtonSE;
+import net.diva.browser.model.DecorTitle;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -188,6 +189,23 @@ public class ServiceClient {
 		return titles;
 	}
 
+	public List<DecorTitle> getDecorTitles(boolean pre) throws IOException {
+		List<DecorTitle> titles = new ArrayList<DecorTitle>();
+
+		// Purchased
+		String path = String.format("/divanet/title/selectDecorDir/%b", pre);
+		while (path != null)
+			path = Parser.TitleParser.parseDecorTitles(getFrom(path), titles);
+
+		// Not purchased
+		for (String url: Parser.TitleParser.parseDecorShop(getFrom("/divanet/title/decorShop/"))) {
+			while (url != null)
+				url = Parser.TitleParser.parseShopGroup(getFrom(url), titles);
+		}
+
+		return titles;
+	}
+
 	public List<ModuleGroup> getModules() throws IOException {
 		List<ModuleGroup> modules = Parser.parseModuleIndex(getFrom("/divanet/module/"));
 		for (ModuleGroup group: modules) {
@@ -306,8 +324,16 @@ public class ServiceClient {
 			throw new OperationFailedException(error);
 	}
 
-	public void setTitle(String title_id) throws IOException {
-		postTo(String.format("/divanet/title/updateMain/%s/false", title_id));
+	public String setTitle(String title_id, boolean noDecor) throws IOException, OperationFailedException {
+		HttpResponse response = postTo(String.format("/divanet/title/updateMain/%s/%b", title_id, noDecor));
+		String title = Parser.TitleParser.parseSetResult(response.getEntity().getContent());
+		if (title == null)
+			throw new OperationFailedException();
+		return title;
+	}
+
+	public void setDecorTitle(String decor_id, boolean pre) throws IOException {
+		postTo(String.format("/divanet/title/updateDecor/%b/%s", pre, decor_id));
 	}
 
 	public void setCommonModule(String key, String module_id) throws IOException {

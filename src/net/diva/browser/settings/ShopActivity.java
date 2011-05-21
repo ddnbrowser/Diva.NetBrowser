@@ -53,7 +53,10 @@ public class ShopActivity extends Activity implements View.OnClickListener {
 		setContentView(R.layout.shop);
 
 		ImageView image = (ImageView)findViewById(R.id.thumbnail);
-		image.setImageBitmap(m_thumbnail);
+		if (m_thumbnail != null)
+			image.setImageBitmap(m_thumbnail);
+		else
+			image.setVisibility(View.GONE);
 
 		LinearLayout parent = (LinearLayout)findViewById(R.id.details);
 		LayoutInflater inflater = getLayoutInflater();
@@ -81,7 +84,8 @@ public class ShopActivity extends Activity implements View.OnClickListener {
 					service.login();
 
 				String image = service.getShopDetail(params[0], m_details);
-				m_thumbnail = BitmapFactory.decodeStream(service.download(image));
+				if (image != null)
+					m_thumbnail = BitmapFactory.decodeStream(service.download(image));
 				return Boolean.TRUE;
 			}
 			catch (LoginFailedException e) {

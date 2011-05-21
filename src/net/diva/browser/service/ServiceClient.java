@@ -408,6 +408,12 @@ public class ServiceClient {
 			throw new OperationFailedException();
 	}
 
+	public void buyDecorTitle(String decor_id) throws OperationFailedException, IOException {
+		HttpResponse response = postTo(String.format("/divanet/title/buyDecor/%s", decor_id));
+		if (!Parser.Shop.isSuccess(response.getEntity().getContent()))
+			throw new OperationFailedException();
+	}
+
 	public MyList getMyList(int id) throws IOException {
 		final MyList myList = new MyList(id, null);
 		Parser.MyListParser.parseSummary(getFrom("/divanet/myList/selectMyList/%d", id), myList);

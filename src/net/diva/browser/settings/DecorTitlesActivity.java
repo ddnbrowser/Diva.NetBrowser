@@ -13,6 +13,7 @@ import net.diva.browser.service.ServiceTask;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -22,6 +23,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DecorTitlesActivity extends ListActivity {
 	private LocalStore m_store;
@@ -57,7 +59,22 @@ public class DecorTitlesActivity extends ListActivity {
 			finish();
 		}
 		else {
+			Intent intent = new Intent(getApplicationContext(), ShopActivity.class);
+			intent.setData(Uri.parse(DdN.url("/divanet/title/decorDetail/%s/0/0", title.id)));
+			intent.putExtra("id", title.id);
+			startActivityForResult(intent, R.id.item_confirm_buying);
+		}
+	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case R.id.item_confirm_buying:
+			if (resultCode == RESULT_OK)
+				new BuyTask().execute(findTitle(data.getStringExtra("id")));
+			break;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
 		}
 	}
 
@@ -91,6 +108,14 @@ public class DecorTitlesActivity extends ListActivity {
 			return super.onOptionsItemSelected(item);
 		}
 		return true;
+	}
+
+	private DecorTitle findTitle(String id) {
+		for (DecorTitle title: m_titles) {
+			if (title.id.equals(id))
+				return title;
+		}
+		return null;
 	}
 
 	private void refresh(int mode) {
@@ -187,6 +212,32 @@ public class DecorTitlesActivity extends ListActivity {
 			m_titles = result;
 			m_purchased = m_notPurchased = null;
 			refresh(m_mode);
+		}
+	}
+
+	private class BuyTask extends ServiceTask<DecorTitle, Void, Boolean> {
+		BuyTask() {
+			super(DecorTitlesActivity.this, R.string.buying);
+		}
+
+		@Override
+		protected Boolean doTask(ServiceClient service, DecorTitle... params) throws Exception {
+			DecorTitle title = params[0];
+
+			service.buyDecorTitle(title.id);
+			title.purchased = true;
+			m_store.updateDecorTitle(title);
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			if (result) {
+				m_purchased = m_notPurchased = null;
+				refresh(m_mode);
+			}
+			else
+				Toast.makeText(DecorTitlesActivity.this, R.string.faile_buying, Toast.LENGTH_SHORT).show();
 		}
 	}
 }

@@ -401,6 +401,19 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public void updateDecorTitle(DecorTitle title) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			DecorTitleTable.update(db, title);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	public void updateModules(List<ModuleGroup> groups) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();

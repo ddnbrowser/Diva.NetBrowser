@@ -285,6 +285,14 @@ public class ServiceClient {
 		return map;
 	}
 
+	public Map<String, IndividualSetting> getIndividualSettings() throws IOException {
+		Map<String, IndividualSetting> settings = new HashMap<String, IndividualSetting>();
+		String path = "/divanet/setting/individual/0/true/0";
+		while (path != null)
+			path = Parser.parseIndividualSettings(getFrom(path), settings);
+		return settings;
+	}
+
 	private InputStream getFrom(String relative, Object... args) throws IOException {
 		return getFrom(String.format(relative, args));
 	}

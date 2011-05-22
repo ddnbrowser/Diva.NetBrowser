@@ -137,4 +137,13 @@ final class MusicTable implements BaseColumns {
 			values.put(BUTTON, music.button);
 		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
 	}
+
+	static boolean updateIndividual(SQLiteDatabase db, MusicInfo music) {
+		ContentValues values = new ContentValues(4);
+		values.put(VOCAL1, music.vocal1);
+		values.put(VOCAL2, music.vocal2);
+		values.put(SKIN, music.skin);
+		values.put(BUTTON, music.button);
+		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
+	}
 }

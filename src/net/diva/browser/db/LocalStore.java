@@ -288,6 +288,20 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public void updateIndividual(List<MusicInfo> musics) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			for (MusicInfo music: musics)
+				MusicTable.updateIndividual(db, music);
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	public void updateSkin(MusicInfo music) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();

@@ -281,6 +281,36 @@ public final class Parser {
 		}
 	}
 
+	private static final Pattern RE_SETTING_MODULE = Pattern.compile("/divanet/module/selectPv/(\\w+)/\\d+\">(.*)</a>");
+	private static final Pattern RE_SETTING_SKIN = Pattern.compile("/divanet/skin/list/(\\w+)/\\d+/\\d+\">(.*)</a>");
+	private static final Pattern RE_SETTING_BUTTON = Pattern.compile("/divanet/buttonSE/list/(\\w+)/\\d+/\\d+\">(.*)</a>");
+
+	public static String parseIndividualSettings(InputStream content, Map<String, IndividualSetting> settings) {
+		String body = read(content);
+		Matcher m = RE_SETTING_MODULE.matcher(body);
+		while (m.find()) {
+			String id = m.group(1);
+			IndividualSetting setting = settings.get(id);
+			if (setting == null)
+				settings.put(id, setting = new IndividualSetting());
+			if (setting.vocal1 == null)
+				setting.vocal1 = m.group(2);
+			else
+				setting.vocal2 = m.group(2);
+		}
+
+		m = m.usePattern(RE_SETTING_SKIN);
+		while (m.find())
+			settings.get(m.group(1)).skin = m.group(2);
+
+		m = m.usePattern(RE_SETTING_BUTTON);
+		while (m.find())
+			settings.get(m.group(1)).button = m.group(2);
+
+		m = m.usePattern(RE_NEXT);
+		return m.find() ? m.group(1) : null;
+	}
+
 	private static final Pattern RE_MODULE_GROUP = Pattern.compile("<a href=\"/divanet/module/list/(\\d+)/\\d+\">(.+)\\(\\d+/\\d+\\)</a>");
 
 	public static List<ModuleGroup> parseModuleIndex(InputStream content) {

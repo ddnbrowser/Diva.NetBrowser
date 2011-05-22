@@ -1,6 +1,5 @@
 package net.diva.browser;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +9,6 @@ import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
-import net.diva.browser.model.TitleInfo;
-import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 import android.app.AlertDialog;
 import android.app.Application;
@@ -41,13 +38,10 @@ public class DdN extends Application {
 	private ServiceClient m_service;
 
 	private PlayRecord m_record;
-	private List<TitleInfo> m_titles;
 	private List<ModuleGroup> m_modules;
 
 	private Handler m_handler;
 	private List<Observer> m_observers;
-
-	private AsyncTask<?, ?, ?> m_updateTitles;
 
 	@Override
 	public void onCreate() {
@@ -63,7 +57,6 @@ public class DdN extends Application {
 		Account account = Account.load(PreferenceManager.getDefaultSharedPreferences(this));
 		if (account != null) {
 			LocalStore store = LocalStore.instance(this);
-			m_titles = store.getTitles();
 			m_record = store.load(account.access_code);
 		}
 	}
@@ -98,23 +91,6 @@ public class DdN extends Application {
 				}
 			}
 		});
-	}
-
-	private String getTitle_(String id) {
-		if (id == null)
-			return getString(R.string.unknown_title);
-
-		if (m_titles != null) {
-			for (TitleInfo title: m_titles) {
-				if (id.equals(title.image_id))
-					return title.name;
-			}
-		}
-
-		if (m_updateTitles == null)
-			m_updateTitles = new UpdateTitles().execute();
-
-		return getString(R.string.title_getting);
 	}
 
 	private List<ModuleGroup> getModules_() {
@@ -159,19 +135,6 @@ public class DdN extends Application {
 
 	public static PlayRecord setPlayRecord(PlayRecord record) {
 		return s_instance != null ? s_instance.setPlayRecord_(record) : null;
-	}
-
-	public static List<TitleInfo> getTitles() {
-		return s_instance == null ? null : s_instance.m_titles;
-	}
-
-	public static void setTitles(List<TitleInfo> titles) {
-		if (s_instance != null)
-			s_instance.m_titles = titles;
-	}
-
-	public static String getTitle(String id) {
-		return s_instance.getTitle_(id);
 	}
 
 	public static List<ModuleGroup> getModules() {
@@ -264,39 +227,6 @@ public class DdN extends Application {
 			editor.putString(ACCESS_CODE, access_code);
 			editor.putString(PASSWORD, password);
 			return editor;
-		}
-	}
-
-	private class UpdateTitles extends AsyncTask<Void, Void, Void> {
-		@Override
-		protected Void doInBackground(Void... params) {
-			PlayRecord newRecord = null;
-			LocalStore store = DdN.getLocalStore();
-			try {
-				ServiceClient service = DdN.getServiceClient();
-				if (!service.isLogin())
-					newRecord = service.login();
-
-				m_titles = service.getTitles(m_titles);
-				store.updateTitles(m_titles);
-				m_updateTitles = null;
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-			}
-			catch (LoginFailedException e) {
-				e.printStackTrace();
-			}
-
-			if (newRecord != null) {
-				store.update(newRecord);
-				setPlayRecord_(newRecord);
-			}
-			else {
-				notifyUpdate(true);
-			}
-
-			return null;
 		}
 	}
 }

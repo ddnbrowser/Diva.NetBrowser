@@ -12,11 +12,12 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -27,15 +28,19 @@ public class TitleListActivity extends ListActivity {
 	private TextView m_decorView;
 	private String m_decorId;
 
+	private List<TitleInfo> m_titles;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.title_list);
+		m_adapter = new TitleAdapter(this);
 		m_store = LocalStore.instance(this);
 		m_decorView = (TextView)findViewById(R.id.decor_title);
+		m_titles = m_store.getTitles();
 
-		setListAdapter(m_adapter = new TitleAdapter(this));
 		refresh();
+		setListAdapter(m_adapter);
 	}
 
 	@Override
@@ -43,7 +48,6 @@ public class TitleListActivity extends ListActivity {
 		TitleInfo title = m_adapter.getItem(position);
 		Intent intent = getIntent();
 		intent.putExtra("title_id", title.id);
-		intent.putExtra("image_id", title.image_id);
 		intent.putExtra("decor_id", m_decorId);
 		setResult(RESULT_OK, intent);
 		finish();
@@ -92,11 +96,13 @@ public class TitleListActivity extends ListActivity {
 	}
 
 	private void refresh() {
-		List<TitleInfo> titles = DdN.getTitles();
-		m_adapter.setTitles(titles);
+		m_adapter.setTitles(m_titles);
 
 		String current = DdN.getPlayRecord().title;
-		for (TitleInfo title: titles) {
+		if (current == null)
+			return;
+
+		for (TitleInfo title: m_titles) {
 			int index = current.indexOf(title.name);
 			if (index > 0) {
 				m_decorView.setText(current.subSequence(0, index));
@@ -105,30 +111,48 @@ public class TitleListActivity extends ListActivity {
 		}
 	}
 
-	private static class TitleAdapter extends ArrayAdapter<TitleInfo> {
+	private static class TitleAdapter extends BaseAdapter {
+		LayoutInflater m_inflater;
+		List<TitleInfo> m_titles;
+
 		public TitleAdapter(Context context) {
-			super(context, android.R.layout.simple_list_item_1);
+			m_inflater = LayoutInflater.from(context);
 		}
 
 		public void setTitles(List<TitleInfo> titles) {
-			setNotifyOnChange(false);
-			clear();
-
-			for (TitleInfo title: titles)
-				add(title);
-
-			setNotifyOnChange(true);
-			notifyDataSetChanged();
+			m_titles = titles;
+			if (m_titles.isEmpty())
+				notifyDataSetInvalidated();
+			else
+				notifyDataSetChanged();
 		}
 
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			View view = super.getView(position, convertView, parent);
-			TitleInfo title = getItem(position);
-			if (title != null) {
-				TextView tv = (TextView)view.findViewById(android.R.id.text1);
-				tv.setText(title.name);
+		public int getCount() {
+			return m_titles.size();
+		}
+
+		public TitleInfo getItem(int position) {
+			return m_titles.get(position);
+		}
+
+		public long getItemId(int position) {
+			return position;
+		}
+
+		public View getView(int position, View view, ViewGroup parent) {
+			TextView text;
+			if (view != null)
+				text = (TextView)view.getTag();
+			else {
+				view = m_inflater.inflate(android.R.layout.simple_list_item_1, parent, false);
+				text = (TextView)view.findViewById(android.R.id.text1);
+				view.setTag(text);
 			}
+
+			TitleInfo title = getItem(position);
+			if (title != null && text != null)
+				text.setText(title.name);
+
 			return view;
 		}
 	}
@@ -140,9 +164,9 @@ public class TitleListActivity extends ListActivity {
 
 		@Override
 		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
-			List<TitleInfo> titles = service.getTitles(DdN.getTitles());
+			List<TitleInfo> titles = service.getTitles(m_titles);
 			m_store.updateTitles(titles);
-			DdN.setTitles(m_store.getTitles());
+			m_titles = m_store.getTitles();
 			return Boolean.TRUE;
 		}
 

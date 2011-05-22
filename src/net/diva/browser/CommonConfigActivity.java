@@ -10,6 +10,7 @@ import net.diva.browser.settings.ConfigResetCommon;
 import net.diva.browser.settings.ConfigResetIndividual;
 import net.diva.browser.settings.ConfigSetSkin;
 import net.diva.browser.settings.ConfigTitle;
+import net.diva.browser.settings.ConfigTitleReplace;
 import net.diva.browser.settings.ConfigUnsetSkin;
 
 public class CommonConfigActivity extends ConfigActivity {
@@ -19,6 +20,7 @@ public class CommonConfigActivity extends ConfigActivity {
 				new ConfigCategory(getText(R.string.category_player)),
 				new ConfigRename(this),
 				new ConfigTitle(this),
+				new ConfigTitleReplace(this),
 				new ConfigCategory(getText(R.string.category_module_common)),
 				new ConfigCommonModule(this, 1),
 				new ConfigCommonModule(this, 2),

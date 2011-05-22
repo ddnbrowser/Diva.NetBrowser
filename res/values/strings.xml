@@ -66,6 +66,8 @@
     <string name="description_rename">プレイヤー名変更</string>
     <string name="summary_rename">※10VPが必要です</string>
     <string name="description_title">称号を変更</string>
+    <string name="description_title_replace">上書き設定</string>
+    <string name="summary_title_replace">メイン称号を新しく入手した際に設定中の称号を上書きします</string>
     <string name="category_module_common">共通モジュール設定</string>
     <string name="description_module_common">ボーカル%d</string>
     <string name="description_reset_common">初期設定に戻す</string>

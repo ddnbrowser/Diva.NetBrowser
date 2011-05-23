@@ -140,7 +140,7 @@ public class ServiceClient {
 		catch (ParseException e) {
 			e.printStackTrace();
 		}
-		return null;
+		return new String[] { null, null };
 	}
 
 	public InputStream download(String path) throws IOException {

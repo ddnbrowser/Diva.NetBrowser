@@ -33,6 +33,8 @@ public class MusicInfo {
 		id = id_;
 		title = title_;
 		publish_order = -1;
+		voice1 = -1;
+		voice2 = -1;
 		records = new ScoreRecord[4];
 	}
 

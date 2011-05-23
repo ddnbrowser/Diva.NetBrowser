@@ -138,6 +138,18 @@ public final class Parser {
 			music.records[i] = parseScore(m, DIFFICULTIES[i], music.records[i]);
 	}
 
+	private static final Pattern RE_VOICE = Pattern.compile("\\[ボイス(1|2)?　(.+)\\]");
+
+	public static String[] parseVoice(InputStream content) throws ParseException {
+		String body = read(content);
+		Matcher m = RE_VOICE.matcher(body);
+		if (!m.find())
+			throw new ParseException();
+		String voice1 = m.group(2);
+		String voice2 = m.find() ? m.group(2) : null;
+		return new String[] { voice1, voice2 };
+	}
+
 	private static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\">(.+)</a>");
 
 	public static String parseRankingList(InputStream content, List<Ranking> list) throws ParseException {

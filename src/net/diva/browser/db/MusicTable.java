@@ -14,6 +14,8 @@ final class MusicTable implements BaseColumns {
 	public static final String READING = "reading";
 	public static final String PUBLISH = "publish";
 	public static final String PART = "part";
+	public static final String VOICE1 = "voice1";
+	public static final String VOICE2 = "voice2";
 	public static final String VOCAL1 = "vocal1";
 	public static final String VOCAL2 = "vocal2";
 	public static final String SKIN = "skin";
@@ -34,6 +36,8 @@ final class MusicTable implements BaseColumns {
 		.append(COVERART).append(" text,")
 		.append(PUBLISH).append(" integer,")
 		.append(PART).append(" integer,")
+		.append(VOICE1).append(" integer,")
+		.append(VOICE2).append(" integer,")
 		.append(VOCAL1).append(" text,")
 		.append(VOCAL2).append(" text,")
 		.append(SKIN).append(" text,")
@@ -73,14 +77,27 @@ final class MusicTable implements BaseColumns {
 		db.execSQL(String.format(format, NAME, BUTTON, "text"));
 	}
 
+	static void addVoiceColumns(SQLiteDatabase db) {
+		String format = "ALTER TABLE %s ADD %s %s";
+		db.execSQL(String.format(format, NAME, VOICE1, "integer"));
+		db.execSQL(String.format(format, NAME, VOICE2, "integer"));
+
+		ContentValues values = new ContentValues(2);
+		values.put(VOICE1, -1);
+		values.put(VOICE2, -1);
+		db.update(NAME, values, null, null);
+	}
+
 	static long insert(SQLiteDatabase db, MusicInfo music) {
-		ContentValues values = new ContentValues(10);
+		ContentValues values = new ContentValues(12);
 		values.put(ID, music.id);
 		values.put(TITLE, music.title);
 		values.put(READING, music.reading);
 		values.put(COVERART, music.coverart);
 		values.put(PUBLISH, music.publish_order);
 		values.put(PART, music.part);
+		values.put(VOICE1, music.voice1);
+		values.put(VOICE2, music.voice2);
 		values.putNull(VOCAL1);
 		values.putNull(VOCAL2);
 		values.putNull(SKIN);
@@ -95,6 +112,8 @@ final class MusicTable implements BaseColumns {
 		values.put(COVERART, music.coverart);
 		values.put(PUBLISH, music.publish_order);
 		values.put(PART, music.part);
+		values.put(VOICE1, music.voice1);
+		values.put(VOICE2, music.voice2);
 		return db.update(NAME, values, WHERE_IDENTITY, new String[] { music.id }) == 1;
 	}
 

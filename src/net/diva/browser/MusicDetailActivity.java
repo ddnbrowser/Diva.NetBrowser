@@ -95,6 +95,8 @@ public class MusicDetailActivity extends Activity {
 		intent.putExtra("request", 1);
 		intent.putExtra("id", m_music.id);
 		intent.putExtra("part", m_music.part);
+		intent.putExtra("voice1", m_music.voice1);
+		intent.putExtra("voice2", m_music.voice2);
 		intent.putExtra("vocal1", m_music.vocal1);
 		intent.putExtra("vocal2", m_music.vocal2);
 		startActivityForResult(intent, R.id.item_set_module);

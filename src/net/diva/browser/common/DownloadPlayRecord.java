@@ -86,6 +86,11 @@ public class DownloadPlayRecord extends AsyncTask<DdN.Account, Integer, PlayReco
 					music.ordinal = StringUtils.forLexicographical(music.reading);
 				service.update(music);
 				service.cacheContent(music.coverart, music.getCoverArtPath(m_context));
+				if (music.voice1 < 0) {
+					String[] voices = service.getVoice(music.id);
+					music.voice1 = DdN.getVoice(voices[0]);
+					music.voice2 = DdN.getVoice(voices[1]);
+				}
 				publishProgress(1);
 			}
 

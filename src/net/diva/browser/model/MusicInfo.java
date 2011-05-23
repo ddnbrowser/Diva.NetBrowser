@@ -19,6 +19,9 @@ public class MusicInfo {
 	public int publish_order;
 
 	public int part;
+	public int voice1;
+	public int voice2;
+
 	public String vocal1;
 	public String vocal2;
 	public String skin;

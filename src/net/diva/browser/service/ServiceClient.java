@@ -133,6 +133,16 @@ public class ServiceClient {
 		}
 	}
 
+	public String[] getVoice(String id) throws IOException {
+		try {
+			return Parser.parseVoice(getFrom("/divanet/module/selectPv/%s/0", id));
+		}
+		catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	public InputStream download(String path) throws IOException {
 		return getFrom(path);
 	}

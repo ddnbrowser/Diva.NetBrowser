@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +52,7 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.module_list);
+		int voice = -1;
 		Intent intent = getIntent();
 		if (intent != null) {
 			m_request = intent.getIntExtra("request", 0);
@@ -62,11 +64,12 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 				listView.addHeaderView(getModuleView(this, module, null, listView), module, true);
 				listView.setOnItemClickListener(this);
 			}
+			voice = intent.getIntExtra(String.format("voice%d", m_request), -1);
 		}
 		m_modules = reconstruct(DdN.getModules());
 		m_purchased = filter(m_modules, true);
 
-		m_adapter = new ModuleAdapter(this);
+		m_adapter = new ModuleAdapter(this, voice);
 		refresh(savedInstanceState != null ? savedInstanceState.getInt("displayMode") : m_mode);
 		setListAdapter(m_adapter);
 	}
@@ -309,10 +312,12 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 
 	private static class ModuleAdapter extends BaseExpandableListAdapter {
 		Context m_context;
+		int m_voice;
 		List<Group> m_modules;
 
-		ModuleAdapter(Context context) {
+		ModuleAdapter(Context context, int voice) {
 			m_context = context;
+			m_voice = voice;
 		}
 
 		void setModules(List<Group> modules) {
@@ -358,7 +363,10 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			}
 			TextView tv = (TextView)view.findViewById(android.R.id.text1);
 			Group group = getGroup(position);
-			tv.setText(group.group.name);
+			if (group.group.id == m_voice)
+				tv.setText(Html.fromHtml(group.group.name + " <font color=#FFFF00>★</font>"));
+			else
+				tv.setText(group.group.name);
 			return view;
 		}
 

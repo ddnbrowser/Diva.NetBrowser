@@ -18,6 +18,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.CookieSyncManager;
@@ -158,6 +159,17 @@ public class DdN extends Application {
 		}
 
 		return null;
+	}
+
+	public static int getVoice(String name) {
+		if (TextUtils.isEmpty(name))
+			return -1;
+
+		for (ModuleGroup group: getModules()) {
+			if (group.name.equals(name))
+				return group.id;
+		}
+		return -1;
 	}
 
 	public static void registerObserver(Observer observer) {

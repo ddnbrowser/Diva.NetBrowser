@@ -41,6 +41,7 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 	private ModuleAdapter m_adapter;
 	private int m_request;
 	private int m_part;
+	private int m_group;
 	private String m_key;
 
 	private int m_mode = R.id.item_show_purchased;
@@ -57,9 +58,10 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		if (intent != null) {
 			m_request = intent.getIntExtra("request", 0);
 			m_part = intent.getIntExtra("part", 0);
+			m_group = intent.getIntExtra("group", -1);
 			m_key = String.format("vocal%d", m_request);
 			Module module = DdN.getModule(intent.getStringExtra(m_key));
-			if (module != null) {
+			if (module != null && (m_group < 0 || m_group == DdN.getModuleGroup(module))) {
 				ExpandableListView listView = getExpandableListView();
 				listView.addHeaderView(getModuleView(this, module, null, listView), module, true);
 				listView.setOnItemClickListener(this);
@@ -128,6 +130,8 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			data.putExtra(m_key, module.id);
 			if (m_request < m_part) {
 				data.putExtra("request", m_request+1);
+				if (data.getBooleanExtra("same", false))
+					data.putExtra("group", DdN.getModuleGroup(module));
 				startActivityForResult(data, R.id.item_set_module);
 			}
 			else {
@@ -184,6 +188,8 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 	private List<Group> reconstruct(List<ModuleGroup> groups) {
 		List<Group> result = new ArrayList<Group>(groups.size());
 		for (ModuleGroup group: groups) {
+			if (m_group >= 0 && m_group != group.id)
+				continue;
 			Group g = new Group();
 			g.group = group;
 			g.modules = group.modules;

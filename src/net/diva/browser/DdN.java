@@ -172,6 +172,14 @@ public class DdN extends Application {
 		return -1;
 	}
 
+	public static int getModuleGroup(Module module) {
+		for (ModuleGroup group: getModules()) {
+			if (group.modules.contains(module))
+				return group.id;
+		}
+		return -1;
+	}
+
 	public static void registerObserver(Observer observer) {
 		synchronized (s_instance.m_observers) {
 			s_instance.m_observers.add(observer);

@@ -3,6 +3,7 @@ package net.diva.browser;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.SkinInfo;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.settings.ModuleListActivity;
@@ -40,8 +41,12 @@ public class MusicDetailActivity extends Activity {
 				setModule(data);
 			break;
 		case R.id.item_set_skin:
-			if (resultCode == RESULT_OK)
-				setSkin(data);
+			if (resultCode == RESULT_OK) {
+				if (data.getBooleanExtra("setNoUse", false))
+					setSkinNoUse();
+				else
+					setSkin(data);
+			}
 			break;
 		case R.id.item_set_button_se:
 			if (resultCode == RESULT_OK)
@@ -142,7 +147,18 @@ public class MusicDetailActivity extends Activity {
 	 * ---------------------------------------------------------------------- */
 	public void setSkin(View view) {
 		Intent intent = new Intent(getApplicationContext(), SkinListActivity.class);
+		intent.putExtra("hasNoUse", true);
 		startActivityForResult(intent, R.id.item_set_skin);
+	}
+
+	private void setSkinNoUse() {
+		confirm(R.string.message_set_skin, new Task() {
+			public void run(ServiceClient service) throws Exception {
+				service.setSkinNoUse(m_music.id);
+				m_music.skin = SkinInfo.NO_USE;
+				m_store.updateSkin(m_music);
+			}
+		});
 	}
 
 	private void setSkin(Intent data) {

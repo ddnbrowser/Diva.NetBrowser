@@ -404,6 +404,10 @@ public class ServiceClient {
 		resetSkin("COMMON");
 	}
 
+	public void setSkinNoUse(String music_id) throws IOException {
+		postTo(String.format("/divanet/skin/noUse/%s/0/0", music_id));
+	}
+
 	public void setSkin(String music_id, String group_id, String skin_id) throws IOException {
 		postTo(String.format("/divanet/skin/update/%s/%s/%s/0", music_id, skin_id, group_id));
 	}

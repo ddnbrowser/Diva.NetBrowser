@@ -27,13 +27,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemClickListener;
 
-public class SkinListActivity extends ExpandableListActivity {
+public class SkinListActivity extends ExpandableListActivity implements OnItemClickListener {
 	private static final Pattern RE_NAME = Pattern.compile("(.+)(\\[.+\\])");
 
 	private class Skin {
@@ -62,6 +64,12 @@ public class SkinListActivity extends ExpandableListActivity {
 		setContentView(R.layout.skin_list);
 		m_store = LocalStore.instance(this);
 
+		if (getIntent().getBooleanExtra("hasNoUse", false)) {
+			ExpandableListView list = getExpandableListView();
+			list.addHeaderView(noUseSkinView(list));
+			list.setOnItemClickListener(this);
+		}
+
 		m_skins = reconstruct(m_store.loadSkins());
 		m_purchased = filter(m_skins.values(), true);
 
@@ -74,6 +82,11 @@ public class SkinListActivity extends ExpandableListActivity {
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		outState.putInt("displayMode", m_mode);
+	}
+
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+		setResult(RESULT_OK, new Intent().putExtra("setNoUse", true));
+		finish();
 	}
 
 	@Override
@@ -141,6 +154,14 @@ public class SkinListActivity extends ExpandableListActivity {
 		}
 
 		return true;
+	}
+
+	private View noUseSkinView(ViewGroup parent) {
+		LayoutInflater infralter = LayoutInflater.from(this);
+		View view = infralter.inflate(android.R.layout.simple_list_item_1, parent, false);
+		TextView text1 = (TextView)view.findViewById(android.R.id.text1);
+		text1.setText(R.string.no_use_skin);
+		return view;
 	}
 
 	private void refresh(int mode) {

@@ -7,6 +7,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
 public class SkinInfo {
+	public static final String NO_USE = "NO_USE";
+
 	public String group_id;
 	public String id;
 	public String name;

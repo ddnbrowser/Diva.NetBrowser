@@ -69,6 +69,8 @@ public class ConfigSyncIndividual extends ConfigItem {
 	private String skinId(String name) {
 		if (name == null)
 			return null;
+		if (name.equals("使用しない"))
+			return SkinInfo.NO_USE;
 
 		for (SkinInfo skin: m_skins) {
 			if (name.equals(skin.name))

@@ -40,9 +40,17 @@ public class SettingsActivity extends PreferenceActivity {
 	private void addMyLists(final ListPreference lp) {
 		List<CharSequence> names = new ArrayList<CharSequence>(Arrays.asList(lp.getEntries()));
 		List<CharSequence> values = new ArrayList<CharSequence>(Arrays.asList(lp.getEntryValues()));
+		int index = values.indexOf("mylist");
+		if (index == -1)
+			index = values.size();
+		else {
+			names.remove(index);
+			values.remove(index);
+		}
 		for (MyList mylist: DdN.getLocalStore().loadMyLists()) {
-			names.add(mylist.name);
-			values.add(mylist.tag);
+			names.add(index, mylist.name);
+			values.add(index, mylist.tag);
+			++index;
 		}
 		lp.setEntries(names.toArray(new CharSequence[names.size()]));
 		lp.setEntryValues(values.toArray(new CharSequence[values.size()]));

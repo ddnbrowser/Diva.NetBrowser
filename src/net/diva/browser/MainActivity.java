@@ -1,7 +1,9 @@
 package net.diva.browser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.db.LocalStore;
@@ -53,8 +55,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		host.setOnTabChangedListener(this);
 		TabWidget widget = getTabWidget();
 
-		addFixedTabs(host);
-		addMyListTabs(host, widget);
+		addTabs(host, widget);
 
 		final int width = getResources().getDimensionPixelSize(R.dimen.tab_width);
 		for (int i = 0; i < widget.getTabCount(); ++i)
@@ -162,22 +163,26 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		}
 	}
 
-	private void addFixedTabs(TabHost host) {
+	private void addTabs(TabHost host, TabWidget widget) {
 		final Context context = getApplicationContext();
 		final Resources resources = getResources();
 
 		String[] tags = resources.getStringArray(R.array.tab_tags);
 		String[] names = resources.getStringArray(R.array.tab_names);
 		TypedArray icons = resources.obtainTypedArray(R.array.tab_icons);
-		Intent[] intents = {
-				new Intent(context, InformationActivity.class),
-				new Intent(context, AllMusicActivity.class),
-		};
+		Map<String, Intent> intents = new HashMap<String, Intent>();
+		intents.put("information", new Intent(context, InformationActivity.class));
+		intents.put("all", new Intent(context, AllMusicActivity.class));
 
 		for (int i = 0; i < tags.length; ++i) {
-			TabHost.TabSpec tab = host.newTabSpec(tags[i]);
+			final String tag = tags[i];
+			if ("mylist".equals(tag)) {
+				addMyListTabs(host, widget);
+				continue;
+			}
+			TabHost.TabSpec tab = host.newTabSpec(tag);
 			tab.setIndicator(names[i], icons.getDrawable(i));
-			tab.setContent(intents[i].putExtra("tag", tags[i]));
+			tab.setContent(intents.get(tag).putExtra("tag", tag));
 			host.addTab(tab);
 		}
 		icons.recycle();

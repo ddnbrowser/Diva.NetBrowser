@@ -684,6 +684,7 @@ public class LocalStore extends ContextWrapper {
 			db.execSQL(MusicTable.create_statement());
 			db.execSQL(ScoreTable.create_statement());
 			db.execSQL(TitleTable.create_statement());
+			db.execSQL(DecorTitleTable.create_statement());
 			db.execSQL(ModuleGroupTable.create_statement());
 			db.execSQL(ModuleTable.create_statement());
 			db.execSQL(SkinTable.create_statement());

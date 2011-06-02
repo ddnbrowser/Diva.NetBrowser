@@ -22,6 +22,7 @@
     <string name="item_play_history">プレイ履歴</string>
     <string name="item_contest">コンテスト情報</string>
     <string name="item_statistics">クリア統計情報</string>
+    <string name="item_check_record">クリア判定</string>
     <string name="item_game_settings">ゲーム設定</string>
     <string name="item_tool_settings">ツール設定</string>
     <string name="item_mylist">マイリスト管理</string>

@@ -118,6 +118,9 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		case R.id.item_statistics:
 			WebBrowseActivity.open(this, "/divanet/pv/statistics/");
 			break;
+		case R.id.item_check_record:
+			WebBrowseActivity.open(this, "/divanet/record/check/");
+			break;
 		case R.id.item_game_settings: {
 			Intent intent = new Intent(getApplicationContext(), CommonConfigActivity.class);
 			startActivity(intent);

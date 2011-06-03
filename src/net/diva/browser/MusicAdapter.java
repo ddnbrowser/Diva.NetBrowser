@@ -4,15 +4,19 @@
 package net.diva.browser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.ScoreRecord;
-import net.diva.browser.util.StringUtils;
 import net.diva.browser.util.ReverseComparator;
+import net.diva.browser.util.SortableListView;
+import net.diva.browser.util.StringUtils;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
@@ -20,12 +24,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-class MusicAdapter extends BaseAdapter implements Filterable {
+class MusicAdapter extends BaseAdapter implements Filterable, SortableListView.DragListener {
 	private int m_itemLayout = R.layout.music_item;
 
 	private Context m_context;
@@ -42,6 +47,8 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 	private int m_difficulty;
 	private SortOrder m_sortOrder;
 	private boolean m_reverseOrder;
+
+	private int m_dragging = -1;
 
 	public MusicAdapter(Context context) {
 		super();
@@ -71,6 +78,10 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 
 	public long getItemId(int position) {
 		return position;
+	}
+
+	public int getLayout() {
+		return m_itemLayout;
 	}
 
 	public boolean setLayout(int resId) {
@@ -173,6 +184,7 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			holder = new Holder(view);
 			view.setTag(holder);
 		}
+		view.setVisibility(position == m_dragging ? View.INVISIBLE : View.VISIBLE);
 
 		MusicInfo music = getItem(position);
 		if (music != null)
@@ -341,6 +353,27 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 		};
 	}
 
+	public void selectSortOrder() {
+		final List<String> values = Arrays.asList(m_context.getResources().getStringArray(R.array.sort_order_values));
+		final int checked = values.indexOf(sortOrder().name());
+
+		View custom = LayoutInflater.from(m_context).inflate(R.layout.descending_order, null);
+		final CheckBox descending = (CheckBox)custom.findViewById(R.id.descending);
+		descending.setChecked(isReverseOrder());
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(m_context);
+		builder.setTitle(R.string.item_sort);
+		builder.setSingleChoiceItems(R.array.sort_order_names, checked,
+				new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				sortBy(SortOrder.valueOf(values.get(which)), descending.isChecked());
+				dialog.dismiss();
+			}
+		});
+		builder.setView(custom);
+		builder.show();
+	}
+
 	public Filter getFilter() {
 		if (m_filter == null)
 			m_filter = new MusicFilter();
@@ -397,5 +430,29 @@ class MusicAdapter extends BaseAdapter implements Filterable {
 			else
 				notifyDataSetInvalidated();
 		}
+	}
+
+	public int onStartDrag(int position) {
+		m_dragging = position;
+		notifyDataSetChanged();
+		return position;
+	}
+
+	public int onDuringDrag(int positionFrom, int positionTo) {
+		if (positionFrom < 0 || positionTo < 0
+				|| positionFrom == positionTo) {
+			return positionFrom;
+		}
+       	MusicInfo m = m_musics.remove(positionFrom);
+       	m_musics.add(positionTo, m);
+       	m_dragging = positionTo;
+       	notifyDataSetChanged();
+		return positionTo;
+	}
+
+	public boolean onStopDrag(int positionFrom, int positionTo) {
+		m_dragging = -1;
+		notifyDataSetChanged();
+		return true;
 	}
 }

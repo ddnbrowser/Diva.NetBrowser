@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<view xmlns:android="http://schemas.android.com/apk/res/android"
+	class="net.diva.browser.util.CheckedFrameLayout"
 	android:layout_height="wrap_content"
 	android:layout_width="fill_parent"
 	android:paddingRight="6dip"
+	>
+<RelativeLayout
+	android:layout_height="wrap_content"
+	android:layout_width="fill_parent"
 	>
 	<ImageView
 		android:id="@+id/cover_art"
@@ -98,3 +103,4 @@
 		android:visibility="visible"
 		/>
 </RelativeLayout>
+</view>

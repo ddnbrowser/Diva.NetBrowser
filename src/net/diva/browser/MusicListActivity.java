@@ -1,6 +1,5 @@
 package net.diva.browser;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.diva.browser.common.DownloadPlayRecord;
@@ -32,7 +31,6 @@ import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
@@ -124,7 +122,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 			activateTextFilter();
 			break;
 		case R.id.item_sort:
-			selectSortOrder();
+			m_adapter.selectSortOrder();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -234,27 +232,6 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 				imm.showSoftInput(getListView(), InputMethodManager.SHOW_IMPLICIT);
 			}
 		}, 100);
-	}
-
-	private void selectSortOrder() {
-		final List<String> values = Arrays.asList(getResources().getStringArray(R.array.sort_order_values));
-		final int checked = values.indexOf(m_adapter.sortOrder().name());
-
-		View custom = getLayoutInflater().inflate(R.layout.descending_order, null);
-		final CheckBox descending = (CheckBox)custom.findViewById(R.id.descending);
-		descending.setChecked(m_adapter.isReverseOrder());
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.item_sort);
-		builder.setSingleChoiceItems(R.array.sort_order_names, checked,
-				new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				m_adapter.sortBy(SortOrder.valueOf(values.get(which)), descending.isChecked());
-				dialog.dismiss();
-			}
-		});
-		builder.setView(custom);
-		builder.show();
 	}
 
 	private void editMyList(final MusicInfo music) {

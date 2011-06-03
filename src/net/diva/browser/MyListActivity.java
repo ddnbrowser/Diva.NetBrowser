@@ -1,6 +1,7 @@
 package net.diva.browser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.diva.browser.model.MusicInfo;
@@ -23,6 +24,7 @@ import android.widget.Toast;
 public class MyListActivity extends MusicListActivity {
 	private MyList m_myList;
 	private List<MusicInfo> m_musics;
+	private List<String> m_ids;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +58,9 @@ public class MyListActivity extends MusicListActivity {
 		case R.id.item_edit_name:
 			editMyListName();
 			break;
+		case R.id.item_edit_mylist:
+			startEdit();
+			break;
 		case R.id.item_delete_mylist:
 			deleteMyList();
 			break;
@@ -72,10 +77,25 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case R.id.item_edit_mylist:
+			if (resultCode == RESULT_OK) {
+				new UpdateMyList().execute(data.getStringArrayExtra("ids"));
+				return;
+			}
+			break;
+		default:
+			break;
+		}
+		super.onActivityResult(requestCode, resultCode, data);
+	}
+
+	@Override
 	public void onUpdate(PlayRecord record, boolean noMusic) {
-		List<String> ids = m_store.loadMyList(m_myList.id);
-		List<MusicInfo> musics = new ArrayList<MusicInfo>(ids.size());
-		for (String id: ids)
+		m_ids = m_store.loadMyList(m_myList.id);
+		List<MusicInfo> musics = new ArrayList<MusicInfo>(m_ids.size());
+		for (String id: m_ids)
 			musics.add(record.getMusic(id));
 		m_musics = musics;
 
@@ -123,6 +143,21 @@ public class MyListActivity extends MusicListActivity {
 		});
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.show();
+	}
+
+	private void startEdit() {
+		ArrayList<String> ids;
+		if (m_musics instanceof ArrayList<?>)
+			ids = (ArrayList<String>)m_ids;
+		else
+			ids = new ArrayList<String>(m_ids);
+
+		Intent intent = new Intent(getApplicationContext(), MyListEditActivity.class);
+		intent.putExtra("name", m_myList.name);
+		intent.putStringArrayListExtra("ids", ids);
+		intent.putExtra("layout", m_adapter.getLayout());
+		intent.putExtra("difficulty", m_adapter.getDifficulty());
+		startActivityForResult(intent, R.id.item_edit_mylist);
 	}
 
 	private void deleteMyList() {
@@ -199,6 +234,37 @@ public class MyListActivity extends MusicListActivity {
 			if (result != null)
 				DdN.notifyChanged(result, false);
 		}
+	}
+
+	private class UpdateMyList extends ServiceTask<String, Void, MyList> {
+		public UpdateMyList() {
+			super(MyListActivity.this, R.string.message_updating);
+		}
+
+		@Override
+		protected MyList doTask(ServiceClient service, String... ids) throws Exception {
+			boolean isActive = m_myList.id == m_store.getActiveMyList();
+			if (isActive)
+				service.activateMyList(m_myList.id == 0 ? 1 : 0);
+
+			service.deleteMyList(m_myList.id);
+			service.renameMyList(m_myList.id, m_myList.name);
+			for (String id: ids)
+				service.addToMyList(m_myList.id, id);
+			m_store.updateMyList(m_myList.id, Arrays.asList(ids));
+
+			if (isActive)
+				service.activateMyList(m_myList.id);
+
+			return m_myList;
+		}
+
+		@Override
+		protected void onResult(MyList result) {
+			if (result != null)
+				DdN.notifyChanged(result, false);
+		}
+
 	}
 
 	private class DeleteMyList extends ServiceTask<Integer, Void, MyList> {

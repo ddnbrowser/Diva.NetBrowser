@@ -8,6 +8,7 @@
         <menu>
             <item android:id="@+id/item_sync_mylist" android:title="@string/item_sync_mylist"></item>
             <item android:id="@+id/item_edit_name" android:title="@string/item_edit_name"></item>
+            <item android:id="@+id/item_edit_mylist" android:title="@string/item_edit_mylist"></item>
             <item android:id="@+id/item_delete_mylist" android:title="@string/item_delete"></item>
             <item android:id="@+id/item_activate_mylist" android:title="@string/item_activate_mylist"></item>
         </menu>

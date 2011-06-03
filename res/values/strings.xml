@@ -30,7 +30,7 @@
     <string name="item_edit_name">マイリスト名を編集</string>
     <string name="item_delete">マイリスト削除</string>
     <string name="item_activate_mylist">筐体で使用</string>
-    <string name="item_edit_mylist">マイリスト</string>
+    <string name="item_edit_mylist">マイリスト編集</string>
     <string name="item_edit_reading">読み仮名編集</string>
     <string name="item_ranking">ランキング表示</string>
     <string name="item_copy_title">曲名をコピー</string>

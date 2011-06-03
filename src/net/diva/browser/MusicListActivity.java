@@ -148,9 +148,6 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		case R.id.item_update:
 			updateMusic(music);
 			return true;
-		case R.id.item_edit_mylist:
-			editMyList(music);
-			return true;
 		case R.id.item_edit_reading:
 			editTitleReading(music);
 			return true;
@@ -232,29 +229,6 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 				imm.showSoftInput(getListView(), InputMethodManager.SHOW_IMPLICIT);
 			}
 		}, 100);
-	}
-
-	private void editMyList(final MusicInfo music) {
-		final List<MyList> myLists = m_store.loadMyLists();
-		final int size = myLists.size();
-		CharSequence[] items = new CharSequence[size];
-		for (int i = 0; i < size; ++i)
-			items[i] = myLists.get(i).name;
-		final boolean[] values = m_store.containedInMyLists(myLists, music.id);
-		final boolean[] before = values.clone();
-
-		AlertDialog.Builder b = new AlertDialog.Builder(this);
-		b.setTitle(music.title);
-		b.setMultiChoiceItems(items, values, new DialogInterface.OnMultiChoiceClickListener() {
-			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-			}
-		});
-		b.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				new UploadMyListTask(myLists, music).execute(before, values);
-			}
-		});
-		b.show();
 	}
 
 	private void editTitleReading(final MusicInfo music) {
@@ -441,36 +415,6 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		protected void onResult(Boolean result) {
 			if (result != null && result)
 				DdN.notifyPlayRecordChanged();
-		}
-	}
-
-	private class UploadMyListTask extends ServiceTask<boolean[], Void, Boolean> {
-		List<MyList> m_myLists;
-		MusicInfo m_music;
-
-		public UploadMyListTask(List<MyList> myLists, MusicInfo music) {
-			super(MusicListActivity.this, R.string.message_updating);
-			m_myLists = myLists;
-			m_music = music;
-		}
-
-		@Override
-		protected Boolean doTask(ServiceClient service, boolean[]... params) throws Exception {
-			boolean[] oldValues = params[0];
-			boolean[] newValues = params[1];
-			for (int i = 0; i < oldValues.length; ++i) {
-				if (oldValues[i] == newValues[i])
-					continue;
-				MyList myList = m_myLists.get(i);
-				if (newValues[i])
-					service.addToMyList(myList.id, m_music.id);
-				else
-					service.removeFromMyList(myList.id, m_music.id);
-
-				m_store.updateMyList(myList.id, service.getMyListEntries(myList.id));
-				DdN.notifyChanged(myList, false);
-			}
-			return Boolean.TRUE;
 		}
 	}
 }

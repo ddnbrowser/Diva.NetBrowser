@@ -595,33 +595,6 @@ public class LocalStore extends ContextWrapper {
 		return mylist;
 	}
 
-	public boolean[] containedInMyLists(List<MyList> myLists, String music_id) {
-		final int size = myLists.size();
-		boolean[] values = new boolean[size];
-
-		SQLiteDatabase db = m_helper.getReadableDatabase();
-		Cursor c = db.query(MyListEntryTable.TABLE_NAME, new String[] {
-				MyListEntryTable.ID,
-		}, MyListEntryTable.WHERE_BY_MUSIC, new String[] { music_id },
-		null, null, MyListEntryTable.ID);
-		try {
-			while (c.moveToNext()) {
-				int id = c.getInt(0);
-				for (int i = 0; i < size; ++i) {
-					if (myLists.get(i).id == id) {
-						values[i] = true;
-						break;
-					}
-				}
-			}
-		}
-		finally {
-			c.close();
-		}
-
-		return values;
-	}
-
 	public void updateMyList(MyList myList) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();

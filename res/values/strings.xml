@@ -79,7 +79,7 @@
     <string name="summary_reset_individual">全楽曲の楽曲別設定を未設定にします</string>
     <string name="message_reset_individual">全楽曲の楽曲別設定を未設定にします。ボタン音は楽曲ごとの初期設定に戻ります。\nよろしいですか?</string>
     <string name="description_sync_individual">サーバーと同期</string>
-    <string name="summary_sync_individual">サーバーから楽曲別設定を取得します</string>
+    <string name="summary_sync_individual">既に端末にあるモジュール等しか取得しません。予め個々の一覧等で更新が必要です</string>
     <string name="message_sync_individual">サーバーから楽曲別設定を取得します。よろしいですか?</string>
     <string name="category_activation_individual">ON/OFF設定</string>
     <string name="summary_activation_individual">OFFにした場合、共通設定が全楽曲に適用されます</string>

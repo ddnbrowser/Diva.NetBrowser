@@ -279,8 +279,6 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 			if (music != null) {
 				Intent i = new Intent(getApplicationContext(), MusicDetailActivity.class);
 				i.putExtra("id", music.id);
-				i.putExtra("title", music.title);
-				i.putExtra("coverart", music.getCoverArtPath(getApplicationContext()).getAbsolutePath());
 				startActivity(i);
 				return true;
 			}

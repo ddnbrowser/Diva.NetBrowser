@@ -29,7 +29,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 20;
+	private static final int VERSION = 21;
 
 	private static LocalStore m_instance;
 
@@ -647,6 +647,46 @@ public class LocalStore extends ContextWrapper {
 		editor.commit();
 	}
 
+	public List<String> getDIVARecords() {
+		List<String> records = new ArrayList<String>();
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(RecordTable.TABLE_NAME, new String[] {
+				RecordTable.CONTENT,
+		}, null, null, null, null, RecordTable._ID);
+		try {
+			while (c.moveToNext())
+				records.add(c.getString(0));
+		}
+		finally {
+			c.close();
+		}
+
+		return records;
+	}
+
+	public void updateDIVARecords(List<String> records) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		db.beginTransaction();
+		try {
+			final int count = records.size();
+			int id = 0;
+			for (; id < count; ++id) {
+				if (!RecordTable.update(db, id, records.get(id)))
+					break;
+			}
+			for (; id < count; ++id) {
+				if (RecordTable.insert(db, id, records.get(id)) < 0)
+					return;
+			}
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			db.close();
+		}
+	}
+
 	private static class OpenHelper extends SQLiteOpenHelper {
 		public OpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
@@ -664,6 +704,7 @@ public class LocalStore extends ContextWrapper {
 			db.execSQL(ButtonSETable.create_statement());
 			db.execSQL(MyListTable.create_statement());
 			db.execSQL(MyListEntryTable.create_statement());
+			db.execSQL(RecordTable.create_statement());
 			initializeMyList(db);
 		}
 
@@ -711,6 +752,8 @@ public class LocalStore extends ContextWrapper {
 				db.execSQL(DecorTitleTable.create_statement());
 			case 19:
 				MusicTable.addVoiceColumns(db);
+			case 20:
+				db.execSQL(RecordTable.create_statement());
 			default:
 				break;
 			}

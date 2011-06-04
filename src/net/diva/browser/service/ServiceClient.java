@@ -303,6 +303,18 @@ public class ServiceClient {
 		return settings;
 	}
 
+	public List<String> getDIVARecords() throws IOException {
+		List<String> records = new ArrayList<String>();
+		String path = "/divanet/record/list/0";
+		while (path != null)
+			path = Parser.RecordParser.parseList(getFrom(path), records);
+		return records;
+	}
+
+	public boolean checkDIVARecord() throws IOException {
+		return Parser.RecordParser.parseResult(getFrom("/divanet/record/check/"));
+	}
+
 	private InputStream getFrom(String relative, Object... args) throws IOException {
 		return getFrom(String.format(relative, args));
 	}

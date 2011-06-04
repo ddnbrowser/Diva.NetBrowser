@@ -293,6 +293,33 @@ public final class Parser {
 		}
 	}
 
+	public static class RecordParser {
+		private static Pattern RE_RECORD = Pattern.compile("<hr>(\\s*(.+<br>)\\s*(.+<br>))?\\s*(.+)<br>\\s*(?=<hr>)");
+		private static String NO_UPDATE = "プレイ履歴が更新されていません";
+
+		public static String parseList(InputStream content, List<String> records) {
+			String body = read(content);
+			Matcher m = RE_RECORD.matcher(body);
+			while (m.find()) {
+				StringBuilder b = new StringBuilder();
+				if (m.group(1) != null) {
+					b.append(m.group(2));
+					b.append(m.group(3));
+				}
+				b.append(m.group(4));
+				records.add(b.toString());
+			}
+
+			m = m.usePattern(RE_NEXT);
+			return m.find() ? m.group(1) : null;
+		}
+
+		public static boolean parseResult(InputStream content) {
+			String body = read(content);
+			return !body.contains(NO_UPDATE);
+		}
+	}
+
 	private static final Pattern RE_SETTING_MODULE = Pattern.compile("/divanet/module/selectPv/(\\w+)/\\d+\">(.*)</a>");
 	private static final Pattern RE_SETTING_SKIN = Pattern.compile("/divanet/skin/list/(\\w+)/\\d+/\\d+\">(.*)</a>");
 	private static final Pattern RE_SETTING_BUTTON = Pattern.compile("/divanet/buttonSE/list/(\\w+)/\\d+/\\d+\">(.*)</a>");

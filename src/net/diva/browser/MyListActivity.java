@@ -42,10 +42,8 @@ public class MyListActivity extends MusicListActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		if (m_musics.isEmpty())
-			menu.findItem(R.id.item_activate_mylist).setEnabled(false);
-		if (!DdN.isAllowUpdateMusics(m_preferences))
-			menu.findItem(R.id.item_update_bulk).setEnabled(false);
+		menu.findItem(R.id.item_activate_mylist).setEnabled(!m_musics.isEmpty());
+		menu.findItem(R.id.item_update_bulk).setEnabled(DdN.isAllowUpdateMusics(m_preferences));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -244,8 +242,6 @@ public class MyListActivity extends MusicListActivity {
 		@Override
 		protected MyList doTask(ServiceClient service, String... ids) throws Exception {
 			boolean isActive = m_myList.id == m_store.getActiveMyList();
-			if (isActive)
-				service.activateMyList(m_myList.id == 0 ? 1 : 0);
 
 			service.deleteMyList(m_myList.id);
 			service.renameMyList(m_myList.id, m_myList.name);

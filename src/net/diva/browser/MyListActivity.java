@@ -65,9 +65,6 @@ public class MyListActivity extends MusicListActivity {
 		case R.id.item_activate_mylist:
 			activateMyList();
 			break;
-		case R.id.item_update_bulk:
-			updateMusics(m_musics);
-			break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -111,7 +108,7 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	@Override
-	protected List<MusicInfo> getMusics(PlayRecord record) {
+	protected List<MusicInfo> getMusics() {
 		return m_musics;
 	}
 

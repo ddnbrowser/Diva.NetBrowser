@@ -2,6 +2,7 @@
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/item_update" android:title="@string/item_update_selction"></item>
+    <item android:id="@+id/item_select" android:title="@string/item_select"></item>
 	<item android:id="@+id/item_edit_reading" android:title="@string/item_edit_reading"></item>
     <item android:id="@+id/item_copy_title" android:title="@string/item_copy_title"></item>
     <item android:id="@+id/item_ranking" android:title="@string/item_ranking"></item>

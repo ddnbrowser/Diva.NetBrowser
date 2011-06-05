@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.common.DownloadPlayRecord;
@@ -9,6 +10,7 @@ import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
+import net.diva.browser.util.CheckedFrameLayout;
 import net.diva.browser.util.StringUtils;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -28,6 +30,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -37,6 +40,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 
 public abstract class MusicListActivity extends ListActivity implements DdN.Observer {
 	protected View m_buttons[];
+	protected ListView m_list;
 	protected MusicAdapter m_adapter;
 	protected Handler m_handler = new Handler();
 
@@ -44,18 +48,19 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	protected SharedPreferences m_localPrefs;
 	protected LocalStore m_store;
 
+	protected List<MusicInfo> m_selections = new ArrayList<MusicInfo>();
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.music_list);
-		registerForContextMenu(getListView());
 
 		m_preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		m_localPrefs = getSharedPreferences(getIntent().getStringExtra("tag"), MODE_PRIVATE);
 		m_store = LocalStore.instance(this);
 
-		m_adapter = new MusicAdapter(this);
+		m_adapter = new MyAdapter(this);
 		setListAdapter(m_adapter);
 
 		m_buttons = new View[] {
@@ -72,10 +77,12 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 				}
 			});
 		}
-		ListView list = getListView();
-		list.setFocusable(true);
-		list.setTextFilterEnabled(true);
-		list.setOnTouchListener(new OnTouchListener());
+
+		m_list = getListView();
+		m_list.setFocusable(true);
+		m_list.setTextFilterEnabled(true);
+		m_list.setOnTouchListener(new OnTouchListener());
+		registerForContextMenu(m_list);
 	}
 
 	@Override
@@ -115,6 +122,15 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		case R.id.item_update_all:
 			updateAll();
 			break;
+		case R.id.item_update_bulk:
+			if (isSelectionMode()) {
+				updateMusics(m_selections);
+				setSelectionMode(false);
+			}
+			else {
+				updateMusics(getMusics());
+			}
+			break;
 		case R.id.item_update_new:
 			new UpdateNewTask().execute();
 			break;
@@ -148,6 +164,11 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		case R.id.item_update:
 			updateMusic(music);
 			return true;
+		case R.id.item_select:
+			m_selections.add(music);
+			if (!isSelectionMode())
+				setSelectionMode(true);
+			return true;
 		case R.id.item_edit_reading:
 			editTitleReading(music);
 			return true;
@@ -172,7 +193,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		if (noMusic)
 			m_adapter.notifyDataSetChanged();
 		else {
-			m_adapter.setData(getMusics(record));
+			m_adapter.setData(getMusics());
 			m_adapter.update();
 		}
 	}
@@ -195,7 +216,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		return String.format("%s %s (-%dpts)", record.level, title, next[0]);
 	}
 
-	protected abstract List<MusicInfo> getMusics(PlayRecord record);
+	protected abstract List<MusicInfo> getMusics();
 
 	protected void makeTitle(StringBuilder title, PlayRecord record) {
 		title.append(rankText(record, record.title));
@@ -222,11 +243,11 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	}
 
 	private void activateTextFilter() {
-		getListView().requestFocus();
+		m_list.requestFocus();
 		m_handler.postDelayed(new Runnable() {
 			public void run() {
 				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-				imm.showSoftInput(getListView(), InputMethodManager.SHOW_IMPLICIT);
+				imm.showSoftInput(m_list, InputMethodManager.SHOW_IMPLICIT);
 			}
 		}, 100);
 	}
@@ -254,6 +275,28 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		builder.show();
 	}
 
+	@Override
+	protected void onListItemClick(ListView list, View v, int position, long id) {
+		MusicInfo music = m_adapter.getItem(position);
+		if (music == null)
+			return;
+
+		if (isSelectionMode()) {
+			if (list.isItemChecked(position))
+				m_selections.add(music);
+			else {
+				m_selections.remove(music);
+				if (m_selections.isEmpty())
+					setSelectionMode(false);
+			}
+		}
+		else {
+			Intent i = new Intent(getApplicationContext(), MusicDetailActivity.class);
+			i.putExtra("id", music.id);
+			startActivity(i);
+		}
+	}
+
 	private class OnTouchListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
 		private GestureDetector m_detector;
 
@@ -266,7 +309,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		}
 
 		private MusicInfo getItem(MotionEvent e) {
-			int position = getListView().pointToPosition((int)e.getX(), (int)e.getY());
+			int position = m_list.pointToPosition((int)e.getX(), (int)e.getY());
 			if (position != AdapterView.INVALID_POSITION)
 				return m_adapter.getItem(position);
 			else
@@ -274,21 +317,9 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		}
 
 		@Override
-		public boolean onSingleTapConfirmed(MotionEvent e) {
-			MusicInfo music = getItem(e);
-			if (music != null) {
-				Intent i = new Intent(getApplicationContext(), MusicDetailActivity.class);
-				i.putExtra("id", music.id);
-				startActivity(i);
-				return true;
-			}
-			return super.onSingleTapConfirmed(e);
-		}
-
-		@Override
 		public boolean onDoubleTap(MotionEvent e) {
 			MusicInfo music = getItem(e);
-			if (music != null) {
+			if (music != null && !isSelectionMode()) {
 				new UpdateSingleMusic().execute(music);
 				return true;
 			}
@@ -413,6 +444,43 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		protected void onResult(Boolean result) {
 			if (result != null && result)
 				DdN.notifyPlayRecordChanged();
+		}
+	}
+
+	protected boolean isSelectionMode() {
+		return getListView().getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE;
+	}
+
+	protected void setSelectionMode(boolean on) {
+		if (on) {
+			m_list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		}
+		else {
+			m_list.setChoiceMode(ListView.CHOICE_MODE_NONE);
+			m_selections.clear();
+		}
+		m_adapter.notifyDataSetChanged();
+	}
+
+	private class MyAdapter extends MusicAdapter {
+		MyAdapter(Context context) {
+			super(context);
+		}
+
+		@Override
+		public View getView(int position, View view, ViewGroup parent) {
+			view = super.getView(position, view, parent);
+			if (view instanceof CheckedFrameLayout) {
+				if (isSelectionMode()) {
+					((CheckedFrameLayout) view).setCheckMarkDrawable(R.drawable.btn_check);
+					MusicInfo music = getItem(position);
+					m_list.setItemChecked(position, m_selections.contains(music));
+				}
+				else {
+					((CheckedFrameLayout) view).setCheckMarkDrawable(0);
+				}
+			}
+			return view;
 		}
 	}
 }

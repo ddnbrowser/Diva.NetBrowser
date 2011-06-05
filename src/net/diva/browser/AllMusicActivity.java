@@ -2,7 +2,6 @@ package net.diva.browser;
 import java.util.List;
 
 import net.diva.browser.model.MusicInfo;
-import net.diva.browser.model.PlayRecord;
 import android.view.Menu;
 
 
@@ -16,13 +15,15 @@ public class AllMusicActivity extends MusicListActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		boolean enable_all = DdN.isAllowUpdateMusics(m_preferences);
-		menu.findItem(R.id.item_update_all).setVisible(enable_all);
-		menu.findItem(R.id.item_update_new).setVisible(!enable_all);
+		boolean update = DdN.isAllowUpdateMusics(m_preferences);
+		boolean selection = isSelectionMode();
+		menu.findItem(R.id.item_update_all).setVisible(update && !selection);
+		menu.findItem(R.id.item_update_bulk).setVisible(update && selection);
+		menu.findItem(R.id.item_update_new).setVisible(!update);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
-	protected List<MusicInfo> getMusics(PlayRecord record) {
-		return record.musics;
+	protected List<MusicInfo> getMusics() {
+		return DdN.getPlayRecord().musics;
 	}
 }

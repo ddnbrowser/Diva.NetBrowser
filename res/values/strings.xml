@@ -123,5 +123,5 @@
     <string name="edit_mylist_name">マイリスト名編集</string>
     <string name="message_edit_mylist_name">使用できる文字数は全角と半角カタカナは20文字以内、半角英数と記号は40文字以内です。</string>
     <string name="no_records">レコードがありません。\nメニューを開いて更新を選択して下さい</string>
-    <string name="no_records_updated">プレイ履歴が更新されていません</string>
+    <string name="no_records_updated">新たにクリアしたレコードはありません</string>
 </resources>

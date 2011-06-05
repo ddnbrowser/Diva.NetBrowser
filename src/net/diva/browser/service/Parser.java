@@ -295,7 +295,6 @@ public final class Parser {
 
 	public static class RecordParser {
 		private static Pattern RE_RECORD = Pattern.compile("<hr>(\\s*(.+<br>)\\s*(.+<br>))?\\s*(.+)<br>\\s*(?=<hr>)");
-		private static String NO_UPDATE = "プレイ履歴が更新されていません";
 
 		public static String parseList(InputStream content, List<String> records) {
 			String body = read(content);
@@ -316,7 +315,8 @@ public final class Parser {
 
 		public static boolean parseResult(InputStream content) {
 			String body = read(content);
-			return !body.contains(NO_UPDATE);
+			Matcher m = RE_RECORD.matcher(body);
+			return m.find();
 		}
 	}
 

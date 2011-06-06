@@ -76,7 +76,7 @@ public class MyListActivity extends MusicListActivity {
 		switch (requestCode) {
 		case R.id.item_edit_mylist:
 			if (resultCode == RESULT_OK) {
-				new UpdateMyList().execute(data.getStringArrayExtra("ids"));
+				new UpdateMyList(data.getStringExtra("name")).execute(data.getStringArrayExtra("ids"));
 				return;
 			}
 			break;
@@ -231,31 +231,44 @@ public class MyListActivity extends MusicListActivity {
 		}
 	}
 
-	private class UpdateMyList extends ServiceTask<String, Void, MyList> {
-		public UpdateMyList() {
+	private class UpdateMyList extends ServiceTask<String, Void, String> {
+		MyList myList;
+
+		public UpdateMyList(String name) {
 			super(MyListActivity.this, R.string.message_updating);
+			myList = new MyList(m_myList.id, name);
 		}
 
 		@Override
-		protected MyList doTask(ServiceClient service, String... ids) throws Exception {
-			boolean isActive = m_myList.id == m_store.getActiveMyList();
+		protected String doTask(ServiceClient service, String... ids) throws Exception {
+			boolean isActive = myList.id == m_store.getActiveMyList();
 
-			service.deleteMyList(m_myList.id);
-			service.renameMyList(m_myList.id, m_myList.name);
-			for (String id: ids)
-				service.addToMyList(m_myList.id, id);
-			m_store.updateMyList(m_myList.id, Arrays.asList(ids));
+			try {
+				service.deleteMyList(myList.id);
 
-			if (isActive)
-				service.activateMyList(m_myList.id);
+				for (String id: ids)
+					service.addToMyList(myList.id, id);
+				m_store.updateMyList(myList.id, Arrays.asList(ids));
 
-			return m_myList;
+				if (isActive)
+					service.activateMyList(myList.id);
+
+				service.renameMyList(m_myList.id, myList.name);
+				m_store.updateMyList(myList);
+
+				DdN.notifyChanged(myList, false);
+				return null;
+			}
+			catch (OperationFailedException e) {
+				DdN.notifyChanged(m_myList, false);
+				return e.getMessage();
+			}
 		}
 
 		@Override
-		protected void onResult(MyList result) {
+		protected void onResult(String result) {
 			if (result != null)
-				DdN.notifyChanged(result, false);
+				Toast.makeText(MyListActivity.this, result, Toast.LENGTH_LONG).show();
 		}
 
 	}

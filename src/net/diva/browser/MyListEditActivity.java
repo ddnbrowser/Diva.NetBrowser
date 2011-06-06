@@ -17,12 +17,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
+import android.widget.EditText;
 import android.widget.ListView;
 
 public class MyListEditActivity extends ListActivity {
 	private View m_commit;
 	private View[] m_selectors;
-
+	private EditText m_edit;
 	private SortableListView m_list;
 	private MusicAdapter m_adapter;
 
@@ -51,6 +52,9 @@ public class MyListEditActivity extends ListActivity {
 		m_musics = new ArrayList<MusicInfo>(ids.size());
 		for (String id: ids)
 			m_musics.add(m_record.getMusic(id));
+
+		m_edit = (EditText)findViewById(R.id.name);
+		m_edit.setText(m_name);
 
 		m_adapter = new EditAdapter(this);
 		m_adapter.setLayout(intent.getIntExtra("layout", R.layout.music_item));
@@ -129,6 +133,7 @@ public class MyListEditActivity extends ListActivity {
 
 		Intent intent = new Intent();
 		intent.putExtra("ids", ids.toArray(new String[ids.size()]));
+		intent.putExtra("name", m_edit.getText().toString());
 		setResult(RESULT_OK, intent);
 		finish();
 	}

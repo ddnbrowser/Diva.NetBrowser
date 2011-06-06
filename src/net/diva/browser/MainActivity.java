@@ -22,12 +22,13 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener, DdN.Observer {
+public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener, DdN.Observer, OnGlobalLayoutListener {
 	private class TabHolder {
 		MyList myList;
 		TextView title;
@@ -54,6 +55,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		TabHost host = getTabHost();
 		host.setOnTabChangedListener(this);
 		TabWidget widget = getTabWidget();
+		widget.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
 		addTabs(host, widget);
 
@@ -80,6 +82,17 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 	protected void onPause() {
 		super.onPause();
 		DdN.unregisterObserver(this);
+	}
+
+	public void onGlobalLayout() {
+		TabWidget widget = getTabWidget();
+		View tab = widget.getChildTabViewAt(getTabHost().getCurrentTab());
+		if (tab == null)
+			return;
+		View base = findViewById(R.id.tabbase);
+		base.scrollTo(tab.getRight() - base.getWidth(), 0);
+
+		widget.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 	}
 
 	@Override

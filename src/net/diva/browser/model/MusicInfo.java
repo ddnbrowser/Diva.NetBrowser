@@ -29,6 +29,10 @@ public class MusicInfo {
 
 	public ScoreRecord[] records;
 
+	public static int maxRankPoint() {
+		return STATUS_POINTS[STATUS_POINTS.length-1] * DIFFICULTY_POINTS[DIFFICULTY_POINTS.length-1];
+	}
+
 	public MusicInfo(String id_, String title_) {
 		id = id_;
 		title = title_;

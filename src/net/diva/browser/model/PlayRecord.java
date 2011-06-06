@@ -26,18 +26,26 @@ public class PlayRecord {
 		return point;
 	}
 
-	public int rank(int[] next) {
+	private int maxRankPoint() {
+		return MusicInfo.maxRankPoint() * musics.size();
+	}
+
+	public int rank(int[] nextOut) {
 		final int[] rank_points = DdN.RANK_POINTS;
+		final int limit = maxRankPoint();
 
-		int point = rankPoint();
+		final int point = rankPoint();
 		int rank = 0;
-		while (rank < rank_points.length && point >= rank_points[rank])
-			point -= rank_points[rank++];
-		rank += point/150;
-		point %= 150;
+		int next = rank_points[0];
+		while (point >= next) {
+			++rank;
+			next += rank < rank_points.length ? rank_points[rank] : 150;
+		}
+		if (next > limit && point == limit)
+			++rank;
 
-		if (next != null && next.length > 0)
-			next[0] = (rank < rank_points.length ? rank_points[rank] : 150) - point;
+		if (nextOut != null && nextOut.length > 0)
+			nextOut[0] = Math.min(next, limit) - point;
 
 		return rank;
 	}

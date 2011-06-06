@@ -213,7 +213,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	private String rankText(PlayRecord record, String title) {
 		int[] next = new int[1];
 		record.rank(next);
-		return String.format("%s %s (-%dpts)", record.level, title, next[0]);
+		return String.format("%s %s (%dpts)", record.level, title, -next[0]);
 	}
 
 	protected abstract List<MusicInfo> getMusics();

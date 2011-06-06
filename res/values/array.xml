@@ -20,7 +20,7 @@
 <string-array name="tab_names">
     <item>プレイヤー情報</item>
     <item>全て</item>
-    <item>マイリスト</item>
+    <item>筐体使用マイリスト</item>
     <item>レコード</item>
 </string-array>
 <array name="tab_icons">

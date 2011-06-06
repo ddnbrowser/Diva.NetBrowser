@@ -43,10 +43,8 @@ public class SettingsActivity extends PreferenceActivity {
 		int index = values.indexOf("mylist");
 		if (index == -1)
 			index = values.size();
-		else {
-			names.remove(index);
-			values.remove(index);
-		}
+		else
+			++index;
 		for (MyList mylist: DdN.getLocalStore().loadMyLists()) {
 			names.add(index, mylist.name);
 			values.add(index, mylist.tag);

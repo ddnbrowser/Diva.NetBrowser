@@ -29,12 +29,12 @@ import android.widget.TextView;
 
 public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener, DdN.Observer {
 	private class TabHolder {
-		int myListId;
+		MyList myList;
 		TextView title;
 		ImageView icon;
 
-		TabHolder(int id, View view) {
-			myListId = id;
+		TabHolder(MyList myList_, View view) {
+			myList = myList_;
 			title = (TextView)view.findViewById(android.R.id.title);
 			icon = (ImageView)view.findViewById(android.R.id.icon);
 		}
@@ -61,7 +61,7 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		for (int i = 0; i < widget.getTabCount(); ++i)
 			widget.getChildTabViewAt(i).getLayoutParams().width = width;
 
-		final String tag = preferences.getString("default_tab", null);
+		final String tag = getTag(preferences);
 		if (tag != null)
 			host.setCurrentTabByTag(tag);
 
@@ -157,9 +157,11 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 	public void onUpdate(MyList myList, boolean noMusic) {
 		final int active = DdN.getLocalStore().getActiveMyList();
 		for (TabHolder holder: m_myListTabs) {
-			if (holder.myListId == myList.id)
+			if (holder.myList.id == myList.id) {
+				holder.myList = myList;
 				holder.title.setText(myList.name);
-			holder.icon.setImageDrawable(getMyListIcon(holder.myListId == active));
+			}
+			holder.icon.setImageDrawable(getMyListIcon(holder.myList.id == active));
 		}
 	}
 
@@ -203,11 +205,25 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 			tab.setContent(intent);
 			host.addTab(tab);
 
-			m_myListTabs.add(new TabHolder(mylist.id, widget.getChildTabViewAt(widget.getTabCount()-1)));
+			m_myListTabs.add(new TabHolder(mylist, widget.getChildTabViewAt(widget.getTabCount()-1)));
 		}
 	}
 
 	private Drawable getMyListIcon(boolean active) {
 		return getResources().getDrawable(active ? R.drawable.ic_tab_mylist_checked : R.drawable.ic_tab_mylist);
+	}
+
+	private String getTag(SharedPreferences preferences) {
+		final String tag = preferences.getString("default_tab", null);
+		if (tag == null || !tag.equals("mylist"))
+			return tag;
+
+		final int active = DdN.getLocalStore().getActiveMyList();
+		for (TabHolder holder: m_myListTabs) {
+			if (holder.myList.id == active)
+				return holder.myList.tag;
+		}
+
+		return null;
 	}
 }

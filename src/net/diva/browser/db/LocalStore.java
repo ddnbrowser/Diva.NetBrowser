@@ -29,7 +29,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 21;
+	private static final int VERSION = 22;
 
 	private static LocalStore m_instance;
 
@@ -354,7 +354,7 @@ public class LocalStore extends ContextWrapper {
 				TitleTable.ID,
 				TitleTable.TITLE,
 				TitleTable.IMAGE_ID,
-		}, null, null, null, null, null);
+		}, null, null, null, null, TitleTable.ORDER);
 		try {
 			while (c.moveToNext()) {
 				TitleInfo title = new TitleInfo(c.getString(0), c.getString(1));
@@ -754,6 +754,8 @@ public class LocalStore extends ContextWrapper {
 				MusicTable.addVoiceColumns(db);
 			case 20:
 				db.execSQL(RecordTable.create_statement());
+			case 21:
+				TitleTable.addOrderColumn(db);
 			default:
 				break;
 			}

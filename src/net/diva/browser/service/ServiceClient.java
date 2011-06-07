@@ -182,18 +182,21 @@ public class ServiceClient {
 		return list;
 	}
 
-	public List<TitleInfo> getTitles(List<TitleInfo> titles) throws IOException {
-		if (titles == null)
-			titles = new ArrayList<TitleInfo>();
+	public List<TitleInfo> getTitles(List<TitleInfo> old) throws IOException {
+		List<TitleInfo> titles = new ArrayList<TitleInfo>();
 		String path = "/divanet/title/selectMain/0";
 		while (path != null)
 			path = Parser.parseTitleList(getFrom(path), titles);
 
-		for (TitleInfo title: titles) {
-			if (title.image_id != null)
-				continue;
+		for (int i = 0; i < titles.size(); ++i) {
+			TitleInfo title = titles.get(i);
+			int index = old.indexOf(title);
+			if (index >= 0)
+				titles.set(i, title = old.get(index));
 
-			title.image_id = Parser.parseTitlePage(getFrom("/divanet/title/confirmMain/%s/0", title.id));
+			title.order = i;
+			if (title.image_id == null)
+				title.image_id = Parser.parseTitlePage(getFrom("/divanet/title/confirmMain/%s/0", title.id));
 		}
 
 		return titles;

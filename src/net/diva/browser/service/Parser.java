@@ -231,11 +231,8 @@ public final class Parser {
 	public static String parseTitleList(InputStream content, List<TitleInfo> titles) {
 		String body = read(content);
 		Matcher m = RE_TITLE_NAME.matcher(body);
-		while (m.find()) {
-			TitleInfo title = new TitleInfo(m.group(1), m.group(2));
-			if (!titles.contains(title))
-				titles.add(title);
-		}
+		while (m.find())
+			titles.add(new TitleInfo(m.group(1), m.group(2)));
 
 		m = m.usePattern(RE_NEXT);
 		return m.find() ? m.group(1) : null;

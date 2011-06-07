@@ -164,9 +164,8 @@ public class TitleListActivity extends ListActivity {
 
 		@Override
 		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
-			List<TitleInfo> titles = service.getTitles(m_titles);
-			m_store.updateTitles(titles);
-			m_titles = m_store.getTitles();
+			m_titles = service.getTitles(m_titles);
+			m_store.updateTitles(m_titles);
 			return Boolean.TRUE;
 		}
 

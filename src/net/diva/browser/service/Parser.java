@@ -477,14 +477,16 @@ public final class Parser {
 
 		static String parseActivateResult(InputStream content)  {
 			String body = read(content);
-			if (body.contains("筐体で使用するマイリストとして設定しました。"))
+			if (body.contains("筐体で使用するマイリストとして設定しました"))
+				return null;
+			if (body.contains("このマイリストは設定済です"))
 				return null;
 
-			String error = "登録されている楽曲がありません。";
+			String error = "登録されている楽曲がありません";
 			if (body.contains(error))
 				return error;
 
-			return "設定に失敗しました。";
+			return "設定に失敗しました";
 		}
 	}
 }

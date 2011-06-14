@@ -110,7 +110,7 @@ public class MyListEditActivity extends ListActivity {
 	private void updateStatus() {
 		CharSequence title;
 		final int total = m_musics.size();
-		final boolean isValid = total <= 20;
+		final boolean isValid = 0 < total && total <= 20;
 		if (isValid)
 			title = String.format("%s (%d/20)", m_name, total);
 		else
@@ -163,9 +163,13 @@ public class MyListEditActivity extends ListActivity {
 	}
 
 	private void setSelectionMode() {
+		List<MusicInfo> musics = new ArrayList<MusicInfo>(m_record.musics);
+		musics.removeAll(m_musics);
+		musics.addAll(0, m_musics);
+
 		m_list.setSortable(false);
 		m_list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-		m_adapter.setData(m_record.musics);
+		m_adapter.setData(musics);
 		m_adapter.update();
 	}
 

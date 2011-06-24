@@ -4,11 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
@@ -16,7 +13,7 @@ import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
-import android.app.ExpandableListActivity;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -28,54 +25,38 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class SkinListActivity extends ExpandableListActivity implements OnItemClickListener {
-	private static final Pattern RE_NAME = Pattern.compile("(.+)(\\[.+\\])");
-
-	private class Skin {
-		int id;
-		String name;
-		int purchased;
-		List<Variant> variants = new ArrayList<Variant>();
-	}
-
-	private class Variant {
-		String name;
-		SkinInfo detail;
-	}
+public class SkinListActivity extends Activity implements AdapterView.OnItemClickListener {
+	private LocalStore m_store;
+	private GridView m_grid;
+	private SkinAdapter m_adapter;
 
 	private int m_mode = R.id.item_show_purchased;
-	private Map<String, Skin> m_skins;
-	private List<Skin> m_purchased;
-	private List<Skin> m_notPurchased;
-
-	private SkinAdapter m_adapter;
-	private LocalStore m_store;
+	private List<SkinInfo> m_skins;
+	private List<SkinInfo> m_purchased;
+	private List<SkinInfo> m_notPurchased;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.skin_list);
-		m_store = LocalStore.instance(this);
 
-		if (getIntent().getBooleanExtra("hasNoUse", false)) {
-			ExpandableListView list = getExpandableListView();
-			list.addHeaderView(noUseSkinView(list));
-			list.setOnItemClickListener(this);
-		}
+		boolean hasNoUse = getIntent().getBooleanExtra("hasNoUse", false);
 
-		m_skins = reconstruct(m_store.loadSkins());
-		m_purchased = filter(m_skins.values(), true);
+		m_store = DdN.getLocalStore();
+		m_adapter = new SkinAdapter(this, hasNoUse);
+		m_grid = (GridView)findViewById(R.id.grid);
+		m_grid.setEmptyView(findViewById(android.R.id.empty));
+		m_grid.setAdapter(m_adapter);
+		m_grid.setOnItemClickListener(this);
 
-		m_adapter = new SkinAdapter(this);
+		m_skins = m_store.loadSkins();
 		refresh(savedInstanceState != null ? savedInstanceState.getInt("displayMode") : m_mode);
-		setListAdapter(m_adapter);
 	}
 
 	@Override
@@ -85,17 +66,12 @@ public class SkinListActivity extends ExpandableListActivity implements OnItemCl
 	}
 
 	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		setResult(RESULT_OK, new Intent().putExtra("setNoUse", true));
-		finish();
-	}
-
-	@Override
-	public boolean onChildClick(ExpandableListView parent, View view, int group, int child, long id) {
-		SkinInfo skin = m_adapter.getChild(group, child).detail;
+		SkinInfo skin = (SkinInfo)parent.getAdapter().getItem(position);
 		if (skin.purchased) {
 			Intent intent = getIntent();
 			intent.putExtra("id", skin.id);
 			intent.putExtra("group_id", skin.group_id);
+			intent.putExtra("setNoUse", skin.id == null);
 			setResult(RESULT_OK, intent);
 			finish();
 		}
@@ -106,7 +82,6 @@ public class SkinListActivity extends ExpandableListActivity implements OnItemCl
 			intent.putExtra("group_id", skin.group_id);
 			startActivityForResult(intent, R.id.item_confirm_buying);
 		}
-		return true;
 	}
 
 	@Override
@@ -156,118 +131,79 @@ public class SkinListActivity extends ExpandableListActivity implements OnItemCl
 		return true;
 	}
 
-	private View noUseSkinView(ViewGroup parent) {
-		LayoutInflater infralter = LayoutInflater.from(this);
-		View view = infralter.inflate(android.R.layout.simple_list_item_1, parent, false);
-		TextView text1 = (TextView)view.findViewById(android.R.id.text1);
-		text1.setText(R.string.no_use_skin);
-		return view;
-	}
-
 	private void refresh(int mode) {
 		switch (mode) {
 		case R.id.item_show_all:
-			m_adapter.setSkins(new ArrayList<Skin>(m_skins.values()));
+			m_adapter.setSkins(m_skins);
 			break;
 		case R.id.item_show_purchased:
+			if (m_purchased == null)
+				m_purchased = filter(m_skins, true);
 			m_adapter.setSkins(m_purchased);
 			break;
 		case R.id.item_show_not_purchased:
 			if (m_notPurchased == null)
-				m_notPurchased = filter(m_skins.values(), false);
+				m_notPurchased = filter(m_skins, false);
 			m_adapter.setSkins(m_notPurchased);
 			break;
 		}
 		m_mode = mode;
 	}
 
-	private Map<String, Skin> reconstruct(List<SkinInfo> skins) {
-		int id = 0;
-		Map<String, Skin> map = new TreeMap<String, Skin>();
-		for (SkinInfo s: skins) {
-			String sName = s.name;
-			String vName;
-			Matcher m = RE_NAME.matcher(sName);
-			if (m.matches()) {
-				sName = m.group(1);
-				vName = m.group(2);
-			}
-			else {
-				vName = getString(R.string.variant_normal);
-			}
-
-			Variant variant = new Variant();
-			variant.name = vName;
-			variant.detail = s;
-
-			Skin skin = map.get(s.group_id);
-			if (skin == null) {
-				skin = new Skin();
-				skin.id = id++;
-				skin.name = sName;
-				map.put(s.group_id, skin);
-			}
-			if (s.purchased)
-				++skin.purchased;
-			skin.variants.add(variant);
-		}
-		return map;
-	}
-
-	private List<Skin> filter(Collection<Skin> skins, boolean purchased) {
-		List<Skin> filtered = new ArrayList<Skin>(skins.size());
-		for (Skin s: skins) {
-			if (s.purchased == (purchased ? 0 : s.variants.size()))
-				continue;
-
-			Skin skin = new Skin();
-			skin.id = s.id;
-			skin.name = s.name;
-			for (Variant v: s.variants) {
-				if (v.detail.purchased == purchased)
-					skin.variants.add(v);
-			}
-			filtered.add(skin);
+	private List<SkinInfo> filter(Collection<SkinInfo> skins, boolean purchased) {
+		List<SkinInfo> filtered = new ArrayList<SkinInfo>();
+		for (SkinInfo skin: skins) {
+			if (skin.purchased == purchased)
+				filtered.add(skin);
 		}
 		return filtered;
 	}
 
 	SkinInfo getSkinInfo(String id, String group_id) {
-		Skin skin = m_skins.get(group_id);
-		if (skin == null)
-			return null;
-
-		for (Variant variant: skin.variants) {
-			SkinInfo si = variant.detail;
-			if (si.id.equals(id))
-				return si;
+		for (SkinInfo skin: m_skins) {
+			if (skin.id.equals(id) && skin.group_id.equals(group_id))
+				return skin;
 		}
-
 		return null;
 	}
 
-	private static class SkinAdapter extends BaseExpandableListAdapter {
+	private static class SkinAdapter extends BaseAdapter {
 		Context m_context;
-		List<Skin> m_skins;
+		List<SkinInfo> m_skins;
+		SkinInfo m_noUse;
 
-		SkinAdapter(Context context) {
+		SkinAdapter(Context context, boolean hasNoUse) {
 			m_context = context;
+			m_skins = Collections.emptyList();
+			if (hasNoUse) {
+				m_noUse = new SkinInfo(null, null, context.getString(R.string.no_use_skin), true);
+			}
 		}
 
-		void setSkins(List<Skin> skins) {
-			m_skins = skins;
+		void setSkins(List<SkinInfo> skins) {
+			if (m_noUse == null)
+				m_skins = skins;
+			else {
+				m_skins = new ArrayList<SkinInfo>(skins);
+				m_skins.add(0, m_noUse);
+			}
+
 			if (m_skins.isEmpty())
 				notifyDataSetInvalidated();
 			else
 				notifyDataSetChanged();
 		}
 
-		public Variant getChild(int group, int child) {
-			return m_skins.get(group).variants.get(child);
+		public int getCount() {
+			return m_skins.size();
 		}
 
-		public long getChildId(int group, int child) {
-			return child;
+		public SkinInfo getItem(int position) {
+			return m_skins.get(position);
+		}
+
+		public long getItemId(int position) {
+			return position;
 		}
 
 		class Holder {
@@ -276,7 +212,7 @@ public class SkinListActivity extends ExpandableListActivity implements OnItemCl
 			TextView text2;
 		}
 
-		public View getChildView(int group, int child, boolean isLastChild, View view, ViewGroup parent) {
+		public View getView(int position, View view, ViewGroup parent) {
 			Holder holder;
 			if (view != null)
 				holder = (Holder)view.getTag();
@@ -290,60 +226,20 @@ public class SkinListActivity extends ExpandableListActivity implements OnItemCl
 				holder.text2 = (TextView)view.findViewById(android.R.id.text2);
 			}
 
-			Variant variant = getChild(group, child);
-			holder.text1.setText(variant.name);
-			if (variant.detail.purchased)
+			SkinInfo skin = getItem(position);
+			holder.text1.setText(skin.name);
+			if (skin.purchased)
 				holder.text2.setVisibility(View.GONE);
 			else {
 				holder.text2.setText(R.string.not_purchased);
 				holder.text2.setVisibility(View.VISIBLE);
 			}
-			Drawable thumbnail = variant.detail.getThumbnail(m_context);
-			if (thumbnail != null)
-				holder.thumbnail.setImageDrawable(thumbnail);
+			Drawable thumbnail = skin.getThumbnail(m_context);
+			if (thumbnail == null)
+				thumbnail = m_context.getResources().getDrawable(R.drawable.no_skin);
+			holder.thumbnail.setImageDrawable(thumbnail);
 
 			return view;
-		}
-
-		public int getChildrenCount(int group) {
-			return m_skins.get(group).variants.size();
-		}
-
-		public Skin getGroup(int group) {
-			return m_skins.get(group);
-		}
-
-		public int getGroupCount() {
-			return m_skins.size();
-		}
-
-		public long getGroupId(int group) {
-			return getGroup(group).id;
-		}
-
-		public View getGroupView(int group, boolean isExpanded, View view, ViewGroup parent) {
-			TextView text;
-			if (view != null)
-				text = (TextView)view.getTag();
-			else {
-				final LayoutInflater inflater =  LayoutInflater.from(m_context);
-				view = inflater.inflate(android.R.layout.simple_expandable_list_item_1, parent, false);
-				text = (TextView)view.findViewById(android.R.id.text1);
-				view.setTag(text);
-			}
-
-			Skin skin = getGroup(group);
-			text.setText(skin.name);
-
-			return view;
-		}
-
-		public boolean hasStableIds() {
-			return false;
-		}
-
-		public boolean isChildSelectable(int group, int child) {
-			return true;
 		}
 	}
 
@@ -380,9 +276,8 @@ public class SkinListActivity extends ExpandableListActivity implements OnItemCl
 			if (result == null)
 				return;
 
-			m_skins = reconstruct(result);
-			m_purchased = filter(m_skins.values(), true);
-			m_notPurchased = null;
+			m_skins = result;
+			m_purchased = m_notPurchased = null;
 			refresh(m_mode);
 		}
 	}
@@ -406,8 +301,7 @@ public class SkinListActivity extends ExpandableListActivity implements OnItemCl
 		@Override
 		protected void onResult(Boolean result) {
 			if (result) {
-				m_purchased = filter(m_skins.values(), true);
-				m_notPurchased = null;
+				m_purchased = m_notPurchased = null;
 				refresh(m_mode);
 			}
 			else

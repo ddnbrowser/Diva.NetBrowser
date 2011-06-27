@@ -21,6 +21,15 @@ import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
+import net.diva.browser.service.parser.ModuleParser;
+import net.diva.browser.service.parser.MusicParser;
+import net.diva.browser.service.parser.MyListParser;
+import net.diva.browser.service.parser.Parser;
+import net.diva.browser.service.parser.RecordParser;
+import net.diva.browser.service.parser.SEParser;
+import net.diva.browser.service.parser.ShopParser;
+import net.diva.browser.service.parser.SkinParser;
+import net.diva.browser.service.parser.TitleParser;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -95,7 +104,7 @@ public class ServiceClient {
 	private List<MusicInfo> getMusics(String path) throws IOException {
 		List<MusicInfo> list = new ArrayList<MusicInfo>();
 		while (path != null)
-			path = Parser.parseListPage(getFrom(path), list);
+			path = MusicParser.parseListPage(getFrom(path), list);
 		return list;
 	}
 
@@ -123,7 +132,7 @@ public class ServiceClient {
 
 	public void update(MusicInfo music) throws NoLoginException {
 		try {
-			Parser.parseInfoPage(getFrom("/divanet/pv/info/%s/0/0", music.id), music);
+			MusicParser.parseInfoPage(getFrom("/divanet/pv/info/%s/0/0", music.id), music);
 		}
 		catch (ParseException e) {
 			throw new NoLoginException(e);
@@ -135,7 +144,7 @@ public class ServiceClient {
 
 	public String[] getVoice(String id) throws IOException {
 		try {
-			return Parser.parseVoice(getFrom("/divanet/module/selectPv/%s/0", id));
+			return MusicParser.parseVoice(getFrom("/divanet/module/selectPv/%s/0", id));
 		}
 		catch (ParseException e) {
 			e.printStackTrace();
@@ -177,7 +186,7 @@ public class ServiceClient {
 		List<Ranking> list = new ArrayList<Ranking>();
 		String path = "/divanet/ranking/list/0";
 		while (path != null)
-			path = Parser.parseRankingList(getFrom(path), list);
+			path = MusicParser.parseRankingList(getFrom(path), list);
 
 		return list;
 	}
@@ -186,7 +195,7 @@ public class ServiceClient {
 		List<TitleInfo> titles = new ArrayList<TitleInfo>();
 		String path = "/divanet/title/selectMain/0";
 		while (path != null)
-			path = Parser.parseTitleList(getFrom(path), titles);
+			path = TitleParser.parseTitleList(getFrom(path), titles);
 
 		for (int i = 0; i < titles.size(); ++i) {
 			TitleInfo title = titles.get(i);
@@ -196,7 +205,7 @@ public class ServiceClient {
 
 			title.order = i;
 			if (title.image_id == null)
-				title.image_id = Parser.parseTitlePage(getFrom("/divanet/title/confirmMain/%s/0", title.id));
+				title.image_id = TitleParser.parseTitlePage(getFrom("/divanet/title/confirmMain/%s/0", title.id));
 		}
 
 		return titles;
@@ -208,30 +217,30 @@ public class ServiceClient {
 		// Purchased
 		String path = String.format("/divanet/title/selectDecorDir/%b", pre);
 		while (path != null)
-			path = Parser.TitleParser.parseDecorTitles(getFrom(path), titles);
+			path = TitleParser.parseDecorTitles(getFrom(path), titles);
 
 		// Not purchased
-		for (String url: Parser.TitleParser.parseDecorShop(getFrom("/divanet/title/decorShop/"))) {
+		for (String url: TitleParser.parseDecorShop(getFrom("/divanet/title/decorShop/"))) {
 			while (url != null)
-				url = Parser.TitleParser.parseShopGroup(getFrom(url), titles);
+				url = TitleParser.parseShopGroup(getFrom(url), titles);
 		}
 
 		return titles;
 	}
 
 	public List<ModuleGroup> getModules() throws IOException {
-		List<ModuleGroup> modules = Parser.parseModuleIndex(getFrom("/divanet/module/"));
+		List<ModuleGroup> modules = ModuleParser.parseModuleIndex(getFrom("/divanet/module/"));
 		for (ModuleGroup group: modules) {
 			String path = String.format("/divanet/module/list/%d/0", group.id);
 			while (path != null)
-				path = Parser.parseModuleList(getFrom(path), group.modules);
+				path = ModuleParser.parseModuleList(getFrom(path), group.modules);
 		}
 
 		return modules;
 	}
 
 	public void getModuleDetail(Module module) throws IOException {
-		Parser.parseModuleDetail(getFrom("/divanet/module/detail/%s/0/0", module.id), module);
+		ModuleParser.parseModuleDetail(getFrom("/divanet/module/detail/%s/0/0", module.id), module);
 		module.thumbnail = String.format("/divanet/img/moduleTmb/%s", new File(module.image).getName());
 	}
 
@@ -240,12 +249,12 @@ public class ServiceClient {
 
 		String path = "/divanet/skin/list/COMMON/0/0";
 		while (path != null)
-			path = Parser.Skin.parse(getFrom(path), groups);
+			path = SkinParser.parse(getFrom(path), groups);
 
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {
 			InputStream content = getFrom("/divanet/skin/select/COMMON/%s/0/0", group_id);
-			Parser.Skin.parse(content, skins, true);
+			SkinParser.parse(content, skins, true);
 		}
 
 		return skins;
@@ -256,12 +265,12 @@ public class ServiceClient {
 
 		String path = "/divanet/skin/shop/0";
 		while (path != null)
-			path = Parser.Skin.parse(getFrom(path), groups);
+			path = SkinParser.parse(getFrom(path), groups);
 
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {
 			InputStream content = getFrom("/divanet/skin/commodity/%s/0", group_id);
-			Parser.Skin.parse(content, skins, false);
+			SkinParser.parse(content, skins, false);
 		}
 
 		return skins;
@@ -270,18 +279,18 @@ public class ServiceClient {
 	public void getSkinDetail(SkinInfo skin) throws IOException {
 		final String path = skin.purchased
 				? "/divanet/skin/confirm/COMMON/%s/%s/0/0" : "/divanet/skin/detail/%s/%s/0";
-		Parser.Skin.parse(getFrom(path, skin.id, skin.group_id), skin);
+		SkinParser.parse(getFrom(path, skin.id, skin.group_id), skin);
 	}
 
 	public String getShopDetail(String path, List<NameValuePair> details) throws IOException {
-		return Parser.Shop.parse(getFrom(path), details);
+		return ShopParser.parse(getFrom(path), details);
 	}
 
 	public List<ButtonSE> getButtonSEs(String music_id) throws IOException {
 		List<ButtonSE> ses = new ArrayList<ButtonSE>();
 		String path = String.format("/divanet/buttonSE/list/%s/0/0", music_id);
 		while (path != null)
-			path = Parser.SE.parse(getFrom(path), ses);
+			path = SEParser.parse(getFrom(path), ses);
 
 		Map<String, String> samples = getSESamples(music_id);
 		for (ButtonSE se: ses)
@@ -294,7 +303,7 @@ public class ServiceClient {
 		Map<String, String> map = new HashMap<String, String>();
 		String path = String.format("/divanet/buttonSE/sample/%s/0/0", music_id);
 		while (path != null)
-			path = Parser.SE.parse(getFrom(path), map);
+			path = SEParser.parse(getFrom(path), map);
 		return map;
 	}
 
@@ -310,12 +319,12 @@ public class ServiceClient {
 		List<String> records = new ArrayList<String>();
 		String path = "/divanet/record/list/0";
 		while (path != null)
-			path = Parser.RecordParser.parseList(getFrom(path), records);
+			path = RecordParser.parseList(getFrom(path), records);
 		return records;
 	}
 
 	public boolean checkDIVARecord() throws IOException {
-		return Parser.RecordParser.parseResult(getFrom("/divanet/record/check/"));
+		return RecordParser.parseResult(getFrom("/divanet/record/check/"));
 	}
 
 	private InputStream getFrom(String relative, Object... args) throws IOException {
@@ -359,7 +368,7 @@ public class ServiceClient {
 
 	public String setTitle(String title_id, boolean noDecor) throws IOException, OperationFailedException {
 		HttpResponse response = postTo(String.format("/divanet/title/updateMain/%s/%b", title_id, noDecor));
-		String title = Parser.TitleParser.parseSetResult(response.getEntity().getContent());
+		String title = TitleParser.parseSetResult(response.getEntity().getContent());
 		if (title == null)
 			throw new OperationFailedException();
 		return title;
@@ -441,31 +450,31 @@ public class ServiceClient {
 
 	public void buyModule(String id) throws OperationFailedException, IOException {
 		HttpResponse response = postTo(String.format("/divanet/module/buy/%s", id));
-		if (!Parser.Shop.isSuccess(response.getEntity().getContent()))
+		if (!ShopParser.isSuccess(response.getEntity().getContent()))
 			throw new OperationFailedException();
 	}
 
 	public void buySkin(String group_id, String skin_id) throws OperationFailedException, IOException {
 		HttpResponse response = postTo(String.format("/divanet/skin/buy/%s/%s", skin_id, group_id));
-		if (!Parser.Shop.isSuccess(response.getEntity().getContent()))
+		if (!ShopParser.isSuccess(response.getEntity().getContent()))
 			throw new OperationFailedException();
 	}
 
 	public void buyDecorTitle(String decor_id) throws OperationFailedException, IOException {
 		HttpResponse response = postTo(String.format("/divanet/title/buyDecor/%s", decor_id));
-		if (!Parser.Shop.isSuccess(response.getEntity().getContent()))
+		if (!ShopParser.isSuccess(response.getEntity().getContent()))
 			throw new OperationFailedException();
 	}
 
 	public MyList getMyList(int id) throws IOException {
 		final MyList myList = new MyList(id, null);
-		Parser.MyListParser.parseSummary(getFrom("/divanet/myList/selectMyList/%d", id), myList);
+		MyListParser.parseSummary(getFrom("/divanet/myList/selectMyList/%d", id), myList);
 		return myList;
 	}
 
 	public List<String> getMyListEntries(int id) throws IOException {
 		List<String> ids = new ArrayList<String>();
-		Parser.MyListParser.parseList(getFrom("/divanet/myList/edit/%d/delete", id), ids);
+		MyListParser.parseList(getFrom("/divanet/myList/edit/%d/delete", id), ids);
 		return ids;
 	}
 
@@ -481,7 +490,7 @@ public class ServiceClient {
 
 	public void activateMyList(int id) throws IOException, OperationFailedException {
 		HttpResponse response = postTo(String.format("/divanet/myList/activate/%d", id));
-		String error = Parser.MyListParser.parseActivateResult(response.getEntity().getContent());
+		String error = MyListParser.parseActivateResult(response.getEntity().getContent());
 		if (error != null)
 			throw new OperationFailedException(error);
 	}

@@ -224,7 +224,9 @@ public class DecorTitlesActivity extends ListActivity {
 		protected Boolean doTask(ServiceClient service, DecorTitle... params) throws Exception {
 			DecorTitle title = params[0];
 
-			service.buyDecorTitle(title.id);
+			int vp = service.buyDecorTitle(title.id);
+			if (vp >= 0)
+				DdN.setVocaloidPoint(vp);
 			title.purchased = true;
 			m_store.updateDecorTitle(title);
 			return Boolean.TRUE;

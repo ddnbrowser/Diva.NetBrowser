@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.diva.browser.service.parser;
 
@@ -25,8 +25,14 @@ public class ShopParser {
 		return m.find() ? m.group(1) : null;
 	}
 
-	public static boolean isSuccess(InputStream content) {
+	private static final Pattern RE_RESULT = Pattern.compile("所持VOCALOID POINTが<br><font color=\"#FFFF00\">(\\d+)</font>になりました<br>");
+
+	public static boolean isSuccess(InputStream content, int[] vp) {
 		String body = Parser.read(content);
+		if (vp != null && vp.length > 0) {
+			Matcher m = RE_RESULT.matcher(body);
+			vp[0] = m.find() ? Integer.parseInt(m.group(1)) : -1;
+		}
 		return body.contains("購入しました");
 	}
 }

@@ -448,22 +448,23 @@ public class ServiceClient {
 		postTo(String.format("/divanet/buttonSE/unset/%s/0/0", music_id));
 	}
 
-	public void buyModule(String id) throws OperationFailedException, IOException {
-		HttpResponse response = postTo(String.format("/divanet/module/buy/%s", id));
-		if (!ShopParser.isSuccess(response.getEntity().getContent()))
+	private int checkShopResult(HttpResponse response) throws OperationFailedException, IOException {
+		int[] vp = new int[1];
+		if (!ShopParser.isSuccess(response.getEntity().getContent(), vp))
 			throw new OperationFailedException();
+		return vp[0];
 	}
 
-	public void buySkin(String group_id, String skin_id) throws OperationFailedException, IOException {
-		HttpResponse response = postTo(String.format("/divanet/skin/buy/%s/%s", skin_id, group_id));
-		if (!ShopParser.isSuccess(response.getEntity().getContent()))
-			throw new OperationFailedException();
+	public int buyModule(String id) throws OperationFailedException, IOException {
+		return checkShopResult(postTo(String.format("/divanet/module/buy/%s", id)));
 	}
 
-	public void buyDecorTitle(String decor_id) throws OperationFailedException, IOException {
-		HttpResponse response = postTo(String.format("/divanet/title/buyDecor/%s", decor_id));
-		if (!ShopParser.isSuccess(response.getEntity().getContent()))
-			throw new OperationFailedException();
+	public int buySkin(String group_id, String skin_id) throws OperationFailedException, IOException {
+		return checkShopResult(postTo(String.format("/divanet/skin/buy/%s/%s", skin_id, group_id)));
+	}
+
+	public int buyDecorTitle(String decor_id) throws OperationFailedException, IOException {
+		return checkShopResult(postTo(String.format("/divanet/title/buyDecor/%s", decor_id)));
 	}
 
 	public MyList getMyList(int id) throws IOException {

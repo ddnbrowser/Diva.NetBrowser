@@ -292,7 +292,9 @@ public class SkinListActivity extends Activity implements AdapterView.OnItemClic
 			SkinInfo skin = params[0];
 			LocalStore store = DdN.getLocalStore();
 
-			service.buySkin(skin.group_id, skin.id);
+			int vp = service.buySkin(skin.group_id, skin.id);
+			if (vp >= 0)
+				DdN.setVocaloidPoint(vp);
 			skin.purchased = true;
 			store.updateSkin(skin);
 			return Boolean.TRUE;

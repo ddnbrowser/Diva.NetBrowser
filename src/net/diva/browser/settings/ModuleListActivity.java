@@ -298,7 +298,9 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			Module module = params[0];
 			LocalStore store = DdN.getLocalStore();
 
-			service.buyModule(module.id);
+			int vp = service.buyModule(module.id);
+			if (vp >= 0)
+				DdN.setVocaloidPoint(vp);
 			module.purchased = true;
 			store.updateModule(module);
 			return Boolean.TRUE;

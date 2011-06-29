@@ -94,6 +94,12 @@ public class DdN extends Application {
 		});
 	}
 
+	private void setVocaloidPoint_(int vp) {
+		m_record.vocaloid_point = vp;
+		LocalStore.instance(this).update(m_record);
+		notifyUpdate(true);
+	}
+
 	private List<ModuleGroup> getModules_() {
 		if (m_modules == null)
 			m_modules = getLocalStore().loadModules();
@@ -136,6 +142,11 @@ public class DdN extends Application {
 
 	public static PlayRecord setPlayRecord(PlayRecord record) {
 		return s_instance != null ? s_instance.setPlayRecord_(record) : null;
+	}
+
+	public static void setVocaloidPoint(int vp) {
+		if (s_instance != null)
+			s_instance.setVocaloidPoint_(vp);
 	}
 
 	public static List<ModuleGroup> getModules() {

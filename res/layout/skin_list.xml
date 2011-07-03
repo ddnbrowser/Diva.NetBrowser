@@ -3,20 +3,14 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	>
-	<ExpandableListView android:id="@id/android:list"
+	<ListView android:id="@id/android:list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		/>
-	<RelativeLayout android:id="@id/android:empty"
+	<TextView android:id="@id/android:empty"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		>
-		<TextView
-			android:layout_height="wrap_content"
-			android:layout_width="wrap_content"
-			android:layout_centerInParent="true"
-			android:gravity="center"
-			android:text="スキンがありません\nメニューを開いて更新を選択して下さい"
-			/>
-	</RelativeLayout>
+		android:gravity="center"
+		android:text="スキンがありません\nメニューを開いて更新を選択して下さい"
+		/>
 </FrameLayout>

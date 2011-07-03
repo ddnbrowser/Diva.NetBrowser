@@ -4,7 +4,8 @@
 	android:layout_width="fill_parent"
 	android:layout_height="wrap_content"
 	android:minHeight="?android:attr/listPreferredItemHeight"
-	android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft">
+	android:padding="4dp"
+	>
 	<ImageView
 		android:id="@+id/thumbnail"
 		android:layout_width="wrap_content"

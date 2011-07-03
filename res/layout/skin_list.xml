@@ -3,19 +3,20 @@
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	>
-	<GridView android:id="@+id/grid"
+	<ExpandableListView android:id="@id/android:list"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
-		android:gravity="center_horizontal"
-		android:numColumns="auto_fit"
-		android:horizontalSpacing="6dp"
-		android:verticalSpacing="10dp"
 		/>
-	<TextView
-		android:id="@id/android:empty"
-		android:layout_height="fill_parent"
+	<RelativeLayout android:id="@id/android:empty"
 		android:layout_width="fill_parent"
-		android:gravity="center"
-		android:text="スキンがありません\nメニューを開いて更新を選択して下さい"
-		/>
+		android:layout_height="fill_parent"
+		>
+		<TextView
+			android:layout_height="wrap_content"
+			android:layout_width="wrap_content"
+			android:layout_centerInParent="true"
+			android:gravity="center"
+			android:text="スキンがありません\nメニューを開いて更新を選択して下さい"
+			/>
+	</RelativeLayout>
 </FrameLayout>

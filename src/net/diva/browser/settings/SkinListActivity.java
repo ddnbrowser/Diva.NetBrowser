@@ -38,7 +38,7 @@ public class SkinListActivity extends ListActivity {
 	private static final Pattern RE_NAME = Pattern.compile("(.+)(\\[.+\\])");
 
 	private class Skin {
-		int id;
+		String id;
 		String name;
 		int purchased;
 		List<Variant> variants = new ArrayList<Variant>();
@@ -50,7 +50,7 @@ public class SkinListActivity extends ListActivity {
 	}
 
 	private int m_mode = R.id.item_show_purchased;
-	private Map<String, Skin> m_skins;
+	private List<Skin> m_skins;
 	private List<Skin> m_purchased;
 	private List<Skin> m_notPurchased;
 
@@ -69,7 +69,7 @@ public class SkinListActivity extends ListActivity {
 		}
 
 		m_skins = reconstruct(m_store.loadSkins());
-		m_purchased = filter(m_skins.values(), true);
+		m_purchased = filter(m_skins, true);
 
 		m_adapter = new SkinAdapter(this);
 		refresh(savedInstanceState != null ? savedInstanceState.getInt("displayMode") : m_mode);
@@ -163,22 +163,22 @@ public class SkinListActivity extends ListActivity {
 	private void refresh(int mode) {
 		switch (mode) {
 		case R.id.item_show_all:
-			m_adapter.setSkins(new ArrayList<Skin>(m_skins.values()));
+			m_adapter.setSkins(m_skins);
 			break;
 		case R.id.item_show_purchased:
 			m_adapter.setSkins(m_purchased);
 			break;
 		case R.id.item_show_not_purchased:
 			if (m_notPurchased == null)
-				m_notPurchased = filter(m_skins.values(), false);
+				m_notPurchased = filter(m_skins, false);
 			m_adapter.setSkins(m_notPurchased);
 			break;
 		}
 		m_mode = mode;
 	}
 
-	private Map<String, Skin> reconstruct(List<SkinInfo> skins) {
-		int id = 0;
+	private List<Skin> reconstruct(List<SkinInfo> skins) {
+		List<Skin> list = new ArrayList<Skin>();
 		Map<String, Skin> map = new TreeMap<String, Skin>();
 		for (SkinInfo s: skins) {
 			String sName = s.name;
@@ -199,15 +199,16 @@ public class SkinListActivity extends ListActivity {
 			Skin skin = map.get(s.group_id);
 			if (skin == null) {
 				skin = new Skin();
-				skin.id = id++;
+				skin.id = s.group_id;
 				skin.name = sName;
 				map.put(s.group_id, skin);
+				list.add(skin);
 			}
 			if (s.purchased)
 				++skin.purchased;
 			skin.variants.add(variant);
 		}
-		return map;
+		return list;
 	}
 
 	private List<Skin> filter(Collection<Skin> skins, boolean purchased) {
@@ -229,7 +230,13 @@ public class SkinListActivity extends ListActivity {
 	}
 
 	SkinInfo getSkinInfo(String id, String group_id) {
-		Skin skin = m_skins.get(group_id);
+		Skin skin = null;
+		for (Skin s: m_skins) {
+			if (s.id.equals(group_id)) {
+				skin = s;
+				break;
+			}
+		}
 		if (skin == null)
 			return null;
 
@@ -401,7 +408,7 @@ public class SkinListActivity extends ListActivity {
 				return;
 
 			m_skins = reconstruct(result);
-			m_purchased = filter(m_skins.values(), true);
+			m_purchased = filter(m_skins, true);
 			m_notPurchased = null;
 			refresh(m_mode);
 		}
@@ -428,7 +435,7 @@ public class SkinListActivity extends ListActivity {
 		@Override
 		protected void onResult(Boolean result) {
 			if (result) {
-				m_purchased = filter(m_skins.values(), true);
+				m_purchased = filter(m_skins, true);
 				m_notPurchased = null;
 				refresh(m_mode);
 			}

@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import net.diva.browser.DdN;
@@ -215,9 +216,28 @@ public class ServiceClient {
 		List<DecorTitle> titles = new ArrayList<DecorTitle>();
 
 		// Purchased
-		String path = String.format("/divanet/title/selectDecorDir/%b", pre);
-		while (path != null)
-			path = TitleParser.parseDecorTitles(getFrom(path), titles);
+		for (String path: TitleParser.parseDecorDir(getFrom("/divanet/title/selectDecorDir/%b", pre), titles)) {
+			while (path != null)
+				path = TitleParser.parseDecorTitles(getFrom(path), titles);
+		}
+
+		DecorTitle off = new DecorTitle("OFF", "未設定にする", true);
+		int index = titles.indexOf(off);
+		switch (index) {
+		default:
+			titles.add(0, titles.get(index));
+		case 0: {
+			ListIterator<DecorTitle> it = titles.listIterator(index+1);
+			while (it.hasNext()) {
+				DecorTitle title = it.next();
+				if (title.equals(off))
+					it.remove();
+			}
+			break;
+		}
+		case -1:
+			titles.add(0, off);
+		}
 
 		// Not purchased
 		for (String url: TitleParser.parseDecorShop(getFrom("/divanet/title/decorShop/"))) {

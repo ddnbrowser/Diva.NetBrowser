@@ -10,4 +10,9 @@ public class DecorTitle {
 		name = name_;
 		purchased = purchased_;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		return o != null && (o instanceof DecorTitle) && id.equals(((DecorTitle)o).id);
+	}
 }

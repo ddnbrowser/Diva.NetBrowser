@@ -32,10 +32,31 @@ public class TitleParser {
 		return m.find() ? m.group(1) : null;
 	}
 
+	private static final Pattern RE_GROUP = Pattern.compile("/divanet/title/selectDecor/\\d+/(?:true|false)/\\d+");
 	private static final Pattern RE_DECOR = Pattern.compile("<a href=\"/divanet/title/updateDecor/(?:true|false)/(\\w+)\">(.+)</a>");
-	private static final Pattern RE_GROUP = Pattern.compile("<a href=\"(/divanet/title/decorCommodity/\\d+/\\d+)\">(.+)</a>");
+	private static final Pattern RE_SHOP_GROUP = Pattern.compile("<a href=\"(/divanet/title/decorCommodity/\\d+/\\d+)\">(.+)</a>");
 	private static final Pattern RE_COMMODITY = Pattern.compile("<a href=\"/divanet/title/decorDetail/(\\w+)/\\d+/\\d+\">(.+)</a>");
 	private static final Pattern RE_RESULT = Pattern.compile("\\s*(.+)<br><br>\\s*.*メイン称号を設定しました<br>");
+
+	public static List<String> parseDecorDir(InputStream content, List<DecorTitle> titles) {
+		List<String> urls = new ArrayList<String>();
+
+		String body = Parser.read(content);
+		Matcher m = RE_GROUP.matcher(body);
+		while (m.find())
+			urls.add(m.group(1));
+
+		if (urls.isEmpty()) {
+			m = m.usePattern(RE_DECOR);
+			while (m.find())
+				titles.add(new DecorTitle(m.group(1), m.group(2), true));
+
+			m = m.usePattern(Parser.RE_NEXT);
+			if (m.find())
+				urls.add(m.group(1));
+		}
+		return urls;
+	}
 
 	public static String parseDecorTitles(InputStream content, List<DecorTitle> titles) {
 		String body = Parser.read(content);
@@ -48,10 +69,10 @@ public class TitleParser {
 	}
 
 	public static List<String> parseDecorShop(InputStream content) {
-		List<String > urls = new ArrayList<String>();
+		List<String> urls = new ArrayList<String>();
 
 		String body = Parser.read(content);
-		Matcher m = RE_GROUP.matcher(body);
+		Matcher m = RE_SHOP_GROUP.matcher(body);
 		while (m.find())
 			urls.add(m.group(1));
 

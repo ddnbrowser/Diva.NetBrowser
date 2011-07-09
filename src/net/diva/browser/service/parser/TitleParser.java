@@ -44,7 +44,7 @@ public class TitleParser {
 		String body = Parser.read(content);
 		Matcher m = RE_GROUP.matcher(body);
 		while (m.find())
-			urls.add(m.group(1));
+			urls.add(m.group());
 
 		if (urls.isEmpty()) {
 			m = m.usePattern(RE_DECOR);

@@ -27,7 +27,7 @@
     <item>@drawable/ic_tab_user</item>
     <item>@drawable/ic_tab_all</item>
     <item>@drawable/ic_tab_mylist</item>
-    <item>@drawable/ic_menu_agenda</item>
+    <item>@drawable/ic_tab_record</item>
 </array>
 <string-array name="music_layout_names">
     <item>3行表示 (達成率)</item>

@@ -82,6 +82,8 @@ public class ConfigSyncIndividual extends ConfigItem {
 	private String seId(String name) {
 		if (name == null)
 			return null;
+		if (name.equals("共通ボタン音無効"))
+			return ButtonSE.INVALIDATE_COMMON;
 
 		for (ButtonSE se: m_buttonSEs) {
 			if (name.equals(se.name))

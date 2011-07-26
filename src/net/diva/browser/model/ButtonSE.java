@@ -5,6 +5,8 @@ import java.io.File;
 import android.content.Context;
 
 public class ButtonSE {
+	public static final String INVALIDATE_COMMON = "INVALIDATE_COMMON";
+
 	public String id;
 	public String name;
 	public String sample;

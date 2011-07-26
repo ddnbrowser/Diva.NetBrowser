@@ -41,6 +41,9 @@ public class SEListActivity extends ListActivity {
 		if (empty != null)
 			empty.setText(R.string.no_button_se);
 
+		if (getIntent().getBooleanExtra("enable_invalidate", false))
+			getListView().addHeaderView(invalidateCommonView());
+
 		m_store = DdN.getLocalStore();
 		m_adapter = new ButtonSEAdapber(this);
 		m_adapter.setData(m_store.loadButtonSEs());
@@ -48,10 +51,13 @@ public class SEListActivity extends ListActivity {
 	}
 
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		ButtonSE se = m_adapter.getItem(position);
+	protected void onListItemClick(ListView list, View v, int position, long id) {
+		ButtonSE se = (ButtonSE)list.getAdapter().getItem(position);
 		Intent data = new Intent(getIntent());
-		data.putExtra("id", se.id);
+		if (se != null)
+			data.putExtra("id", se.id);
+		else
+			data.putExtra("invalidate", true);
 		setResult(RESULT_OK, data);
 		finish();
 	}
@@ -72,6 +78,14 @@ public class SEListActivity extends ListActivity {
 			return super.onOptionsItemSelected(item);
 		}
 		return true;
+	}
+
+	private View invalidateCommonView() {
+		LayoutInflater inflater = getLayoutInflater();
+		View view = inflater.inflate(android.R.layout.simple_list_item_1, getListView(), false);
+		TextView text = (TextView)view.findViewById(android.R.id.text1);
+		text.setText(R.string.invalidate_common_button_se);
+		return view;
 	}
 
 	private class UpdateTask extends ServiceTask<Void, Void, List<ButtonSE>> {

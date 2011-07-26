@@ -115,6 +115,7 @@
     <string name="item_update_saturations">達成率理論値を更新</string>
     <string name="message_update_saturations">理論値の更新中...</string>
     <string name="no_button_se">ボタン音がありません。\nメニューを開いて更新を選択して下さい</string>
+    <string name="invalidate_common_button_se">初期設定ボタン音</string>
     <string name="synchronizing">同期しています...</string>
     <string name="confirm_delete_mylist">マイリストを削除します。よろしいですか?</string>
     <string name="deleting">削除しています...</string>

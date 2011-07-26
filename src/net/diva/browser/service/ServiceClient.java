@@ -464,6 +464,10 @@ public class ServiceClient {
 		postTo(String.format("/divanet/buttonSE/update/%s/%s/0/0", music_id, se_id));
 	}
 
+	public void setButtonSEInvalidateCommon(String music_id) throws IOException {
+		postTo(String.format("/divanet/buttonSE/invalidateCommonSetting/%s/0/0", music_id));
+	}
+
 	public void resetButtonSE(String music_id) throws IOException {
 		postTo(String.format("/divanet/buttonSE/unset/%s/0/0", music_id));
 	}

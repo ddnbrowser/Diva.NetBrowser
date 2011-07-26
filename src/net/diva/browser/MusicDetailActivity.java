@@ -1,6 +1,7 @@
 package net.diva.browser;
 
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.SkinInfo;
@@ -49,8 +50,12 @@ public class MusicDetailActivity extends Activity {
 			}
 			break;
 		case R.id.item_set_button_se:
-			if (resultCode == RESULT_OK)
-				setButtonSE(data);
+			if (resultCode == RESULT_OK) {
+				if (data.getBooleanExtra("invalidate", false))
+					setButtonSEInvalidateCommon();
+				else
+					setButtonSE(data);
+			}
 			break;
 		default:
 			break;
@@ -192,7 +197,18 @@ public class MusicDetailActivity extends Activity {
 	 * ---------------------------------------------------------------------- */
 	public void setButtonSE(View view) {
 		Intent intent = new Intent(getApplicationContext(), SEListActivity.class);
+		intent.putExtra("enable_invalidate", true);
 		startActivityForResult(intent, R.id.item_set_button_se);
+	}
+
+	private void setButtonSEInvalidateCommon() {
+		confirm(R.string.message_set_button_se, new Task() {
+			public void run(ServiceClient service) throws Exception {
+				service.setButtonSEInvalidateCommon(m_music.id);
+				m_music.button = ButtonSE.INVALIDATE_COMMON;
+				m_store.updateButtonSE(m_music);
+			}
+		});
 	}
 
 	private void setButtonSE(Intent data) {

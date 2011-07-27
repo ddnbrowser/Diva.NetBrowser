@@ -8,6 +8,7 @@ import net.diva.browser.settings.ConfigItem;
 import net.diva.browser.settings.ConfigRename;
 import net.diva.browser.settings.ConfigResetCommon;
 import net.diva.browser.settings.ConfigResetIndividual;
+import net.diva.browser.settings.ConfigSetButtonSE;
 import net.diva.browser.settings.ConfigSetSkin;
 import net.diva.browser.settings.ConfigSyncIndividual;
 import net.diva.browser.settings.ConfigTitle;
@@ -29,6 +30,8 @@ public class CommonConfigActivity extends ConfigActivity {
 				new ConfigCategory(getText(R.string.category_skin_common)),
 				new ConfigSetSkin(this),
 				new ConfigUnsetSkin(this),
+				new ConfigCategory(getText(R.string.category_common_buttonse)),
+				new ConfigSetButtonSE(this),
 				new ConfigCategory(getText(R.string.category_individual)),
 				new ConfigResetIndividual(this),
 				new ConfigSyncIndividual(this),

@@ -13,6 +13,7 @@ import net.diva.browser.settings.ConfigSetSkin;
 import net.diva.browser.settings.ConfigSyncIndividual;
 import net.diva.browser.settings.ConfigTitle;
 import net.diva.browser.settings.ConfigTitleReplace;
+import net.diva.browser.settings.ConfigUnsetButtonSE;
 import net.diva.browser.settings.ConfigUnsetSkin;
 
 public class CommonConfigActivity extends ConfigActivity {
@@ -32,6 +33,7 @@ public class CommonConfigActivity extends ConfigActivity {
 				new ConfigUnsetSkin(this),
 				new ConfigCategory(getText(R.string.category_common_buttonse)),
 				new ConfigSetButtonSE(this),
+				new ConfigUnsetButtonSE(this),
 				new ConfigCategory(getText(R.string.category_individual)),
 				new ConfigResetIndividual(this),
 				new ConfigSyncIndividual(this),

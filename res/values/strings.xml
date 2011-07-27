@@ -95,6 +95,9 @@
     <string name="category_common_buttonse">共通ボタン音設定</string>
     <string name="description_set_buttonse">ボタン音を設定する</string>
     <string name="summary_set_buttonse">選択したボタン音を設定します</string>
+    <string name="description_unset_buttonse">未設定にする</string>
+    <string name="summary_unset_buttonse">ボタン音を未設定にします</string>
+    <string name="message_unset_buttonse">ボタン音を未設定にします。よろしいですか?</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
     <string name="message_updating">更新しています...</string>

@@ -168,7 +168,10 @@ class MusicAdapter extends BaseAdapter implements Filterable, SortableListView.D
 				difference.setVisibility(visible ? View.VISIBLE : View.GONE);
 				if (visible) {
 					int diff = score.saturation - score.achievement;
-					difference.setText(String.format("(%d.%02d%%)", diff/100, Math.abs(diff)%100));
+					boolean minus = diff < 0;
+					if (minus)
+						diff = Math.abs(diff);
+					difference.setText(String.format("(%s%d.%02d%%)", minus ? "-" : "", diff/100, diff%100));
 				}
 			}
 		}

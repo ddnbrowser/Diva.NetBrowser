@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Random;
 
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.MusicInfo;
+import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.service.ServiceClient;
@@ -46,8 +49,9 @@ public class DownloadRankingService extends Service {
 			public void run() {
 				Scheduler scheduler = new Scheduler(getApplicationContext());
 				try {
-					downloadRanking();
+					List<Ranking> ranking = downloadRanking();
 					scheduler.reserveNext();
+					updateRanking(ranking);
 					if (m_preferences.getBoolean("notify_ranking_updated", false))
 						sendNotification();
 				}
@@ -128,13 +132,37 @@ public class DownloadRankingService extends Service {
 		}
 	}
 
-	private void downloadRanking() throws LoginFailedException, IOException, ParseException {
+	private List<Ranking> downloadRanking() throws LoginFailedException, IOException, ParseException {
 		ServiceClient service = new ServiceClient(
 				m_preferences.getString("access_code", null),
 				m_preferences.getString("password", null));
 		service.login();
 		List<Ranking> ranking = service.getRankInList();
 		LocalStore.instance(this).update(ranking);
+		return ranking;
+	}
+
+	private int getRank(String id, int rank, List<Ranking> ranking) {
+		if (id == null)
+			return -1;
+
+		for (Ranking r: ranking) {
+			if (id.equals(r.id) && rank == r.rank)
+				return r.ranking;
+		}
+		return -1;
+	}
+
+	private void updateRanking(List<Ranking> ranking) {
+		final PlayRecord record = DdN.getPlayRecord();
+		for (MusicInfo m: record.musics) {
+			for (int rank = 0; rank < m.records.length; ++rank) {
+				ScoreRecord score = m.records[rank];
+				if (score != null)
+					score.ranking = getRank(m.id, rank, ranking);
+			}
+		}
+		DdN.notifyPlayRecordChanged();
 	}
 
 	private void sendNotification() {

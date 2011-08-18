@@ -185,6 +185,12 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		}
 	}
 
+	@Override
+	public boolean onSearchRequested() {
+		activateTextFilter();
+		return false;
+	}
+
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		StringBuilder sb = new StringBuilder();
 		makeTitle(sb, record);

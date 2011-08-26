@@ -39,30 +39,33 @@ public class TitleParser {
 	private static final Pattern RE_RESULT = Pattern.compile("\\s*(.+)<br><br>\\s*.*メイン称号を設定しました<br>");
 
 	public static List<String> parseDecorDir(InputStream content, List<DecorTitle> titles) {
-		List<String> urls = new ArrayList<String>();
-
 		String body = Parser.read(content);
-		Matcher m = RE_GROUP.matcher(body);
+		Matcher m = RE_DECOR.matcher(body);
+		while (m.find()) {
+			DecorTitle decor = new DecorTitle(m.group(1), m.group(2), true);
+			if (DecorTitle.OFF.equals(decor))
+				titles.set(0, decor);
+			else
+				titles.add(decor);
+		}
+
+		List<String> urls = new ArrayList<String>();
+		m = m.usePattern(RE_GROUP);
 		while (m.find())
 			urls.add(m.group());
-
-		if (urls.isEmpty()) {
-			m = m.usePattern(RE_DECOR);
-			while (m.find())
-				titles.add(new DecorTitle(m.group(1), m.group(2), true));
-
-			m = m.usePattern(Parser.RE_NEXT);
-			if (m.find())
-				urls.add(m.group(1));
-		}
 		return urls;
 	}
 
 	public static String parseDecorTitles(InputStream content, List<DecorTitle> titles) {
 		String body = Parser.read(content);
 		Matcher m = RE_DECOR.matcher(body);
-		while (m.find())
-			titles.add(new DecorTitle(m.group(1), m.group(2), true));
+		while (m.find()) {
+			DecorTitle decor = new DecorTitle(m.group(1), m.group(2), true);
+			if (DecorTitle.OFF.equals(decor))
+				titles.set(0, decor);
+			else
+				titles.add(decor);
+		}
 
 		m = m.usePattern(Parser.RE_NEXT);
 		return m.find() ? m.group(1) : null;

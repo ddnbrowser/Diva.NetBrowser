@@ -1,6 +1,8 @@
 package net.diva.browser.model;
 
 public class DecorTitle {
+	public static DecorTitle OFF = new DecorTitle("OFF", "未設定にする", true);
+
 	public String id;
 	public String name;
 	public boolean purchased;

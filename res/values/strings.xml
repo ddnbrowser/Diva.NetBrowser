@@ -64,6 +64,8 @@
     <string name="notify_ranking_updated">更新を通知</string>
     <string name="summary_notify_ranking_updated">ランクイン情報を更新した時にステータスバーで通知します</string>
     <string name="notification_ranking_updated">ランキング情報を更新しました</string>
+    <string name="category_information">基本情報</string>
+    <string name="version_number">バージョン番号</string>
     <string name="category_player">プレイヤー情報設定</string>
     <string name="description_rename">プレイヤー名変更</string>
     <string name="summary_rename">※10VPが必要です</string>

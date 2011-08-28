@@ -6,8 +6,12 @@ import java.util.List;
 
 import net.diva.browser.common.UpdateSaturaionPoints;
 import net.diva.browser.model.MyList;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -19,6 +23,7 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.settings);
 
 		addMyLists((ListPreference)findPreference("default_tab"));
+		setVersion(findPreference("version_number"));
 	}
 
 	@Override
@@ -52,5 +57,16 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 		lp.setEntries(names.toArray(new CharSequence[names.size()]));
 		lp.setEntryValues(values.toArray(new CharSequence[values.size()]));
+	}
+
+	private void setVersion(Preference preference) {
+		PackageManager pm = getPackageManager();
+		try {
+			PackageInfo info = pm.getPackageInfo(getPackageName(), 0);
+			preference.setSummary(info.versionName);
+		}
+		catch (NameNotFoundException e) {
+			preference.setSummary("Unknown");
+		}
 	}
 }

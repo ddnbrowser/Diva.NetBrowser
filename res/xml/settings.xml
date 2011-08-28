@@ -37,4 +37,10 @@
 			android:dependency="download_rankin"
 			/>
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/category_information">
+		<Preference
+			android:key="version_number"
+			android:title="@string/version_number"
+			/>
+	</PreferenceCategory>
 </PreferenceScreen>

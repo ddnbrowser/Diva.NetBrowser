@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.MailTo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -83,6 +84,11 @@ public class WebBrowseActivity extends Activity {
 
 		@Override
 		public boolean shouldOverrideUrlLoading(WebView view, String url) {
+			if (MailTo.isMailTo(url)) {
+				Intent i = new Intent(Intent.ACTION_SENDTO, Uri.parse(url));
+				startActivity(i);
+				return true;
+			}
 			if (m_service.isLogin())
 				return super.shouldOverrideUrlLoading(view, url);
 

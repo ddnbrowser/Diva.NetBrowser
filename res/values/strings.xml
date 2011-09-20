@@ -115,6 +115,7 @@
     <string name="no_record">プレイ記録がありません。</string>
     <string name="player_name">プレイヤー名</string>
     <string name="level_rank">LEVEL / RANK</string>
+    <string name="total_exp">達成率合計</string>
     <string name="next_level">次のレベルまで残り</string>
     <string name="next_rank">次のランクまで残り</string>
     <string name="vocaloid_point">VOCALOID POINT</string>

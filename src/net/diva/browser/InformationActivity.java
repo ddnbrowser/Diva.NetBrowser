@@ -20,6 +20,7 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 	private InformationAdapter m_adapter;
 	private PlayRecord m_record;
 
+	private long m_totalExp;
 	private int m_experience;
 	private int m_rankPoints;
 
@@ -75,7 +76,8 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		m_record = record;
 
-		m_experience = (int)(m_record.experience() % DdN.EXPERIENCE_UNIT);
+		m_totalExp = m_record.experience();
+		m_experience = (int)(m_totalExp % DdN.EXPERIENCE_UNIT);
 
 		int[] next = new int[1];
 		m_record.rank(next);
@@ -90,6 +92,7 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 		android.R.layout.preference_category,
 		R.layout.info_item,
 		R.layout.info_bar,
+		R.layout.info_right,
 		R.layout.info_right,
 		R.layout.info_right,
 		android.R.layout.preference_category,
@@ -155,18 +158,22 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 				progress.setProgress(m_experience);
 				break;
 			case 5:
+				setText(view, R.id.text1, R.string.total_exp);
+				setText(view, R.id.text2, String.format("%d.%02d %%", m_totalExp/100, m_totalExp%100));
+				break;
+			case 6:
 				int shortage = DdN.EXPERIENCE_UNIT - m_experience;
 				setText(view, R.id.text1, R.string.next_level);
 				setText(view, R.id.text2, String.format("%d.%02d %%", shortage/100, shortage%100));
 				break;
-			case 6:
+			case 7:
 				setText(view, R.id.text1, R.string.next_rank);
 				setText(view, R.id.text2, String.format("%d pts", m_rankPoints));
 				break;
-			case 7:
+			case 8:
 				setText(view, android.R.id.title, R.string.vocaloid_point);
 				break;
-			case 8:
+			case 9:
 				setText(view, R.id.text2, String.format("%d VP", m_record.vocaloid_point));
 				break;
 			}

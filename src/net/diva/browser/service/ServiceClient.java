@@ -343,7 +343,7 @@ public class ServiceClient {
 	}
 
 	private HttpResponse postTo(String relative) throws IOException {
-		return postTo(relative, null);
+		return postTo(relative, (HttpEntity)null);
 	}
 
 	private synchronized HttpResponse postTo(String relative, HttpEntity entity) throws IOException {
@@ -359,13 +359,23 @@ public class ServiceClient {
 		return response;
 	}
 
+	private HttpResponse postTo(String relative, String... pairs) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(pairs.length/2);
+		for (int i = 0; i < pairs.length; i += 2)
+			params.add(new BasicNameValuePair(pairs[i], pairs[i+1]));
+
+		return postTo(relative, new UrlEncodedFormEntity(params, "UTF-8"));
+	}
+
 	public void rename(String name) throws OperationFailedException, IOException {
 		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
-		params.add(new BasicNameValuePair("name", name));
-		HttpResponse response = postTo("/divanet/personal/updateName/", new UrlEncodedFormEntity(params, "UTF-8"));
-		String error = Parser.parseRenameResult(response.getEntity().getContent());
+
+		HttpResponse response = postTo("/divanet/personal/confirmUpdateName/", "name", name);
+		String error = Parser.parseRenameResult(response.getEntity().getContent(), params);
 		if (error != null)
 			throw new OperationFailedException(error);
+
+		postTo("/divanet/personal/updateName/", new UrlEncodedFormEntity(params, "UTF-8"));
 	}
 
 	public String setTitle(String title_id, boolean noDecor) throws IOException, OperationFailedException {
@@ -490,7 +500,7 @@ public class ServiceClient {
 		params.add(new BasicNameValuePair("name", newName));
 		final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "UTF-8");
 		HttpResponse response = postTo(String.format("/divanet/myList/updateName/%d", id), entity);
-		String error = Parser.parseRenameResult(response.getEntity().getContent());
+		String error = Parser.parseRenameResult(response.getEntity().getContent(), null);
 		if (error != null)
 			throw new OperationFailedException(error);
 	}

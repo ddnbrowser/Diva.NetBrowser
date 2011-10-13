@@ -2,9 +2,13 @@ package net.diva.browser.service.parser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.IndividualSetting;
@@ -51,10 +55,22 @@ public final class Parser {
 	}
 
 	private static final Pattern RE_RENAME_RESULT = Pattern.compile("<font.*>(.*)</font><br>\\s*<br>\\s*再度入力してください");
-	public static String parseRenameResult(InputStream content) {
+	private static final Pattern RE_PAIR = Pattern.compile("<input .*name=\"(.*)\" value=\"(.*)\">");
+	public static String parseRenameResult(InputStream content, List<NameValuePair> params) {
 		String body = read(content);
 		Matcher m = RE_RENAME_RESULT.matcher(body);
-		return m.find() ? m.group(1) : null;
+		if (m.find())
+			return m.group(1);
+
+		if (params != null) {
+			m = m.usePattern(RE_PAIR);
+			while (m.find()) {
+				String name = m.group(1);
+				String value = m.group(2);
+				params.add(new BasicNameValuePair(name, value));
+			}
+		}
+		return null;
 	}
 
 	private static final Pattern RE_SETTING_MODULE = Pattern.compile("/divanet/module/selectPv/(\\w+)/\\d+\">(.*)</a>");

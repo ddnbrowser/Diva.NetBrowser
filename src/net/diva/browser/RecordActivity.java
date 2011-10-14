@@ -51,11 +51,17 @@ public class RecordActivity extends ListActivity {
 	}
 
 	private void refresh(List<String> records) {
+		int cleared = 0;
 		m_adapter.setNotifyOnChange(false);
 		m_adapter.clear();
-		for (String record: records)
+		for (String record: records) {
 			m_adapter.add(Html.fromHtml(record));
+			if (record.length() > 5)
+				++cleared;
+		}
 		m_adapter.notifyDataSetChanged();
+
+		setTitle(getString(R.string.title_record_tab, cleared, records.size()));
 	}
 
 	private class UpdateRecord extends ServiceTask<Void, Void, List<String>> {

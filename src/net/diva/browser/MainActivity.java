@@ -1,16 +1,13 @@
 package net.diva.browser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import android.app.Activity;
-import android.app.TabActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,16 +16,23 @@ import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-public class MainActivity extends TabActivity implements TabHost.OnTabChangeListener, DdN.Observer, OnGlobalLayoutListener {
+public class MainActivity extends FragmentActivity
+		implements TabHost.OnTabChangeListener, DdN.Observer, OnGlobalLayoutListener {
 	private class TabHolder {
 		MyList myList;
 		TextView title;
@@ -41,23 +45,34 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		}
 	}
 
-	private CharSequence m_defaultTitle;
+	private TabsAdapter m_adapter;
+//	private CharSequence m_defaultTitle;
 	private List<TabHolder> m_myListTabs = new ArrayList<TabHolder>();
+
+	private TabHost getTabHost() {
+		return (TabHost)findViewById(android.R.id.tabhost);
+	}
+
+	private TabWidget getTabWidget() {
+		return (TabWidget)findViewById(android.R.id.tabs);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-		m_defaultTitle = getTitle();
+//		m_defaultTitle = getTitle();
 
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		TabHost host = getTabHost();
+		host.setup();
 		host.setOnTabChangedListener(this);
 		TabWidget widget = getTabWidget();
 		widget.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
-		addTabs(host, widget);
+		m_adapter = new TabsAdapter(this, host, (ViewPager)findViewById(R.id.pager));
+		addTabs(host, m_adapter);
 
 		final int width = getResources().getDimensionPixelSize(R.dimen.tab_width);
 		for (int i = 0; i < widget.getTabCount(); ++i)
@@ -102,8 +117,8 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 	}
 
 	public void onTabChanged(String tagId) {
-		CharSequence title = getCurrentActivity().getTitle();
-		setTitle(title != null ? title : m_defaultTitle);
+//		CharSequence title = getCurrentActivity().getTitle();
+//		setTitle(title != null ? title : m_defaultTitle);
 	}
 
 	@Override
@@ -181,45 +196,40 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		}
 	}
 
-	private void addTabs(TabHost host, TabWidget widget) {
-		final Context context = getApplicationContext();
+	private void addTabs(TabHost host, TabsAdapter adapter) {
 		final Resources resources = getResources();
 
 		String[] tags = resources.getStringArray(R.array.tab_tags);
 		String[] names = resources.getStringArray(R.array.tab_names);
 		TypedArray icons = resources.obtainTypedArray(R.array.tab_icons);
-		Map<String, Intent> intents = new HashMap<String, Intent>();
-		intents.put("information", new Intent(context, InformationActivity.class));
-		intents.put("all", new Intent(context, AllMusicActivity.class));
-		intents.put("record", new Intent(context, RecordActivity.class));
+		String[] classes = resources.getStringArray(R.array.tab_classes);
 
 		for (int i = 0; i < tags.length; ++i) {
 			final String tag = tags[i];
 			if ("mylist".equals(tag)) {
-				addMyListTabs(host, widget);
+				addMyListTabs(host, adapter, classes[i]);
 				continue;
 			}
 			TabHost.TabSpec tab = host.newTabSpec(tag);
 			tab.setIndicator(names[i], icons.getDrawable(i));
-			tab.setContent(intents.get(tag).putExtra("tag", tag));
-			host.addTab(tab);
+			adapter.addTab(tab, classes[i], null);
 		}
 		icons.recycle();
 	}
 
-	private void addMyListTabs(TabHost host, TabWidget widget) {
+	private void addMyListTabs(TabHost host, TabsAdapter adapter, String klass) {
+		TabWidget widget = getTabWidget();
 		final LocalStore store = DdN.getLocalStore();
 		final int active = store.getActiveMyList();
 		for (MyList mylist: store.loadMyLists()) {
-			final Intent intent = new Intent(getApplicationContext(), MyListActivity.class);
-			intent.putExtra("id", mylist.id);
-			intent.putExtra("name", mylist.name);
-			intent.putExtra("tag", mylist.tag);
+			Bundle args = new Bundle(3);
+			args.putInt("id", mylist.id);
+			args.putString("name", mylist.name);
+			args.putString("tag", mylist.tag);
 
 			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);
 			tab.setIndicator(mylist.name, getMyListIcon(mylist.id == active));
-			tab.setContent(intent);
-			host.addTab(tab);
+			adapter.addTab(tab, klass, args);
 
 			m_myListTabs.add(new TabHolder(mylist, widget.getChildTabViewAt(widget.getTabCount()-1)));
 		}
@@ -241,5 +251,97 @@ public class MainActivity extends TabActivity implements TabHost.OnTabChangeList
 		}
 
 		return null;
+	}
+
+	private static class TabsAdapter extends FragmentPagerAdapter
+			implements TabHost.OnTabChangeListener, ViewPager.OnPageChangeListener {
+		static class Page {
+			String klass;
+			Bundle args;
+
+			Page(String klass_, Bundle args_) {
+				klass = klass_;
+				args = args_;
+			}
+
+			Fragment instantiate(Context context) {
+				return Fragment.instantiate(context, klass, args);
+			}
+		}
+
+		static class DummyTabFactory implements TabHost.TabContentFactory {
+			Context m_context;
+
+			DummyTabFactory(Context context) {
+				m_context = context;
+			}
+
+			@Override
+			public View createTabContent(String tag) {
+				View view = new View(m_context);
+				view.setMinimumWidth(0);
+				view.setMinimumHeight(0);
+				return view;
+			}
+		}
+
+		Context m_context;
+		TabHost m_host;
+		ViewPager m_pager;
+		List<Page> m_pages = new ArrayList<Page>();
+
+		TabsAdapter(FragmentActivity activity, TabHost host, ViewPager pager) {
+			super(activity.getSupportFragmentManager());
+
+			m_context = activity;
+			m_host = host;
+			m_host.setOnTabChangedListener(this);
+			m_pager = pager;
+			m_pager.setAdapter(this);
+			m_pager.setOnPageChangeListener(this);
+		}
+
+		void addTab(TabHost.TabSpec spec, String klass, Bundle args) {
+			spec.setContent(new DummyTabFactory(m_context));
+			m_pages.add(new Page(klass, args));
+			m_host.addTab(spec);
+			notifyDataSetChanged();
+		}
+
+		@Override
+		public int getCount() {
+			return m_pages.size();
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			return m_pages.get(position).instantiate(m_context);
+		}
+
+		@Override
+		public void onTabChanged(String tabId) {
+			m_pager.setCurrentItem(m_host.getCurrentTab());
+		}
+
+		@Override
+		public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+		}
+
+		@Override
+		public void onPageSelected(int position) {
+			m_host.setCurrentTab(position);
+		}
+
+		@Override
+		public void onPageScrollStateChanged(int state) {
+		}
+	}
+
+	public static class DummyFragment extends Fragment {
+		@Override
+		public View onCreateView(LayoutInflater inflater, ViewGroup container,
+				Bundle savedInstanceState) {
+			return new View(inflater.getContext());
+		}
 	}
 }

@@ -1,14 +1,17 @@
-package net.diva.browser;
+package net.diva.browser.page;
 
+import net.diva.browser.DdN;
+import net.diva.browser.R;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.util.ProgressTask;
-import android.app.ListActivity;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +19,7 @@ import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class InformationActivity extends ListActivity implements DdN.Observer {
+public class InformationFragment extends ListFragment implements DdN.Observer {
 	private InformationAdapter m_adapter;
 	private PlayRecord m_record;
 
@@ -25,19 +28,23 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 	private int m_rankPoints;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.basic_list);
-		TextView empty = (TextView)findViewById(R.id.empty_message);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View v = inflater.inflate(R.layout.basic_list, container, false);
+		TextView empty = (TextView)v.findViewById(R.id.empty_message);
 		if (empty != null)
 			empty.setText(R.string.no_record);
+		return v;
+	}
 
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
 		m_adapter = new InformationAdapter();
 		setListAdapter(m_adapter);
 	}
 
 	@Override
-	protected void onResume() {
+	public void onResume() {
 		super.onResume();
 		final PlayRecord record = DdN.getPlayRecord();
 		if (record != null)
@@ -46,22 +53,22 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 	}
 
 	@Override
-	protected void onPause() {
+	public void onPause() {
 		super.onPause();
 		DdN.unregisterObserver(this);
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.information_options, menu);
-		return super.onCreateOptionsMenu(menu);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.information_options, menu);
+		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.item_update:
-			new UpdateTask(this).execute();
+			new UpdateTask(getActivity()).execute();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -134,7 +141,7 @@ public class InformationActivity extends ListActivity implements DdN.Observer {
 
 		public View getView(int position, View view, ViewGroup parent) {
 			if (view == null) {
-				LayoutInflater inflater = getLayoutInflater();
+				LayoutInflater inflater = LayoutInflater.from(getActivity());
 				view = inflater.inflate(LAYOUTS[position], parent, false);
 			}
 

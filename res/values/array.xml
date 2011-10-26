@@ -30,7 +30,7 @@
     <item>@drawable/ic_tab_record</item>
 </array>
 <string-array name="tab_classes">
-    <item>net.diva.browser.MainActivity$DummyFragment</item>
+    <item>net.diva.browser.page.InformationFragment</item>
     <item>net.diva.browser.MainActivity$DummyFragment</item>
     <item>net.diva.browser.MainActivity$DummyFragment</item>
     <item>net.diva.browser.MainActivity$DummyFragment</item>

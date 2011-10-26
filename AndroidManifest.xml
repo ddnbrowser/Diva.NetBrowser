@@ -10,7 +10,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".InformationActivity"></activity>
         <activity android:name=".AllMusicActivity"></activity>
         <activity android:name=".MyListActivity"></activity>
         <activity android:name=".RecordActivity"></activity>

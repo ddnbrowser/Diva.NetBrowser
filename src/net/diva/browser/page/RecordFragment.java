@@ -1,38 +1,42 @@
-package net.diva.browser;
+package net.diva.browser.page;
 
 import java.util.List;
 
+import net.diva.browser.DdN;
+import net.diva.browser.R;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
-import android.app.ListActivity;
 import android.os.Bundle;
+import android.support.v4.app.ListFragment;
 import android.text.Html;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public class RecordActivity extends ListActivity {
+public class RecordFragment extends ListFragment {
 	ArrayAdapter<CharSequence> m_adapter;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.basic_list);
-		TextView empty = (TextView)findViewById(R.id.empty_message);
-		if (empty != null)
-			empty.setText(R.string.no_records);
+		setHasOptionsMenu(true);
+	}
 
-		m_adapter = new ArrayAdapter<CharSequence>(this, R.layout.record_item, R.id.text1);
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getText(R.string.no_records));
+
+		m_adapter = new ArrayAdapter<CharSequence>(getActivity(), R.layout.record_item, R.id.text1);
 		refresh(DdN.getLocalStore().getDIVARecords());
 		setListAdapter(m_adapter);
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.record_options, menu);
-		return super.onCreateOptionsMenu(menu);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.record_options, menu);
 	}
 
 	@Override
@@ -61,7 +65,7 @@ public class RecordActivity extends ListActivity {
 		}
 		m_adapter.notifyDataSetChanged();
 
-		setTitle(getString(R.string.title_record_tab, cleared, records.size()));
+//		setTitle(getString(R.string.title_record_tab, cleared, records.size()));
 	}
 
 	private class UpdateRecord extends ServiceTask<Void, Void, List<String>> {
@@ -70,7 +74,7 @@ public class RecordActivity extends ListActivity {
 		}
 
 		UpdateRecord(int message) {
-			super(RecordActivity.this, message);
+			super(getActivity(), message);
 		}
 
 		@Override
@@ -103,7 +107,7 @@ public class RecordActivity extends ListActivity {
 		@Override
 		protected void onResult(List<String> records) {
 			if (records == null)
-				Toast.makeText(RecordActivity.this, R.string.no_records_updated, Toast.LENGTH_SHORT).show();
+				Toast.makeText(getActivity(), R.string.no_records_updated, Toast.LENGTH_SHORT).show();
 			super.onResult(records);
 		}
 	}

@@ -33,7 +33,7 @@
     <item>net.diva.browser.page.InformationFragment</item>
     <item>net.diva.browser.MainActivity$DummyFragment</item>
     <item>net.diva.browser.MainActivity$DummyFragment</item>
-    <item>net.diva.browser.MainActivity$DummyFragment</item>
+    <item>net.diva.browser.page.RecordFragment</item>
 </string-array>
 <string-array name="music_layout_names">
     <item>3行表示 (達成率)</item>

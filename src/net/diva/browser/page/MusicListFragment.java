@@ -1,8 +1,14 @@
-package net.diva.browser;
+package net.diva.browser.page;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.diva.browser.DdN;
+import net.diva.browser.MusicAdapter;
+import net.diva.browser.MusicDetailActivity;
+import net.diva.browser.R;
+import net.diva.browser.SortOrder;
+import net.diva.browser.WebBrowseActivity;
 import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MusicInfo;
@@ -12,8 +18,8 @@ import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.util.CheckedFrameLayout;
 import net.diva.browser.util.StringUtils;
+import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -23,22 +29,23 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.ListFragment;
 import android.text.ClipboardManager;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
-public abstract class MusicListActivity extends ListActivity implements DdN.Observer {
+public abstract class MusicListFragment extends ListFragment implements DdN.Observer {
 	protected View m_buttons[];
 	protected ListView m_list;
 	protected MusicAdapter m_adapter;
@@ -50,24 +57,24 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 
 	protected List<MusicInfo> m_selections = new ArrayList<MusicInfo>();
 
-	/** Called when the activity is first created. */
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.music_list);
+	public void onAttach(Activity activity) {
+		super.onAttach(activity);
 
-		m_preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		m_localPrefs = getSharedPreferences(getIntent().getStringExtra("tag"), MODE_PRIVATE);
-		m_store = LocalStore.instance(this);
+		m_preferences = PreferenceManager.getDefaultSharedPreferences(activity);
+		m_localPrefs = activity.getSharedPreferences(getArguments().getString("tag"), Context.MODE_PRIVATE);
+		m_store = LocalStore.instance(activity);
+		m_adapter = new MyAdapter(activity);
+	}
 
-		m_adapter = new MyAdapter(this);
-		setListAdapter(m_adapter);
-
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		View v = inflater.inflate(R.layout.music_list, container, false);
 		m_buttons = new View[] {
-				findViewById(R.id.button_easy),
-				findViewById(R.id.button_normal),
-				findViewById(R.id.button_hard),
-				findViewById(R.id.button_extreme),
+				v.findViewById(R.id.button_easy),
+				v.findViewById(R.id.button_normal),
+				v.findViewById(R.id.button_hard),
+				v.findViewById(R.id.button_extreme),
 		};
 		for (int i = 0; i < m_buttons.length; ++i) {
 			final int d = i;
@@ -77,6 +84,14 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 				}
 			});
 		}
+		return v;
+	}
+
+	@Override
+	public void onActivityCreated(Bundle savedInstanceState) {
+		super.onActivityCreated(savedInstanceState);
+
+		setListAdapter(m_adapter);
 
 		m_list = getListView();
 		m_list.setFocusable(true);
@@ -86,11 +101,11 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	}
 
 	@Override
-	protected void onResume() {
+	public void onResume() {
 		super.onResume();
 		String name = m_preferences.getString("music_layout", null);
 		if (name != null) {
-			int id = getResources().getIdentifier(name, "layout", getPackageName());
+			int id = getResources().getIdentifier(name, "layout", getActivity().getPackageName());
 			if (id != 0 && m_adapter.setLayout(id))
 				setListAdapter(m_adapter);
 		}
@@ -106,7 +121,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	}
 
 	@Override
-	protected void onPause() {
+	public void onPause() {
 		super.onPause();
 		DdN.unregisterObserver(this);
 		final Editor editor = m_localPrefs.edit();
@@ -150,7 +165,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		getMenuInflater().inflate(R.menu.list_context, menu);
+		getActivity().getMenuInflater().inflate(R.menu.list_context, menu);
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		MusicInfo music = m_adapter.getItem(info.position);
 		menu.setHeaderTitle(music.title);
@@ -173,10 +188,10 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 			editTitleReading(music);
 			return true;
 		case R.id.item_ranking:
-			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", music.id));
+			WebBrowseActivity.open(getActivity(), String.format("/divanet/ranking/summary/%s/0", music.id));
 			return true;
 		case R.id.item_copy_title:
-			ClipboardManager clipboard = (ClipboardManager)getSystemService(CLIPBOARD_SERVICE);
+			ClipboardManager clipboard = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
 			if (clipboard != null)
 				clipboard.setText(music.title);
 			return true;
@@ -185,16 +200,16 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		}
 	}
 
-	@Override
-	public boolean onSearchRequested() {
-		activateTextFilter();
-		return false;
-	}
+//	@Override
+//	public boolean onSearchRequested() {
+//		activateTextFilter();
+//		return false;
+//	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		StringBuilder sb = new StringBuilder();
 		makeTitle(sb, record);
-		setTitle(sb.toString());
+//		setTitle(sb.toString());
 
 		if (noMusic)
 			m_adapter.notifyDataSetChanged();
@@ -229,11 +244,11 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	}
 
 	protected void updateAll() {
-		DownloadPlayRecord task = new DownloadPlayRecord(this);
+		DownloadPlayRecord task = new DownloadPlayRecord(getActivity());
 
 		DdN.Account account = DdN.Account.load(m_preferences);
 		if (account == null) {
-			DdN.Account.input(this, task);
+			DdN.Account.input(getActivity(), task);
 			return;
 		}
 
@@ -252,19 +267,19 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		m_list.requestFocus();
 		m_handler.postDelayed(new Runnable() {
 			public void run() {
-				InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+				InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 				imm.showSoftInput(m_list, InputMethodManager.SHOW_IMPLICIT);
 			}
 		}, 100);
 	}
 
 	private void editTitleReading(final MusicInfo music) {
-		LayoutInflater inflater = LayoutInflater.from(this);
+		LayoutInflater inflater = LayoutInflater.from(getActivity());
 		View view = inflater.inflate(R.layout.input_reading, null);
 		final EditText edit = (EditText)view.findViewById(R.id.reading);
 		edit.setText(music.reading);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.input_reading);
 		builder.setMessage(music.title);
 		builder.setView(view);
@@ -282,7 +297,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 	}
 
 	@Override
-	protected void onListItemClick(ListView list, View v, int position, long id) {
+	public void onListItemClick(ListView list, View v, int position, long id) {
 		MusicInfo music = m_adapter.getItem(position);
 		if (music == null)
 			return;
@@ -297,7 +312,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 			}
 		}
 		else {
-			Intent i = new Intent(getApplicationContext(), MusicDetailActivity.class);
+			Intent i = new Intent(getActivity(), MusicDetailActivity.class);
 			i.putExtra("id", music.id);
 			startActivity(i);
 		}
@@ -307,7 +322,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		private GestureDetector m_detector;
 
 		public OnTouchListener() {
-			m_detector = new GestureDetector(MusicListActivity.this, this);
+			m_detector = new GestureDetector(getActivity(), this);
 		}
 
 		public boolean onTouch(View view, MotionEvent event) {
@@ -337,7 +352,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 		private Context m_context;
 
 		public UpdateNewTask() {
-			super(MusicListActivity.this, R.string.message_downloading);
+			super(getActivity(), R.string.message_downloading);
 			m_context = m_progress.getContext();
 		}
 
@@ -399,7 +414,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 
 	private class UpdateSingleMusic extends ServiceTask<MusicInfo, Void, Boolean> {
 		public UpdateSingleMusic() {
-			super(MusicListActivity.this, R.string.message_updating);
+			super(getActivity(), R.string.message_updating);
 		}
 
 		@Override
@@ -419,7 +434,7 @@ public abstract class MusicListActivity extends ListActivity implements DdN.Obse
 
 	private class UpdateMultiMusic extends ServiceTask<MusicInfo, Integer, Boolean> {
 		public UpdateMultiMusic() {
-			super(MusicListActivity.this, R.string.message_updating);
+			super(getActivity(), R.string.message_updating);
 			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		}
 

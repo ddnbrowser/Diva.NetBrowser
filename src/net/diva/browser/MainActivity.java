@@ -210,9 +210,11 @@ public class MainActivity extends FragmentActivity
 				addMyListTabs(host, adapter, classes[i]);
 				continue;
 			}
+			Bundle args = new Bundle();
+			args.putString("tag", tag);
 			TabHost.TabSpec tab = host.newTabSpec(tag);
 			tab.setIndicator(names[i], icons.getDrawable(i));
-			adapter.addTab(tab, classes[i], null);
+			adapter.addTab(tab, classes[i], args);
 		}
 		icons.recycle();
 	}

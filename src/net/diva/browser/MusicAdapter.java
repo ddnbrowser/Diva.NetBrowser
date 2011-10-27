@@ -30,7 +30,7 @@ import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-class MusicAdapter extends BaseAdapter implements Filterable, SortableListView.DragListener {
+public class MusicAdapter extends BaseAdapter implements Filterable, SortableListView.DragListener {
 	private int m_itemLayout = R.layout.music_item;
 
 	private Context m_context;

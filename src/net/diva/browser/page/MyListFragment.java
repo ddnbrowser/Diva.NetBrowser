@@ -1,27 +1,32 @@
-package net.diva.browser;
+package net.diva.browser.page;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import net.diva.browser.DdN;
+import net.diva.browser.MyListEditActivity;
+import net.diva.browser.R;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.OperationFailedException;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-public class MyListActivity extends MusicListActivity {
+public class MyListFragment extends MusicListFragment {
 	private MyList m_myList;
 	private List<MusicInfo> m_musics;
 	private List<String> m_ids;
@@ -29,22 +34,21 @@ public class MyListActivity extends MusicListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
 
-		Intent intent = getIntent();
-		m_myList = new MyList(intent.getIntExtra("id", 0), intent.getStringExtra("name"));
+		Bundle args = getArguments();
+		m_myList = new MyList(args.getInt("id", 0), args.getString("name"));
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.mylist_options, menu);
-		return super.onCreateOptionsMenu(menu);
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.mylist_options, menu);
 	}
 
 	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
+	public void onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.item_activate_mylist).setEnabled(!m_musics.isEmpty());
 		menu.findItem(R.id.item_update_bulk).setEnabled(DdN.isAllowUpdateMusics(m_preferences));
-		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override
@@ -72,10 +76,10 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case R.id.item_edit_mylist:
-			if (resultCode == RESULT_OK) {
+			if (resultCode == Activity.RESULT_OK) {
 				new UpdateMyList(data.getStringExtra("name")).execute(data.getStringArrayExtra("ids"));
 				return;
 			}
@@ -121,12 +125,12 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	private void editMyListName() {
-		LayoutInflater inflater = LayoutInflater.from(this);
+		LayoutInflater inflater = LayoutInflater.from(getActivity());
 		View view = inflater.inflate(R.layout.input_reading, null);
 		final EditText edit = (EditText)view.findViewById(R.id.reading);
 		edit.setText(m_myList.name);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.edit_mylist_name);
 		builder.setMessage(R.string.message_edit_mylist_name);
 		builder.setView(view);
@@ -147,7 +151,7 @@ public class MyListActivity extends MusicListActivity {
 		else
 			ids = new ArrayList<String>(m_ids);
 
-		Intent intent = new Intent(getApplicationContext(), MyListEditActivity.class);
+		Intent intent = new Intent(getActivity(), MyListEditActivity.class);
 		intent.putExtra("name", m_myList.name);
 		intent.putStringArrayListExtra("ids", ids);
 		intent.putExtra("layout", m_adapter.getLayout());
@@ -156,7 +160,7 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	private void deleteMyList() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(m_myList.name);
 		builder.setMessage(R.string.confirm_delete_mylist);
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -170,7 +174,7 @@ public class MyListActivity extends MusicListActivity {
 	}
 
 	private void activateMyList() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(m_myList.name);
 		builder.setMessage(R.string.confirm_activate_mylist);
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -185,7 +189,7 @@ public class MyListActivity extends MusicListActivity {
 
 	private class RenameMyList extends ServiceTask<String, Void, String> {
 		public RenameMyList() {
-			super(MyListActivity.this, R.string.message_updating);
+			super(getActivity(), R.string.message_updating);
 		}
 
 		@Override
@@ -206,13 +210,13 @@ public class MyListActivity extends MusicListActivity {
 		@Override
 		protected void onResult(String result) {
 			if (result != null)
-				Toast.makeText(MyListActivity.this, result, Toast.LENGTH_LONG).show();
+				Toast.makeText(getActivity(), result, Toast.LENGTH_LONG).show();
 		}
 	}
 
 	private class SyncMyList extends ServiceTask<Integer, Void, MyList> {
 		SyncMyList() {
-			super(MyListActivity.this, R.string.synchronizing);
+			super(getActivity(), R.string.synchronizing);
 		}
 
 		@Override
@@ -235,7 +239,7 @@ public class MyListActivity extends MusicListActivity {
 		MyList myList;
 
 		public UpdateMyList(String name) {
-			super(MyListActivity.this, R.string.message_updating);
+			super(getActivity(), R.string.message_updating);
 			myList = new MyList(m_myList.id, name);
 		}
 
@@ -268,14 +272,14 @@ public class MyListActivity extends MusicListActivity {
 		@Override
 		protected void onResult(String result) {
 			if (result != null)
-				Toast.makeText(MyListActivity.this, result, Toast.LENGTH_LONG).show();
+				Toast.makeText(getActivity(), result, Toast.LENGTH_LONG).show();
 		}
 
 	}
 
 	private class DeleteMyList extends ServiceTask<Integer, Void, MyList> {
 		DeleteMyList() {
-			super(MyListActivity.this, R.string.deleting);
+			super(getActivity(), R.string.deleting);
 		}
 
 		@Override
@@ -299,7 +303,7 @@ public class MyListActivity extends MusicListActivity {
 
 	private class ActivateMyList extends ServiceTask<Integer, Void, String> {
 		ActivateMyList() {
-			super(MyListActivity.this, R.string.activating);
+			super(getActivity(), R.string.activating);
 		}
 
 		@Override
@@ -318,7 +322,7 @@ public class MyListActivity extends MusicListActivity {
 		@Override
 		protected void onResult(String error) {
 			if (error != null)
-				Toast.makeText(MyListActivity.this, error, Toast.LENGTH_LONG).show();
+				Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
 			else
 				DdN.notifyChanged(m_myList, true);
 		}

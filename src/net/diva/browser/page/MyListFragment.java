@@ -27,6 +27,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 public class MyListFragment extends MusicListFragment {
+	private static final int EDIT_MYLIST = 1;
+
 	private MyList m_myList;
 	private List<MusicInfo> m_musics;
 	private List<String> m_ids;
@@ -78,7 +80,7 @@ public class MyListFragment extends MusicListFragment {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case R.id.item_edit_mylist:
+		case EDIT_MYLIST:
 			if (resultCode == Activity.RESULT_OK) {
 				new UpdateMyList(data.getStringExtra("name")).execute(data.getStringArrayExtra("ids"));
 				return;
@@ -156,7 +158,7 @@ public class MyListFragment extends MusicListFragment {
 		intent.putStringArrayListExtra("ids", ids);
 		intent.putExtra("layout", m_adapter.getLayout());
 		intent.putExtra("difficulty", m_adapter.getDifficulty());
-		startActivityForResult(intent, R.id.item_edit_mylist);
+		startActivityForResult(intent, EDIT_MYLIST);
 	}
 
 	private void deleteMyList() {

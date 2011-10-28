@@ -31,6 +31,8 @@ import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity
 		implements TabHost.OnTabChangeListener, DdN.Observer, OnGlobalLayoutListener {
+	private static final int TOOL_SETTINGS = 1;
+
 	private class TabHolder {
 		MyList myList;
 		TextView title;
@@ -154,7 +156,7 @@ public class MainActivity extends FragmentActivity
 			break;
 		case R.id.item_tool_settings: {
 			Intent intent = new Intent(getApplicationContext(), SettingsActivity.class);
-			startActivityForResult(intent, R.id.item_tool_settings);
+			startActivityForResult(intent, TOOL_SETTINGS);
 		}
 			break;
 		default:
@@ -166,7 +168,7 @@ public class MainActivity extends FragmentActivity
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
-		case R.id.item_tool_settings:
+		case TOOL_SETTINGS:
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 			if (preferences.getBoolean("download_rankin", false))
 				DownloadRankingService.reserve(this);

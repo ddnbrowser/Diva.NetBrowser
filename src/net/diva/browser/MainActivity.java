@@ -322,7 +322,7 @@ public class MainActivity extends FragmentActivity
 
 		@Override
 		public void onTabChanged(String tabId) {
-			m_pager.setCurrentItem(m_host.getCurrentTab());
+			m_pager.setCurrentItem(m_host.getCurrentTab(), false);
 		}
 
 		@Override

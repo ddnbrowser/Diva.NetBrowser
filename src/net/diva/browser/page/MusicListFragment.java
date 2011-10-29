@@ -174,6 +174,9 @@ public abstract class MusicListFragment extends ListFragment implements DdN.Obse
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		if (getListView().getPositionForView(info.targetView) != info.position)
+			return false;
+
 		MusicInfo music = m_adapter.getItem(info.position);
 		switch (item.getItemId()) {
 		case R.id.item_update:

@@ -68,7 +68,8 @@ public class MainActivity extends FragmentActivity
 		TabWidget widget = getTabWidget();
 		widget.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
-		m_adapter = new TabsAdapter(this, host, (ViewPager)findViewById(R.id.pager));
+		m_adapter = new TabsAdapter(this, host, (ViewPager)findViewById(R.id.pager),
+				widget, findViewById(R.id.tabbase));
 		addTabs(host, m_adapter);
 
 		final int width = getResources().getDimensionPixelSize(R.dimen.tab_width);
@@ -98,14 +99,9 @@ public class MainActivity extends FragmentActivity
 
 	public void onGlobalLayout() {
 		m_adapter.updateTitle();
-		TabWidget widget = getTabWidget();
-		View tab = widget.getChildTabViewAt(getTabHost().getCurrentTab());
-		if (tab == null)
-			return;
-		View base = findViewById(R.id.tabbase);
-		base.scrollTo(tab.getRight() - base.getWidth(), 0);
+		m_adapter.adjustTabPosition();
 
-		widget.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+		getTabWidget().getViewTreeObserver().removeGlobalOnLayoutListener(this);
 	}
 
 	@Override
@@ -291,15 +287,20 @@ public class MainActivity extends FragmentActivity
 
 		Activity m_activity;
 		TabHost m_host;
+		TabWidget m_tabs;
+		View m_base;
 		ViewPager m_pager;
 		List<Page> m_pages = new ArrayList<Page>();
 
-		TabsAdapter(FragmentActivity activity, TabHost host, ViewPager pager) {
+		TabsAdapter(FragmentActivity activity, TabHost host, ViewPager pager,
+				TabWidget tabs, View base) {
 			super(activity.getSupportFragmentManager());
 
 			m_activity = activity;
 			m_host = host;
 			m_host.setOnTabChangedListener(this);
+			m_tabs = tabs;
+			m_base = base;
 			m_pager = pager;
 			m_pager.setAdapter(this);
 			m_pager.setOnPageChangeListener(this);
@@ -328,6 +329,21 @@ public class MainActivity extends FragmentActivity
 				m_activity.setTitle(R.string.app_name);
 		}
 
+		void adjustTabPosition() {
+			View tab = m_tabs.getChildTabViewAt(m_host.getCurrentTab());
+			if (tab == null)
+				return;
+
+			final int o = m_base.getScrollX();
+			final int l = tab.getLeft();
+			final int r = tab.getRight();
+			final int w = m_base.getWidth();
+			if (l < o)
+				m_base.scrollTo(l, 0);
+			else if (r > w + o)
+				m_base.scrollTo(r - w, 0);
+		}
+
 		@Override
 		public int getCount() {
 			return m_pages.size();
@@ -346,9 +362,7 @@ public class MainActivity extends FragmentActivity
 
 		@Override
 		public void onTabChanged(String tabId) {
-			int position = m_host.getCurrentTab();
-			m_pager.setCurrentItem(position, false);
-			updateTitle(position);
+			m_pager.setCurrentItem(m_host.getCurrentTab(), false);
 		}
 
 		@Override
@@ -359,6 +373,7 @@ public class MainActivity extends FragmentActivity
 		public void onPageSelected(int position) {
 			m_host.setCurrentTab(position);
 			updateTitle(position);
+			adjustTabPosition();
 		}
 
 		@Override

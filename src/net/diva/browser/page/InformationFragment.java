@@ -28,6 +28,12 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 	private int m_rankPoints;
 
 	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.basic_list, container, false);
 		TextView empty = (TextView)v.findViewById(R.id.empty_message);
@@ -61,7 +67,6 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.information_options, menu);
-		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override

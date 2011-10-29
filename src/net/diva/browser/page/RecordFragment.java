@@ -15,8 +15,9 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-public class RecordFragment extends ListFragment {
+public class RecordFragment extends ListFragment implements PageAdapter {
 	ArrayAdapter<CharSequence> m_adapter;
+	private String m_title;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +56,11 @@ public class RecordFragment extends ListFragment {
 		return true;
 	}
 
+	@Override
+	public CharSequence getTitle() {
+		return m_title;
+	}
+
 	private void refresh(List<String> records) {
 		int cleared = 0;
 		m_adapter.setNotifyOnChange(false);
@@ -66,7 +72,7 @@ public class RecordFragment extends ListFragment {
 		}
 		m_adapter.notifyDataSetChanged();
 
-//		setTitle(getString(R.string.title_record_tab, cleared, records.size()));
+		m_title = getString(R.string.title_record_tab, cleared, records.size());
 	}
 
 	private class UpdateRecord extends ServiceTask<Void, Void, List<String>> {

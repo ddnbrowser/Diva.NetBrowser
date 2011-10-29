@@ -7,6 +7,7 @@ import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
+import net.diva.browser.page.PageAdapter;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -29,7 +30,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 
 public class MainActivity extends FragmentActivity
-		implements TabHost.OnTabChangeListener, DdN.Observer, OnGlobalLayoutListener {
+		implements DdN.Observer, OnGlobalLayoutListener {
 	private static final int TOOL_SETTINGS = 1;
 
 	private class TabHolder {
@@ -45,7 +46,6 @@ public class MainActivity extends FragmentActivity
 	}
 
 	private TabsAdapter m_adapter;
-//	private CharSequence m_defaultTitle;
 	private List<TabHolder> m_myListTabs = new ArrayList<TabHolder>();
 
 	private TabHost getTabHost() {
@@ -60,13 +60,11 @@ public class MainActivity extends FragmentActivity
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
-//		m_defaultTitle = getTitle();
 
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		TabHost host = getTabHost();
 		host.setup();
-		host.setOnTabChangedListener(this);
 		TabWidget widget = getTabWidget();
 		widget.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
@@ -99,6 +97,7 @@ public class MainActivity extends FragmentActivity
 	}
 
 	public void onGlobalLayout() {
+		m_adapter.updateTitle();
 		TabWidget widget = getTabWidget();
 		View tab = widget.getChildTabViewAt(getTabHost().getCurrentTab());
 		if (tab == null)
@@ -107,17 +106,6 @@ public class MainActivity extends FragmentActivity
 		base.scrollTo(tab.getRight() - base.getWidth(), 0);
 
 		widget.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-	}
-
-	@Override
-	protected void onChildTitleChanged(Activity childActivity, CharSequence title) {
-		super.onChildTitleChanged(childActivity, title);
-		setTitle(title);
-	}
-
-	public void onTabChanged(String tagId) {
-//		CharSequence title = getCurrentActivity().getTitle();
-//		setTitle(title != null ? title : m_defaultTitle);
 	}
 
 	@Override
@@ -175,10 +163,20 @@ public class MainActivity extends FragmentActivity
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
-		// do nothing.
+		for (TabsAdapter.Page p: m_adapter.m_pages) {
+			if (p.observer != null)
+				p.observer.onUpdate(record, noMusic);
+		}
+
+		m_adapter.updateTitle();
 	}
 
 	public void onUpdate(MyList myList, boolean noMusic) {
+		for (TabsAdapter.Page p: m_adapter.m_pages) {
+			if (p.observer != null)
+				p.observer.onUpdate(myList, noMusic);
+		}
+
 		final int active = DdN.getLocalStore().getActiveMyList();
 		for (TabHolder holder: m_myListTabs) {
 			if (holder.myList.id == myList.id) {
@@ -187,6 +185,7 @@ public class MainActivity extends FragmentActivity
 			}
 			holder.icon.setImageDrawable(getMyListIcon(holder.myList.id == active));
 		}
+		m_adapter.updateTitle();
 	}
 
 	private void addTabs(TabHost host, TabsAdapter adapter) {
@@ -253,6 +252,8 @@ public class MainActivity extends FragmentActivity
 		static class Page {
 			String klass;
 			Bundle args;
+			PageAdapter adapter;
+			DdN.Observer observer;
 
 			Page(String klass_, Bundle args_) {
 				klass = klass_;
@@ -280,7 +281,7 @@ public class MainActivity extends FragmentActivity
 			}
 		}
 
-		Context m_context;
+		Activity m_activity;
 		TabHost m_host;
 		ViewPager m_pager;
 		List<Page> m_pages = new ArrayList<Page>();
@@ -288,7 +289,7 @@ public class MainActivity extends FragmentActivity
 		TabsAdapter(FragmentActivity activity, TabHost host, ViewPager pager) {
 			super(activity.getSupportFragmentManager());
 
-			m_context = activity;
+			m_activity = activity;
 			m_host = host;
 			m_host.setOnTabChangedListener(this);
 			m_pager = pager;
@@ -297,10 +298,22 @@ public class MainActivity extends FragmentActivity
 		}
 
 		void addTab(TabHost.TabSpec spec, String klass, Bundle args) {
-			spec.setContent(new DummyTabFactory(m_context));
+			spec.setContent(new DummyTabFactory(m_activity));
 			m_pages.add(new Page(klass, args));
 			m_host.addTab(spec);
 			notifyDataSetChanged();
+		}
+
+		void updateTitle() {
+			updateTitle(m_pager.getCurrentItem());
+		}
+
+		void updateTitle(int position) {
+			Page page = m_pages.get(position);
+			if (page.adapter != null)
+				m_activity.setTitle(page.adapter.getTitle());
+			else
+				m_activity.setTitle(R.string.app_name);
 		}
 
 		@Override
@@ -310,12 +323,20 @@ public class MainActivity extends FragmentActivity
 
 		@Override
 		public Fragment getItem(int position) {
-			return m_pages.get(position).instantiate(m_context);
+			Page page = m_pages.get(position);
+			Fragment f = page.instantiate(m_activity);
+			if (f instanceof PageAdapter)
+				page.adapter = (PageAdapter)f;
+			if (f instanceof DdN.Observer)
+				page.observer = (DdN.Observer)f;
+			return f;
 		}
 
 		@Override
 		public void onTabChanged(String tabId) {
-			m_pager.setCurrentItem(m_host.getCurrentTab(), false);
+			int position = m_host.getCurrentTab();
+			m_pager.setCurrentItem(position, false);
+			updateTitle(position);
 		}
 
 		@Override
@@ -325,6 +346,7 @@ public class MainActivity extends FragmentActivity
 		@Override
 		public void onPageSelected(int position) {
 			m_host.setCurrentTab(position);
+			updateTitle(position);
 		}
 
 		@Override

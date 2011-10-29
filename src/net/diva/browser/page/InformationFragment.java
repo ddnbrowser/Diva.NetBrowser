@@ -55,13 +55,6 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 		final PlayRecord record = DdN.getPlayRecord();
 		if (record != null)
 			onUpdate(record, false);
-		DdN.registerObserver(this);
-	}
-
-	@Override
-	public void onPause() {
-		super.onPause();
-		DdN.unregisterObserver(this);
 	}
 
 	@Override

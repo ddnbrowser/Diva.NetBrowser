@@ -45,7 +45,8 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 
-public abstract class MusicListFragment extends ListFragment implements DdN.Observer {
+public abstract class MusicListFragment extends ListFragment
+		implements DdN.Observer, PageAdapter {
 	protected View m_buttons[];
 	protected ListView m_list;
 	protected MusicAdapter m_adapter;
@@ -117,13 +118,11 @@ public abstract class MusicListFragment extends ListFragment implements DdN.Obse
 		PlayRecord record = DdN.getPlayRecord();
 		if (record != null)
 			onUpdate(record, false);
-		DdN.registerObserver(this);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		DdN.unregisterObserver(this);
 		final Editor editor = m_localPrefs.edit();
 		editor.putInt("difficulty", m_adapter.getDifficulty());
 		editor.putInt("sort_order", m_adapter.sortOrder().ordinal());
@@ -210,10 +209,6 @@ public abstract class MusicListFragment extends ListFragment implements DdN.Obse
 //	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
-		StringBuilder sb = new StringBuilder();
-		makeTitle(sb, record);
-//		setTitle(sb.toString());
-
 		if (noMusic)
 			m_adapter.notifyDataSetChanged();
 		else {
@@ -232,6 +227,13 @@ public abstract class MusicListFragment extends ListFragment implements DdN.Obse
 			m_adapter.update();
 		for (int i = 0; i < m_buttons.length; ++i)
 			m_buttons[i].setEnabled(i != difficulty);
+	}
+
+	@Override
+	public CharSequence getTitle() {
+		StringBuilder sb = new StringBuilder();
+		makeTitle(sb, DdN.getPlayRecord());
+		return sb.toString();
 	}
 
 	private String rankText(PlayRecord record, String title) {

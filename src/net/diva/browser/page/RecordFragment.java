@@ -61,6 +61,11 @@ public class RecordFragment extends ListFragment implements PageAdapter {
 		return m_title;
 	}
 
+	@Override
+	public boolean onSearchRequested() {
+		return false;
+	}
+
 	private void refresh(List<String> records) {
 		int cleared = 0;
 		m_adapter.setNotifyOnChange(false);

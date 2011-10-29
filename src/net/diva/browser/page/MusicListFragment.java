@@ -202,11 +202,11 @@ public abstract class MusicListFragment extends ListFragment
 		}
 	}
 
-//	@Override
-//	public boolean onSearchRequested() {
-//		activateTextFilter();
-//		return false;
-//	}
+	@Override
+	public boolean onSearchRequested() {
+		activateTextFilter();
+		return false;
+	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		if (noMusic)

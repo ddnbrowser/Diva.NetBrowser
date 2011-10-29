@@ -162,6 +162,14 @@ public class MainActivity extends FragmentActivity
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@Override
+	public boolean onSearchRequested() {
+		TabsAdapter.Page p = m_adapter.getCurrentPage();
+		if (p.adapter != null)
+			return p.adapter.onSearchRequested();
+		return super.onSearchRequested();
+	}
+
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		for (TabsAdapter.Page p: m_adapter.m_pages) {
 			if (p.observer != null)
@@ -302,6 +310,10 @@ public class MainActivity extends FragmentActivity
 			m_pages.add(new Page(klass, args));
 			m_host.addTab(spec);
 			notifyDataSetChanged();
+		}
+
+		Page getCurrentPage() {
+			return m_pages.get(m_pager.getCurrentItem());
 		}
 
 		void updateTitle() {

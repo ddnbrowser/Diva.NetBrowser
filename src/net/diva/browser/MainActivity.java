@@ -20,7 +20,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
@@ -119,12 +118,6 @@ public class MainActivity extends FragmentActivity
 	public void onTabChanged(String tagId) {
 //		CharSequence title = getCurrentActivity().getTitle();
 //		setTitle(title != null ? title : m_defaultTitle);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main_options, menu);
-		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override

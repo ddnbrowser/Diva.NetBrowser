@@ -37,6 +37,7 @@ public class RecordFragment extends ListFragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.record_options, menu);
+		inflater.inflate(R.menu.main_options, menu);
 	}
 
 	@Override

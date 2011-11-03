@@ -56,7 +56,7 @@ public class DownloadRankingService extends Service {
 						sendNotification();
 				}
 				catch (IOException e) {
-					scheduler.reserve(System.currentTimeMillis() + ONE_HOUR);
+					scheduler.reserveAt(System.currentTimeMillis() + ONE_HOUR);
 				}
 				catch (Exception e) {
 					m_preferences.edit().putBoolean("download_rankin", false).commit();
@@ -96,6 +96,7 @@ public class DownloadRankingService extends Service {
 
 	private static class Scheduler {
 		static final String RESERVE_TIME = "download_ranking_reserve_time";
+		static final String CHECK_TIME = "ranking_check_time";
 
 		Context m_context;
 		AlarmManager m_alarm;
@@ -108,22 +109,42 @@ public class DownloadRankingService extends Service {
 		}
 
 		void reserve() {
-			reserve(m_prefs.getLong(RESERVE_TIME, 0));
+			final long time = m_prefs.getLong(RESERVE_TIME, 0);
+			final long now = System.currentTimeMillis();
+			if (time < now)
+				reserveInternal(now, 0);
+			else
+				reserve(time, now);
 		}
 
 		void reserveNext() {
-			Time time = new Time("Asia/Tokyo");
-			time.setToNow();
-			if (time.hour >= 12)
-				time.monthDay += 1;
-			time.hour = 12;
-			time.minute = new Random().nextInt(60) + 3;
-			reserve(time.toMillis(true));
+			reserve(m_prefs.getLong(RESERVE_TIME, 0), Long.MAX_VALUE);
 		}
 
-		void reserve(long time) {
+		void reserveAt(long time) {
+			final long reserved = m_prefs.getLong(RESERVE_TIME, 0);
+			reserve(reserved, time - reserved);
+		}
+
+		void reserve(long base, long after) {
+			final int minOfDay = m_prefs.getInt(CHECK_TIME, 0);
+			Time time = new Time("Asia/Tokyo");
+			time.set(base);
+			time.hour = minOfDay / 60;
+			time.minute = minOfDay % 60;
+			time.second = 0;
+
+			long t = time.toMillis(true);
+			if (t < after) {
+				time.monthDay += 1;
+				t = time.toMillis(true);
+			}
+			reserveInternal(t, new Random().nextInt(ONE_HOUR));
+		}
+
+		void reserveInternal(long time, int delay) {
 			PendingIntent operation = DdNBrowserReceiver.downloadRankingOperation(m_context);
-			m_alarm.set(AlarmManager.RTC_WAKEUP, time, operation);
+			m_alarm.set(AlarmManager.RTC_WAKEUP, time + delay, operation);
 			m_prefs.edit().putLong(RESERVE_TIME, time).commit();
 		}
 

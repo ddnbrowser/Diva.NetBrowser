@@ -47,6 +47,7 @@ public class DdN extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		PreferenceManager.setDefaultValues(this, R.xml.settings, true);
 		CookieSyncManager.createInstance(this);
 		RANK_POINTS = getResources().getIntArray(R.array.rank_points);
 

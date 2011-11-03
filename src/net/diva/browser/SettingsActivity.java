@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.diva.browser.common.UpdateSaturaionPoints;
 import net.diva.browser.model.MyList;
+import net.diva.browser.util.TimePreference;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -23,6 +24,7 @@ public class SettingsActivity extends PreferenceActivity {
 		addPreferencesFromResource(R.xml.settings);
 
 		addMyLists((ListPreference)findPreference("default_tab"));
+		new RankInCheckTimeChangeListener(findPreference("ranking_check_time"));
 		setVersion(findPreference("version_number"));
 	}
 
@@ -57,6 +59,22 @@ public class SettingsActivity extends PreferenceActivity {
 		}
 		lp.setEntries(names.toArray(new CharSequence[names.size()]));
 		lp.setEntryValues(values.toArray(new CharSequence[values.size()]));
+	}
+
+	private class RankInCheckTimeChangeListener implements Preference.OnPreferenceChangeListener {
+		public RankInCheckTimeChangeListener(Preference preference) {
+			preference.setOnPreferenceChangeListener(this);
+			if (preference instanceof TimePreference) {
+				onPreferenceChange(preference, ((TimePreference) preference).getValue());
+			}
+		}
+
+		@Override
+		public boolean onPreferenceChange(Preference preference, Object newValue) {
+			int value = (Integer)newValue;
+			preference.setSummary(getString(R.string.summary_ranking_check_time, value/60, value%60));
+			return true;
+		}
 	}
 
 	private void setVersion(Preference preference) {

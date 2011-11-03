@@ -62,6 +62,8 @@
     <string name="category_ranking">ランキング</string>
     <string name="download_rankin">ランクイン情報を取得</string>
     <string name="summary_download_rankin">有効にするとランクイン情報を定期的に取得します</string>
+    <string name="ranking_check_time">チェック時刻</string>
+    <string name="summary_ranking_check_time">%1$d:%2$02dから1時間の間にランクイン情報を更新します</string>
     <string name="notify_ranking_updated">更新を通知</string>
     <string name="summary_notify_ranking_updated">ランクイン情報を更新した時にステータスバーで通知します</string>
     <string name="notification_ranking_updated">ランキング情報を更新しました</string>

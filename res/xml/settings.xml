@@ -30,6 +30,12 @@
 			android:title="@string/download_rankin"
 			android:summary="@string/summary_download_rankin"
 			/>
+		<net.diva.browser.util.TimePreference
+			android:key="ranking_check_time"
+			android:title="@string/ranking_check_time"
+			android:dependency="download_rankin"
+			android:defaultValue="750"
+		    />
 		<CheckBoxPreference
 			android:key="notify_ranking_updated"
 			android:title="@string/notify_ranking_updated"

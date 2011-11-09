@@ -35,9 +35,16 @@ public final class Parser {
 	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\].*<br>\\s*(.+)<br>");
 	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\].*<br>\\s*(.+)\\s*(.+)<br>");
 	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\].*<br>\\s*(\\d+)VP<br>");
+	private static final Pattern RE_NEWS = Pattern.compile("DIVA.NETニュース\\((.+)\\)</a><br>");
 
-	public static PlayRecord parseMenuPage(InputStream content) throws ParseException {
-		PlayRecord record = new PlayRecord();
+	public static class Result {
+		public PlayRecord record;
+		public String newsTimestamp;
+	}
+
+	public static Result parseMenuPage(InputStream content) throws ParseException {
+		Result result = new Result();
+		PlayRecord record = result.record = new PlayRecord();
 		String body = read(content);
 		Matcher m = RE_PLAYER.matcher(body);
 		if (!m.find())
@@ -51,7 +58,10 @@ public final class Parser {
 		m = m.usePattern(RE_VP);
 		if (m.find())
 			record.vocaloid_point = Integer.valueOf(m.group(1));
-		return record;
+		m = m.usePattern(RE_NEWS);
+		if (m.find())
+			result.newsTimestamp = m.group(1);
+		return result;
 	}
 
 	private static final Pattern RE_RENAME_RESULT = Pattern.compile("<font.*>(.*)</font><br>\\s*<br>\\s*再度入力してください");

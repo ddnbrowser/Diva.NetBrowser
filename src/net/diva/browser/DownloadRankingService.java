@@ -201,6 +201,6 @@ public class DownloadRankingService extends Service {
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 
 		NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.notify(R.string.notification_ranking_updated, notification);
+		nm.notify(R.id.notification_ranking_updated, notification);
 	}
 }

@@ -94,7 +94,10 @@ public class ServiceClient {
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
 				throw new LoginFailedException();
 			access();
-			return Parser.parseMenuPage(response.getEntity().getContent());
+
+			Parser.Result result = Parser.parseMenuPage(response.getEntity().getContent());
+			DdN.setNewsTimestamp(result.newsTimestamp);
+			return result.record;
 		}
 		catch (Exception e) {
 			throw new LoginFailedException(e);

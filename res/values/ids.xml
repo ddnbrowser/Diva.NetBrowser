@@ -5,4 +5,6 @@
 	<item type="id" name="item_set_skin"/>
 	<item type="id" name="item_set_button_se"/>
 	<item type="id" name="item_select_decor_title"/>
+	<item type="id" name="notification_news_updated" />
+	<item type="id" name="notification_ranking_updated" />
 </resources>

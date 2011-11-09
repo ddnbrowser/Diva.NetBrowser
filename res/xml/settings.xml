@@ -16,6 +16,11 @@
 			android:entryValues="@array/music_layout_types"
 			android:entries="@array/music_layout_names"
 			/>
+		<CheckBoxPreference
+			android:key="notify_news_updated"
+			android:title="@string/notify_news_updated"
+			android:summary="@string/summary_notify_news_updated"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/category_web">
 		<CheckBoxPreference

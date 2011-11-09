@@ -12,9 +12,14 @@ import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import android.app.AlertDialog;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -121,6 +126,32 @@ public class DdN extends Application {
 
 	public static boolean isAllowUpdateMusics(SharedPreferences preferences) {
 		return preferences.getLong("allow_update_time", 0) < System.currentTimeMillis();
+	}
+
+	public static void setNewsTimestamp(String timestamp) {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(s_instance);
+		String old = prefs.getString("news_timestamp", "");
+		if (old.equals(timestamp))
+			return;
+
+		prefs.edit().putString("news_timestamp", timestamp);
+		if (!prefs.getBoolean("notify_news_updated", false))
+			return;
+
+		Context ctx = s_instance;
+		CharSequence title = ctx.getText(R.string.news_updated_title);
+		CharSequence ticker = ctx.getText(R.string.news_updated_ticker);
+
+		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url("/divanet/menu/news/")));
+		intent.setClass(ctx, WebBrowseActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+		Notification notice = new Notification(R.drawable.icon_module, ticker, System.currentTimeMillis());
+		notice.setLatestEventInfo(ctx, title, timestamp, PendingIntent.getActivity(ctx, 0, intent, 0));
+		notice.flags = Notification.FLAG_AUTO_CANCEL;
+
+		NotificationManager nm = (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
+		nm.notify(R.id.notification_news_updated, notice);
 	}
 
 	public static ServiceClient getServiceClient(Account account) {

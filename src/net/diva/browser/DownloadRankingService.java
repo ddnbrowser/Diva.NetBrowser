@@ -196,7 +196,7 @@ public class DownloadRankingService extends Service {
 		PendingIntent operation = PendingIntent.getActivity(context, 0, intent, 0);
 
 		Notification notification = new Notification(
-				android.R.drawable.stat_sys_download_done, text, System.currentTimeMillis());
+				R.drawable.icon_module, text, System.currentTimeMillis());
 		notification.setLatestEventInfo(context, title, text, operation);
 		notification.flags = Notification.FLAG_AUTO_CANCEL;
 

@@ -134,7 +134,7 @@ public class DdN extends Application {
 		if (old.equals(timestamp))
 			return;
 
-		prefs.edit().putString("news_timestamp", timestamp);
+		prefs.edit().putString("news_timestamp", timestamp).commit();
 		if (!prefs.getBoolean("notify_news_updated", false))
 			return;
 

@@ -61,6 +61,8 @@ public class DdN extends Application {
 		m_handler = new Handler();
 		m_observers = new ArrayList<Observer>();
 
+		Settings.update(this);
+
 		Account account = Account.load(PreferenceManager.getDefaultSharedPreferences(this));
 		if (account != null) {
 			LocalStore store = LocalStore.instance(this);
@@ -290,6 +292,15 @@ public class DdN extends Application {
 			editor.putString(ACCESS_CODE, access_code);
 			editor.putString(PASSWORD, password);
 			return editor;
+		}
+	}
+
+	public static class Settings {
+		public static boolean enableFastScroll = false;
+
+		public static void update(Context context) {
+			SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
+			enableFastScroll = p.getBoolean("fast_scroll", enableFastScroll);
 		}
 	}
 }

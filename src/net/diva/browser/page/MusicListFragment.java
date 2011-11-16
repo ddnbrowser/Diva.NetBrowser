@@ -110,6 +110,7 @@ public abstract class MusicListFragment extends ListFragment
 			if (id != 0 && m_adapter.setLayout(id))
 				setListAdapter(m_adapter);
 		}
+		m_list.setFastScrollEnabled(DdN.Settings.enableFastScroll);
 
 		setDifficulty(m_localPrefs.getInt("difficulty", 3), false);
 		m_adapter.setSortOrder(

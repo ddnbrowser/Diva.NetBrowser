@@ -17,6 +17,11 @@
 			android:entries="@array/music_layout_names"
 			/>
 		<CheckBoxPreference
+			android:key="fast_scroll"
+			android:title="@string/fast_scroll"
+			android:summary="@string/summary_fast_scroll"
+			/>
+		<CheckBoxPreference
 			android:key="notify_news_updated"
 			android:title="@string/notify_news_updated"
 			android:summary="@string/summary_notify_news_updated"

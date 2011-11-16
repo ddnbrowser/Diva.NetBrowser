@@ -147,6 +147,7 @@ public class MainActivity extends FragmentActivity
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case TOOL_SETTINGS:
+			DdN.Settings.update(this);
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 			if (preferences.getBoolean("download_rankin", false))
 				DownloadRankingService.reserve(this);

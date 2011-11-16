@@ -142,4 +142,6 @@
     <string name="summary_notify_news_updated">DIVA.NETニュースの更新を検知した時にステータスバーで通知します</string>
     <string name="news_updated_title">DIVA.NETニュース</string>
     <string name="news_updated_ticker">最新のニュースがあります</string>
+    <string name="fast_scroll">高速スクロール</string>
+    <string name="summary_fast_scroll">リストをスクロール中にドラッグ可能なスクロールバーを表示します</string>
 </resources>

@@ -61,6 +61,7 @@ public class SkinListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.skin_list);
+		getListView().setFastScrollEnabled(DdN.Settings.enableFastScroll);
 		m_store = LocalStore.instance(this);
 
 		if (getIntent().getBooleanExtra("hasNoUse", false)) {

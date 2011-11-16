@@ -34,6 +34,8 @@ public class TitleListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.title_list);
+		getListView().setFastScrollEnabled(DdN.Settings.enableFastScroll);
+
 		m_adapter = new TitleAdapter(this);
 		m_store = LocalStore.instance(this);
 		m_decorView = (TextView)findViewById(R.id.decor_title);

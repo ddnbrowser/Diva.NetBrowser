@@ -36,6 +36,7 @@ public class SEListActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.basic_list);
+		getListView().setFastScrollEnabled(DdN.Settings.enableFastScroll);
 
 		TextView empty = (TextView)findViewById(R.id.empty_message);
 		if (empty != null)

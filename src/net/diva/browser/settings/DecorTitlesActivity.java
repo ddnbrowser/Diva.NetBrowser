@@ -39,6 +39,7 @@ public class DecorTitlesActivity extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.basic_list);
+		getListView().setFastScrollEnabled(DdN.Settings.enableFastScroll);
 
 		m_store = DdN.getLocalStore();
 		m_pre = getIntent().getBooleanExtra("pre", true);

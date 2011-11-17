@@ -35,6 +35,7 @@ public final class Parser {
 	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\].*<br>\\s*(.+)<br>");
 	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\].*<br>\\s*(.+)\\s*(.+)<br>");
 	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\].*<br>\\s*(\\d+)VP<br>");
+	private static final Pattern RE_TICKET = Pattern.compile("\\[DIVAチケット\\].*<br>\\s*(\\d+)枚<br>");
 	private static final Pattern RE_NEWS = Pattern.compile("DIVA.NETニュース\\((.+)\\)</a><br>");
 
 	public static class Result {
@@ -58,6 +59,9 @@ public final class Parser {
 		m = m.usePattern(RE_VP);
 		if (m.find())
 			record.vocaloid_point = Integer.valueOf(m.group(1));
+		m = m.usePattern(RE_TICKET);
+		if (m.find())
+			record.ticket = Integer.valueOf(m.group(1));
 		m = m.usePattern(RE_NEWS);
 		if (m.find())
 			result.newsTimestamp = m.group(1);

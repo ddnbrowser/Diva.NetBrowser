@@ -103,6 +103,8 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 		R.layout.info_right,
 		android.R.layout.preference_category,
 		R.layout.info_right,
+		android.R.layout.preference_category,
+		R.layout.info_right,
 	};
 
 	private class InformationAdapter extends BaseAdapter {
@@ -181,6 +183,12 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 				break;
 			case 9:
 				setText(view, R.id.text2, String.format("%d VP", m_record.vocaloid_point));
+				break;
+			case 10:
+				setText(view, android.R.id.title, R.string.diva_ticket);
+				break;
+			case 11:
+				setText(view, R.id.text2, String.format("%d 枚", m_record.ticket));
 				break;
 			}
 

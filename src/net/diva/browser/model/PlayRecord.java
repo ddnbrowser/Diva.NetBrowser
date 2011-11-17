@@ -9,6 +9,7 @@ public class PlayRecord {
 	public String level;
 	public String title;
 	public int vocaloid_point;
+	public int ticket;
 	public List<MusicInfo> musics;
 
 	public MusicInfo getMusic(String id) {

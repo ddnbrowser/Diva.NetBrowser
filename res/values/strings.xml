@@ -122,6 +122,7 @@
     <string name="next_level">次のレベルまで残り</string>
     <string name="next_rank">次のランクまで残り</string>
     <string name="vocaloid_point">VOCALOID POINT</string>
+    <string name="diva_ticket">DIVAチケット</string>
     <string name="title_getting">取得中...</string>
     <string name="unknown_title">不明な称号</string>
     <string name="item_update_saturations">達成率理論値を更新</string>

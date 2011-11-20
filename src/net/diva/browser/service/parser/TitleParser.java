@@ -44,9 +44,7 @@ public class TitleParser {
 		while (m.find()) {
 			DecorTitle decor = new DecorTitle(m.group(2), m.group(3), true);
 			decor.pre = "true".equalsIgnoreCase(m.group(1));
-			if (DecorTitle.OFF.equals(decor))
-				titles.set(0, decor);
-			else
+			if (!DecorTitle.OFF.equals(decor))
 				titles.add(decor);
 		}
 
@@ -63,9 +61,7 @@ public class TitleParser {
 		while (m.find()) {
 			DecorTitle decor = new DecorTitle(m.group(2), m.group(3), true);
 			decor.pre = "true".equalsIgnoreCase(m.group(1));
-			if (DecorTitle.OFF.equals(decor))
-				titles.set(0, decor);
-			else
+			if (!DecorTitle.OFF.equals(decor))
 				titles.add(decor);
 		}
 

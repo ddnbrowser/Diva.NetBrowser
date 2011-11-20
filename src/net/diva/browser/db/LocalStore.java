@@ -29,7 +29,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 23;
+	private static final int VERSION = 24;
 
 	private static LocalStore m_instance;
 
@@ -778,6 +778,9 @@ public class LocalStore extends ContextWrapper {
 				TitleTable.addOrderColumn(db);
 			case 22:
 				DecorTitleTable.addPositionColumns(db);
+			case 23:
+				db.execSQL(String.format("DELETE FROM %s WHERE %s='%s'",
+						DecorTitleTable.TABLE_NAME, DecorTitleTable.ID, DecorTitle.OFF.id));
 			default:
 				break;
 			}

@@ -164,11 +164,13 @@ public class DecorTitlesActivity extends ListActivity {
 		}
 
 		public int getCount() {
-			return m_titles.size();
+			return m_titles.size() + 1;
 		}
 
 		public DecorTitle getItem(int position) {
-			return m_titles.get(position);
+			if (position == 0)
+				return DecorTitle.OFF;
+			return m_titles.get(position-1);
 		}
 
 		public long getItemId(int position) {

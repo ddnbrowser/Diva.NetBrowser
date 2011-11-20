@@ -216,7 +216,6 @@ public class ServiceClient {
 
 	public List<DecorTitle> getDecorTitles(boolean pre) throws IOException {
 		List<DecorTitle> titles = new ArrayList<DecorTitle>();
-		titles.add(DecorTitle.OFF);
 
 		// Purchased
 		for (String path: TitleParser.parseDecorDir(getFrom("/divanet/title/selectDecorDir/%b", pre), titles)) {

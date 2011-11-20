@@ -233,6 +233,12 @@ public class ServiceClient {
 		return titles;
 	}
 
+	public List<DecorTitle> getDecorPrize() throws IOException {
+		List<DecorTitle> titles = new ArrayList<DecorTitle>();
+		TitleParser.parseDecorPrize(getFrom("/divanet/divaTicket/exchange/"), titles);
+		return titles;
+	}
+
 	public List<ModuleGroup> getModules() throws IOException {
 		List<ModuleGroup> modules = ModuleParser.parseModuleIndex(getFrom("/divanet/module/"));
 		for (ModuleGroup group: modules) {

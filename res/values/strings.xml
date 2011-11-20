@@ -145,4 +145,8 @@
     <string name="news_updated_ticker">最新のニュースがあります</string>
     <string name="fast_scroll">高速スクロール</string>
     <string name="summary_fast_scroll">リストをスクロール中にドラッグ可能なスクロールバーを表示します</string>
+    <string name="exchange_ticket">チケット交換</string>
+    <string name="exchange_skin">スキン</string>
+    <string name="exchange_title">デコレーション称号</string>
+    <string name="no_prize">交換できるアイテムはありません。\nメニューを開いて更新を選択して下さい</string>
 </resources>

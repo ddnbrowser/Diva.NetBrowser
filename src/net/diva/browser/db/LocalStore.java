@@ -29,7 +29,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 22;
+	private static final int VERSION = 23;
 
 	private static LocalStore m_instance;
 
@@ -388,16 +388,34 @@ public class LocalStore extends ContextWrapper {
 	}
 
 	public List<DecorTitle> getDecorTitles(boolean pre) {
+		return getDecorTitles(false, pre);
+	}
+
+	public List<DecorTitle> getDecorPrize() {
+		return getDecorTitles(true, null);
+	}
+
+	protected List<DecorTitle> getDecorTitles(boolean prize, Boolean pre) {
+		StringBuilder selection = new StringBuilder();
+		selection.append(DecorTitleTable.STATUS).append(prize ? "=2" : "!=2");
+		if (pre != null)
+			selection.append(" AND ").append(DecorTitleTable.POSITION).append(pre ? "=1" : "=0");
+
 		List<DecorTitle> titles = new ArrayList<DecorTitle>();
 		SQLiteDatabase db = m_helper.getReadableDatabase();
 		Cursor c = db.query(DecorTitleTable.TABLE_NAME, new String[] {
 				DecorTitleTable.ID,
 				DecorTitleTable.NAME,
 				DecorTitleTable.STATUS,
-		}, null, null, null, null, null);
+				DecorTitleTable.POSITION,
+		}, selection.toString(), null, null, null, null);
 		try {
-			while (c.moveToNext())
-				titles.add(new DecorTitle(c.getString(0), c.getString(1), c.getInt(2) != 0));
+			while (c.moveToNext()) {
+				DecorTitle title = new DecorTitle(c.getString(0), c.getString(1), c.getInt(2) == 1);
+				title.pre = c.getInt(3) == 1;
+				title.prize = c.getInt(2) == 2;
+				titles.add(title);
+			}
 		}
 		finally {
 			c.close();
@@ -758,6 +776,8 @@ public class LocalStore extends ContextWrapper {
 				db.execSQL(RecordTable.create_statement());
 			case 21:
 				TitleTable.addOrderColumn(db);
+			case 22:
+				DecorTitleTable.addPositionColumns(db);
 			default:
 				break;
 			}

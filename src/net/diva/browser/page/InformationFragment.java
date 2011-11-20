@@ -5,8 +5,10 @@ import net.diva.browser.R;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.ticket.DecorPrizeActivity;
 import net.diva.browser.util.ProgressTask;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -68,6 +70,9 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 		switch (item.getItemId()) {
 		case R.id.item_update:
 			new UpdateTask(getActivity()).execute();
+			break;
+		case R.id.item_exchange_title:
+			startActivity(new Intent(getActivity(), DecorPrizeActivity.class));
 			break;
 		default:
 			return super.onOptionsItemSelected(item);

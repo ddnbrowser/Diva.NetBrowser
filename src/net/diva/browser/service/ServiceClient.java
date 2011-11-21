@@ -491,6 +491,17 @@ public class ServiceClient {
 		return checkShopResult(postTo(String.format("/divanet/title/buyDecor/%s", decor_id)));
 	}
 
+	private int checkExchangeResult(HttpResponse response) throws OperationFailedException, IOException {
+		int[] ticket = new int[1];
+		if (!Parser.isSuccessExchange(response.getEntity().getContent(), ticket))
+			throw new OperationFailedException();
+		return ticket[0];
+	}
+
+	public int exchangeDecorTitle(String id) throws IOException, OperationFailedException {
+		return checkExchangeResult(postTo(String.format("/divanet/divaTicket/exchangeTitle/%s", id)));
+	}
+
 	public MyList getMyList(int id) throws IOException {
 		final MyList myList = new MyList(id, null);
 		MyListParser.parseSummary(getFrom("/divanet/myList/selectMyList/%d", id), myList);

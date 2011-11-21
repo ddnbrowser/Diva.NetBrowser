@@ -108,6 +108,12 @@ public class DdN extends Application {
 		notifyUpdate(true);
 	}
 
+	private void setTicketCount_(int count) {
+		m_record.ticket = count;
+		LocalStore.instance(this).update(m_record);
+		notifyUpdate(true);
+	}
+
 	private List<ModuleGroup> getModules_() {
 		if (m_modules == null)
 			m_modules = getLocalStore().loadModules();
@@ -181,6 +187,11 @@ public class DdN extends Application {
 	public static void setVocaloidPoint(int vp) {
 		if (s_instance != null)
 			s_instance.setVocaloidPoint_(vp);
+	}
+
+	public static void setTicketCount(int count) {
+		if (s_instance != null)
+			s_instance.setTicketCount_(count);
 	}
 
 	public static List<ModuleGroup> getModules() {

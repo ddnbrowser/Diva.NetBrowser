@@ -149,4 +149,7 @@
     <string name="exchange_skin">スキン</string>
     <string name="exchange_title">デコレーション称号</string>
     <string name="no_prize">交換できるアイテムはありません。\nメニューを開いて更新を選択して下さい</string>
+    <string name="do_exchange">交換する</string>
+    <string name="exchanging">交換しています...</string>
+    <string name="exchange_failure">交換に失敗しました</string>
 </resources>

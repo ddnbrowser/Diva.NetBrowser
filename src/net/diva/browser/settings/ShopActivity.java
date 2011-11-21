@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.LayoutInflater;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -67,7 +68,9 @@ public class ShopActivity extends Activity implements View.OnClickListener {
 			parent.addView(view);
 		}
 
-		findViewById(R.id.button_buy).setOnClickListener(this);
+		Button button = (Button)findViewById(R.id.button_buy);
+		button.setOnClickListener(this);
+		button.setText(getIntent().getIntExtra("label", R.string.button_buy));
 	}
 
 	private void showError() {

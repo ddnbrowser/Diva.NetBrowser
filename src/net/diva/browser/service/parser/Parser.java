@@ -116,4 +116,15 @@ public final class Parser {
 		m = m.usePattern(RE_NEXT);
 		return m.find() ? m.group(1) : null;
 	}
+
+	private static final Pattern RE_RESULT = Pattern.compile("\\[チケット所持枚数\\]</font><br>\\s*(\\d+)枚<br>");
+
+	public static boolean isSuccessExchange(InputStream content, int[] ticket) {
+		String body = Parser.read(content);
+		if (ticket != null && ticket.length > 0) {
+			Matcher m = RE_RESULT.matcher(body);
+			ticket[0] = m.find() ? Integer.parseInt(m.group(1)) : -1;
+		}
+		return body.contains("交換しました");
+	}
 }

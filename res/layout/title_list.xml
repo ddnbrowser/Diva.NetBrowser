@@ -5,7 +5,7 @@
 	android:orientation="vertical"
 	>
 	<Button
-		android:id="@+id/decor_title"
+		android:id="@+id/pre_decor"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
 		android:layout_margin="3dp"
@@ -28,4 +28,12 @@
 			android:text="設定可能な称号はありません\nメニューを開いて更新を選択して下さい"
 			/>
 	</FrameLayout>
+	<Button
+		android:id="@+id/post_decor"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_margin="3dp"
+		android:text="設定されていません"
+		android:onClick="selectDecor"
+		/>
 </LinearLayout>

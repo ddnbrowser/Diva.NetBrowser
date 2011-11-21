@@ -42,10 +42,15 @@ public class ConfigTitle extends ConfigItem {
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
-		String decorId = data.getStringExtra("decor_id");
-		boolean noDecor = "OFF".equals(decorId);
-		if (decorId != null && !noDecor)
-			service.setDecorTitle(decorId, true);
+		String decorPre = data.getStringExtra("decor_pre");
+		String decorPost = data.getStringExtra("decor_post");
+		boolean noDecor = "OFF".equals(decorPre) && "OFF".equals(decorPost);
+		if (!noDecor) {
+			if (decorPre != null)
+				service.setDecorTitle(decorPre, true);
+			if (decorPost != null)
+				service.setDecorTitle(decorPost, false);
+		}
 		try {
 			PlayRecord record = DdN.getPlayRecord();
 			record.title = service.setTitle(data.getStringExtra("title_id"), noDecor);

@@ -25,8 +25,8 @@ public class TitleListActivity extends ListActivity {
 	private TitleAdapter m_adapter;
 	private LocalStore m_store;
 
-	private TextView m_decorView;
-	private String m_decorId;
+	private TextView[] m_decorViews = new TextView[2];
+	private String[] m_decorIds = new String[2];
 
 	private List<TitleInfo> m_titles;
 
@@ -38,7 +38,8 @@ public class TitleListActivity extends ListActivity {
 
 		m_adapter = new TitleAdapter(this);
 		m_store = LocalStore.instance(this);
-		m_decorView = (TextView)findViewById(R.id.decor_title);
+		m_decorViews[0] = (TextView)findViewById(R.id.pre_decor);
+		m_decorViews[1] = (TextView)findViewById(R.id.post_decor);
 		m_titles = m_store.getTitles();
 
 		refresh();
@@ -50,7 +51,8 @@ public class TitleListActivity extends ListActivity {
 		TitleInfo title = m_adapter.getItem(position);
 		Intent intent = getIntent();
 		intent.putExtra("title_id", title.id);
-		intent.putExtra("decor_id", m_decorId);
+		intent.putExtra("decor_pre", m_decorIds[0]);
+		intent.putExtra("decor_post", m_decorIds[1]);
 		setResult(RESULT_OK, intent);
 		finish();
 	}
@@ -88,13 +90,14 @@ public class TitleListActivity extends ListActivity {
 
 	public void selectDecor(View sender) {
 		Intent intent = new Intent(getApplicationContext(), DecorTitlesActivity.class);
-		intent.putExtra("pre", true);
+		intent.putExtra("pre", sender == m_decorViews[0]);
 		startActivityForResult(intent, R.id.item_select_decor_title);
 	}
 
 	public void setDecorTitle(Intent data) {
-		m_decorId = data.getStringExtra("id");
-		m_decorView.setText(data.getStringExtra("name"));
+		final int index = data.getBooleanExtra("pre", true) ? 0 : 1;
+		m_decorIds[index] = data.getStringExtra("id");
+		m_decorViews[index].setText(data.getStringExtra("name"));
 	}
 
 	private void refresh() {
@@ -106,8 +109,12 @@ public class TitleListActivity extends ListActivity {
 
 		for (TitleInfo title: m_titles) {
 			int index = current.indexOf(title.name);
-			if (index > 0) {
-				m_decorView.setText(current.subSequence(0, index));
+			if (index >= 0) {
+				if (index > 0)
+					m_decorViews[0].setText(current.subSequence(0, index));
+				index += title.name.length();
+				if (index < current.length())
+					m_decorViews[1].setText(current.subSequence(index, current.length()));
 				break;
 			}
 		}

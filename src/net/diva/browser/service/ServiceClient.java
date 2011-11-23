@@ -286,9 +286,26 @@ public class ServiceClient {
 		return skins;
 	}
 
+	public List<SkinInfo> getSkinPrize() throws IOException {
+		List<String> groups = new ArrayList<String>();
+		for (String index: SkinParser.parseExchange(getFrom("/divanet/divaTicket/exchange/"))) {
+			SkinParser.parsePrizeGroup(getFrom(index), groups);
+		}
+
+		List<SkinInfo> skins = new ArrayList<SkinInfo>();
+		for (String group_id: groups) {
+			SkinParser.parsePrizeSkin(
+					getFrom("/divanet/divaTicket/selectSkin/%s", group_id), group_id, skins);
+		}
+		return skins;
+	}
+
 	public void getSkinDetail(SkinInfo skin) throws IOException {
 		final String path = skin.purchased
-				? "/divanet/skin/confirm/COMMON/%s/%s/0/0" : "/divanet/skin/detail/%s/%s/0";
+				? "/divanet/skin/confirm/COMMON/%s/%s/0/0"
+				: skin.prize
+					? "/divanet/divaTicket/confirmExchangeSkin/%1$s"
+					: "/divanet/skin/detail/%s/%s/0";
 		SkinParser.parse(getFrom(path, skin.id, skin.group_id), skin);
 	}
 

@@ -485,6 +485,10 @@ public class LocalStore extends ContextWrapper {
 	}
 
 	public List<SkinInfo> loadSkins() {
+		return loadSkins(false);
+	}
+
+	public List<SkinInfo> loadSkins(boolean prize) {
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 
 		SQLiteDatabase db = m_helper.getReadableDatabase();
@@ -494,10 +498,11 @@ public class LocalStore extends ContextWrapper {
 				SkinTable.NAME,
 				SkinTable.PATH,
 				SkinTable.STATUS,
-		}, null, null, null, null, SkinTable._ID);
+		}, String.format(prize ? "%s=2" : "%s!=2", SkinTable.STATUS), null, null, null, SkinTable._ID);
 		try {
 			while (c.moveToNext()) {
 				SkinInfo skin = new SkinInfo(c.getString(0), c.getString(1), c.getString(2), c.getInt(4) == 1);
+				skin.prize = c.getInt(4) == 2;
 				skin.image_path = c.getString(3);
 				skins.add(skin);
 			}

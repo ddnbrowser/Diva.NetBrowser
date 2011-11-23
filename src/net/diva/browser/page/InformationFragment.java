@@ -6,6 +6,7 @@ import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.ticket.DecorPrizeActivity;
+import net.diva.browser.ticket.SkinPrizeActivity;
 import net.diva.browser.util.ProgressTask;
 import android.content.Context;
 import android.content.Intent;
@@ -70,6 +71,9 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 		switch (item.getItemId()) {
 		case R.id.item_update:
 			new UpdateTask(getActivity()).execute();
+			break;
+		case R.id.item_exchange_skin:
+			startActivity(new Intent(getActivity(), SkinPrizeActivity.class));
 			break;
 		case R.id.item_exchange_title:
 			startActivity(new Intent(getActivity(), DecorPrizeActivity.class));

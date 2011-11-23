@@ -41,7 +41,7 @@ final class SkinTable implements BaseColumns {
 		values.put(ID, skin.id);
 		values.put(GROUP_ID, skin.group_id);
 		values.put(NAME, skin.name);
-		values.put(STATUS, skin.purchased ? 1 : 0);
+		values.put(STATUS, skin.purchased ? 1 : skin.prize ? 2 : 0);
 		if (skin.image_path == null)
 			values.putNull(PATH);
 		else
@@ -51,7 +51,7 @@ final class SkinTable implements BaseColumns {
 
 	static boolean update(SQLiteDatabase db, SkinInfo skin) {
 		ContentValues values = new ContentValues(2);
-		values.put(STATUS, skin.purchased ? 1 : 0);
+		values.put(STATUS, skin.purchased ? 1 : skin.prize ? 2 : 0);
 		if (skin.image_path != null)
 			values.put(PATH, skin.image_path);
 		return db.update(TABLE_NAME, values, WHERE_IDENTITY, new String[] { skin.id }) == 1;

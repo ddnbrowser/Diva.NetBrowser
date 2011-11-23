@@ -22,6 +22,7 @@
         <activity android:name=".settings.SEListActivity"></activity>
         <activity android:name=".settings.ShopActivity"></activity>
         <activity android:name=".ticket.DecorPrizeActivity"></activity>
+        <activity android:name=".ticket.SkinPrizeActivity"></activity>
         <receiver android:name=".DdNBrowserReceiver">
             <intent-filter>
                 <action android:name="net.diva.browser.action.DOWNLOAD_RANKING"></action>

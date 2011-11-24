@@ -16,9 +16,12 @@ import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
+import net.diva.browser.settings.ShopActivity;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,6 +53,17 @@ public class SkinPrizeActivity extends ListActivity {
 		m_adapter = new SkinAdapter(this);
 		m_adapter.setSkins(m_skins = m_store.loadSkins(true));
 		setListAdapter(m_adapter);
+	}
+
+	@Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		SkinInfo skin = m_adapter.getItem(position);
+		Intent intent = new Intent(getApplicationContext(), ShopActivity.class);
+		intent.setData(Uri.parse(DdN.url("/divanet/divaTicket/confirmExchangeSkin/%s", skin.id)));
+		intent.putExtra("id", skin.id);
+		intent.putExtra("group_id", skin.group_id);
+		intent.putExtra("label", R.string.do_exchange);
+		startActivityForResult(intent, R.id.item_exchange_skin);
 	}
 
 	@Override

@@ -515,6 +515,10 @@ public class ServiceClient {
 		return ticket[0];
 	}
 
+	public int exchangeSkin(String id) throws IOException, OperationFailedException {
+		return checkExchangeResult(postTo(String.format("/divanet/divaTicket/exchangeSkin/%s", id)));
+	}
+
 	public int exchangeDecorTitle(String id) throws IOException, OperationFailedException {
 		return checkExchangeResult(postTo(String.format("/divanet/divaTicket/exchangeTitle/%s", id)));
 	}

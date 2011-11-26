@@ -32,6 +32,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SkinPrizeActivity extends ListActivity {
 	private LocalStore m_store;
@@ -64,6 +65,19 @@ public class SkinPrizeActivity extends ListActivity {
 		intent.putExtra("group_id", skin.group_id);
 		intent.putExtra("label", R.string.do_exchange);
 		startActivityForResult(intent, R.id.item_exchange_skin);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		switch (requestCode) {
+		case R.id.item_exchange_skin:
+			if (resultCode == RESULT_OK)
+				new ExchangeTask().execute(
+						findSkin(data.getStringExtra("group_id"), data.getStringExtra("id")));
+			break;
+		default:
+			super.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 
 	@Override
@@ -279,6 +293,33 @@ public class SkinPrizeActivity extends ListActivity {
 		protected void onResult(List<SkinInfo> result) {
 			if (result != null)
 				m_adapter.setSkins(result);
+		}
+	}
+
+	private class ExchangeTask extends ServiceTask<SkinInfo, Void, SkinInfo> {
+		ExchangeTask() {
+			super(SkinPrizeActivity.this, R.string.exchanging);
+		}
+
+		@Override
+		protected SkinInfo doTask(ServiceClient service, SkinInfo... params)
+				throws Exception {
+			SkinInfo skin = params[0];
+			int ticket = service.exchangeSkin(skin.id);
+			if (ticket >= 0)
+				DdN.setTicketCount(ticket);
+			skin.prize = false;
+			skin.purchased = true;
+			m_store.updateSkin(skin);
+			return skin;
+		}
+
+		@Override
+		protected void onResult(SkinInfo result) {
+			if (result == null)
+				Toast.makeText(SkinPrizeActivity.this, R.string.exchange_failure, Toast.LENGTH_SHORT).show();
+			else if (m_skins.remove(result))
+				m_adapter.setSkins(m_skins);
 		}
 	}
 }

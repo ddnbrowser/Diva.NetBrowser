@@ -55,6 +55,7 @@ public class ConfigTitle extends ConfigItem {
 			PlayRecord record = DdN.getPlayRecord();
 			record.title = service.setTitle(data.getStringExtra("title_id"), noDecor);
 			store.update(record);
+			DdN.notifyPlayRecordChanged();
 			return Boolean.TRUE;
 		}
 		catch (OperationFailedException e) {

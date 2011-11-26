@@ -71,6 +71,7 @@ public class ConfigRename extends ConfigItem {
 			PlayRecord record = DdN.getPlayRecord();
 			record.player_name = m_name;
 			store.update(record);
+			DdN.notifyPlayRecordChanged();
 			return Boolean.TRUE;
 		}
 		catch (OperationFailedException e) {

@@ -1,5 +1,8 @@
 package net.diva.browser.page;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.model.MyList;
@@ -24,11 +27,16 @@ import android.widget.TextView;
 
 public class InformationFragment extends ListFragment implements DdN.Observer {
 	private InformationAdapter m_adapter;
-	private PlayRecord m_record;
 
-	private long m_totalExp;
-	private int m_experience;
-	private int m_rankPoints;
+	private Item m_name = new Item(R.layout.info_item, R.id.text1, 0);
+	private Item m_title = new Item(R.layout.info_item, R.id.text1, 0);
+	private Item m_level = new Item(R.layout.info_item, R.id.text1, 0);
+	private ProgressItem m_experience = new ProgressItem(DdN.EXPERIENCE_UNIT);
+	private Item m_total = new Item(R.layout.info_right, R.id.text1, R.id.text2);
+	private Item m_toNextLevel = new Item(R.layout.info_right, R.id.text1, R.id.text2);
+	private Item m_toNextRank = new Item(R.layout.info_right, R.id.text1, R.id.text2);
+	private Item m_vp = new Item(R.layout.info_right, R.id.text1, R.id.text2);
+	private Item m_ticket = new Item(R.layout.info_right, R.id.text1, R.id.text2);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +56,24 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		m_adapter = new InformationAdapter();
+		m_total.text1 = getText(R.string.total_exp);
+		m_toNextLevel.text1 = getText(R.string.next_level);
+		m_toNextRank.text1 = getText(R.string.next_rank);
+
+		m_adapter = new InformationAdapter(getActivity(),
+				new Item(android.R.layout.preference_category, android.R.id.title, getText(R.string.player_name)),
+				m_name,
+				new Item(android.R.layout.preference_category, android.R.id.title, getText(R.string.level_rank)),
+				m_title,
+				m_level,
+				m_experience,
+				m_total,
+				m_toNextLevel,
+				m_toNextRank,
+				new Item(android.R.layout.preference_category, android.R.id.title, getText(R.string.vocaloid_point)),
+				m_vp,
+				new Item(android.R.layout.preference_category, android.R.id.title, getText(R.string.diva_ticket)),
+				m_ticket);
 		setListAdapter(m_adapter);
 	}
 
@@ -89,34 +114,41 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 	}
 
 	public void onUpdate(PlayRecord record, boolean noMusic) {
-		m_record = record;
+		long total = record.experience();
+		int experience = (int)(total % DdN.EXPERIENCE_UNIT);
+		int nextLevel = DdN.EXPERIENCE_UNIT - experience;
 
-		m_totalExp = m_record.experience();
-		m_experience = (int)(m_totalExp % DdN.EXPERIENCE_UNIT);
+		int[] nextRank = new int[1];
+		record.rank(nextRank);
 
-		int[] next = new int[1];
-		m_record.rank(next);
-		m_rankPoints = next[0];
+		m_name.text1 = record.player_name;
+		m_title.text1 = record.title;
+		m_level.text1 = record.level;
+		m_experience.value = experience;
+		m_total.text2 = String.format("%d.%02d %%", total/100, total%100);
+		m_toNextLevel.text2 = String.format("%d.%02d %%", nextLevel/100, nextLevel%100);
+		m_toNextRank.text2 = String.format("%d pts", nextRank[0]);
+		m_vp.text2 = String.format("%d VP", record.vocaloid_point);
+		m_ticket.text2 = String.format("%d 枚", record.ticket);
 
 		m_adapter.notifyDataSetChanged();
 	}
 
-	static final private int[] LAYOUTS = {
-		android.R.layout.preference_category,
-		R.layout.info_item,
-		android.R.layout.preference_category,
-		R.layout.info_item,
-		R.layout.info_bar,
-		R.layout.info_right,
-		R.layout.info_right,
-		R.layout.info_right,
-		android.R.layout.preference_category,
-		R.layout.info_right,
-		android.R.layout.preference_category,
-		R.layout.info_right,
-	};
+	private static class InformationAdapter extends BaseAdapter {
+		Context m_context;
+		Item[] m_items;
+		List<Integer> m_types = new ArrayList<Integer>();
 
-	private class InformationAdapter extends BaseAdapter {
+		InformationAdapter(Context context, Item... items) {
+			m_context = context;
+			m_items = items;
+
+			for (Item item: m_items) {
+				if (!m_types.contains(item.layout))
+					m_types.add(item.layout);
+			}
+		}
+
 		@Override
 		public boolean areAllItemsEnabled() {
 			return false;
@@ -129,90 +161,112 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 
 		@Override
 		public int getViewTypeCount() {
-			return LAYOUTS.length;
+			return m_types.size();
 		}
 
 		@Override
 		public int getItemViewType(int position) {
-			return position;
+			return m_types.indexOf(m_items[position].layout);
 		}
 
+		@Override
 		public int getCount() {
-			return m_record == null ? 0 : LAYOUTS.length;
+			return m_items.length;
 		}
 
-		public Object getItem(int position) {
-			return null;
-		}
-
+		@Override
 		public long getItemId(int position) {
 			return position;
 		}
 
+		@Override
+		public Item getItem(int position) {
+			return m_items[position];
+		}
+
+		@Override
 		public View getView(int position, View view, ViewGroup parent) {
+			Item item = getItem(position);
 			if (view == null) {
-				LayoutInflater inflater = LayoutInflater.from(getActivity());
-				view = inflater.inflate(LAYOUTS[position], parent, false);
+				LayoutInflater inflater = LayoutInflater.from(m_context);
+				view = inflater.inflate(item.layout, parent, false);
+				item.prepare(view);
 			}
-
-			switch (position) {
-			case 0:
-				setText(view, android.R.id.title, R.string.player_name);
-				break;
-			case 1:
-				setText(view, R.id.text1, m_record.player_name);
-				break;
-			case 2:
-				setText(view, android.R.id.title, R.string.level_rank);
-				break;
-			case 3:
-				setText(view, R.id.text1, m_record.level);
-				setText(view, R.id.text2, m_record.title);
-				break;
-			case 4:
-				ProgressBar progress = (ProgressBar)view.findViewById(R.id.progress);
-				progress.setMax(DdN.EXPERIENCE_UNIT);
-				progress.setProgress(m_experience);
-				break;
-			case 5:
-				setText(view, R.id.text1, R.string.total_exp);
-				setText(view, R.id.text2, String.format("%d.%02d %%", m_totalExp/100, m_totalExp%100));
-				break;
-			case 6:
-				int shortage = DdN.EXPERIENCE_UNIT - m_experience;
-				setText(view, R.id.text1, R.string.next_level);
-				setText(view, R.id.text2, String.format("%d.%02d %%", shortage/100, shortage%100));
-				break;
-			case 7:
-				setText(view, R.id.text1, R.string.next_rank);
-				setText(view, R.id.text2, String.format("%d pts", m_rankPoints));
-				break;
-			case 8:
-				setText(view, android.R.id.title, R.string.vocaloid_point);
-				break;
-			case 9:
-				setText(view, R.id.text2, String.format("%d VP", m_record.vocaloid_point));
-				break;
-			case 10:
-				setText(view, android.R.id.title, R.string.diva_ticket);
-				break;
-			case 11:
-				setText(view, R.id.text2, String.format("%d 枚", m_record.ticket));
-				break;
-			}
-
+			item.attach(view);
 			return view;
 		}
 	}
 
-	private void setText(View view, int targetId, CharSequence content) {
-		TextView text = (TextView)view.findViewById(targetId);
-		if (text != null)
-			text.setText(content);
+	private static class Item {
+		int layout;
+		int item1;
+		int item2;
+
+		CharSequence text1;
+		CharSequence text2;
+
+		static class Holder {
+			View view1;
+			View view2;
+		}
+
+		Item(int layout_, int item1_, int item2_) {
+			layout = layout_;
+			item1 = item1_;
+			item2 = item2_;
+		}
+
+		Item(int layout_, int item, CharSequence text) {
+			layout = layout_;
+			item1 = item;
+			text1 = text;
+		}
+
+		void prepare(View view) {
+			Holder holder = new Holder();
+			if (item1 != 0)
+				holder.view1 = view.findViewById(item1);
+			if (item2 != 0)
+				holder.view2 = view.findViewById(item2);
+			view.setTag(holder);
+		}
+
+		void attach(View view) {
+			Holder holder = (Holder)view.getTag();
+			setText(holder.view1, text1);
+			setText(holder.view2, text2);
+		}
+
+		static void setText(View view, CharSequence text) {
+			if (view == null || !(view instanceof TextView))
+				return;
+
+			TextView tv = (TextView)view;
+			if (text == null)
+				tv.setVisibility(View.GONE);
+			else {
+				tv.setVisibility(View.VISIBLE);
+				tv.setText(text);
+			}
+		}
 	}
 
-	private void setText(View view, int targetId, int resId) {
-		setText(view, targetId, getText(resId));
+	private static class ProgressItem extends Item {
+		int max;
+		int value;
+
+		ProgressItem(int max_) {
+			super(R.layout.info_bar, R.id.progress, 0);
+			max = max_;
+		}
+
+		@Override
+		void attach(View view) {
+			Holder holder = (Holder)view.getTag();
+			ProgressBar progress = (ProgressBar)holder.view1;
+			progress.setMax(max);
+			progress.setProgress(value);
+		}
 	}
 
 	private static class UpdateTask extends ProgressTask<Void, Void, Boolean> {

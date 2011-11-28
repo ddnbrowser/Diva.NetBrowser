@@ -139,6 +139,7 @@
     <string name="title_record_tab">[総クリア数: %1$d / %2$d]</string>
     <string name="no_records">レコードがありません。\nメニューを開いて更新を選択して下さい</string>
     <string name="no_records_updated">新たにクリアしたレコードはありません</string>
+    <string name="clear_records">レコードをクリアしました</string>
     <string name="notify_news_updated">ニュースの更新を通知</string>
     <string name="summary_notify_news_updated">DIVA.NETニュースの更新を検知した時にステータスバーで通知します</string>
     <string name="news_updated_title">DIVA.NETニュース</string>

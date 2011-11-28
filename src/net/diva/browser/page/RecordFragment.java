@@ -6,6 +6,7 @@ import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.Html;
@@ -13,7 +14,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.Toast;
 
 public class RecordFragment extends ListFragment implements PageAdapter {
 	ArrayAdapter<CharSequence> m_adapter;
@@ -124,9 +124,18 @@ public class RecordFragment extends ListFragment implements PageAdapter {
 
 		@Override
 		protected void onResult(List<String> records) {
-			if (records == null)
-				Toast.makeText(getActivity(), R.string.no_records_updated, Toast.LENGTH_SHORT).show();
 			super.onResult(records);
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			if (records != null)
+				builder.setMessage(R.string.clear_records);
+			else
+				builder.setMessage(R.string.no_records_updated);
+
+			AlertDialog dialog = builder.create();
+			dialog.setCancelable(true);
+			dialog.setCanceledOnTouchOutside(true);
+			dialog.show();
 		}
 	}
 }

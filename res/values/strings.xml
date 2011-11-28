@@ -117,7 +117,7 @@
     <string name="input_reading">読み仮名入力</string>
     <string name="no_record">プレイ記録がありません。</string>
     <string name="player_name">プレイヤー名</string>
-    <string name="level_rank">LEVEL / RANK</string>
+    <string name="level_rank">LEVEL / 称号</string>
     <string name="total_exp">達成率合計</string>
     <string name="next_level">次のレベルまで残り</string>
     <string name="next_rank">次のランクまで残り</string>

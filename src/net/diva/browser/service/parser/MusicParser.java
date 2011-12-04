@@ -167,4 +167,29 @@ public class MusicParser {
 		}
 		return entry;
 	}
+
+	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
+	private static final SimpleDateFormat HISTORY_DATE = new SimpleDateFormat("yy/MM/dd HH:mm");
+
+	public static String parsePlayHistory(InputStream content, List<String> ids, long[] params)
+			throws ParseException {
+		String body = Parser.read(content);
+		Matcher m = RE_HISTORY.matcher(body);
+		try {
+			while (m.find()) {
+				long playTime = HISTORY_DATE.parse(m.group(1)).getTime();
+				if (playTime <= params[0])
+					return null;
+				if (playTime > params[1])
+					params[1] = playTime;
+				ids.add(m.group(2));
+			}
+		}
+		catch (Exception e) {
+			throw new ParseException(e);
+		}
+
+		m = m.usePattern(Parser.RE_NEXT);
+		return m.find() ? m.group(1) : null;
+	}
 }

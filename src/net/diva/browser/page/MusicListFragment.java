@@ -149,6 +149,9 @@ public abstract class MusicListFragment extends ListFragment
 		case R.id.item_update_new:
 			new UpdateNewTask().execute();
 			break;
+		case R.id.item_update_in_history:
+			new UpdateInHistory().execute();
+			break;
 		case R.id.item_search:
 			activateTextFilter();
 			break;
@@ -471,6 +474,52 @@ public abstract class MusicListFragment extends ListFragment
 		protected void onResult(Boolean result) {
 			if (result != null && result)
 				DdN.notifyPlayRecordChanged();
+		}
+	}
+
+	private class UpdateInHistory extends UpdateMultiMusic {
+		boolean m_hasUnknown;
+
+		@Override
+		protected Boolean doTask(ServiceClient service, MusicInfo... params)
+				throws Exception {
+			List<String> ids = new ArrayList<String>();
+			long lastPlayed = m_preferences.getLong("last_played", 0);
+			lastPlayed = service.getMusicsInHistory(ids, lastPlayed);
+			if (ids.isEmpty())
+				return Boolean.FALSE;
+
+			List<MusicInfo> musics = new ArrayList<MusicInfo>(ids.size());
+			PlayRecord record = DdN.getPlayRecord();
+			for (String id: ids) {
+				MusicInfo m = record.getMusic(id);
+				if (m != null)
+					musics.add(m);
+				else
+					m_hasUnknown = true;
+			}
+
+			super.doTask(service, musics.toArray(new MusicInfo[musics.size()]));
+			m_preferences.edit().putLong("last_played", lastPlayed).commit();
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			super.onResult(result);
+			if (!m_hasUnknown)
+				return;
+
+			AlertDialog.Builder b = new AlertDialog.Builder(getActivity());
+			b.setMessage(R.string.found_unknown_musics);
+			b.setNegativeButton(android.R.string.no, null);
+			b.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					new UpdateNewTask().execute();
+				}
+			});
+			b.show();
 		}
 	}
 

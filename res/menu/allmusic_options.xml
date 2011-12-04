@@ -1,9 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-  xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/item_update_all" android:title="@string/item_update_all" android:icon="@drawable/ic_menu_refresh"></item>
-    <item android:id="@+id/item_update_bulk" android:title="@string/item_update_bulk" android:icon="@drawable/ic_menu_refresh"></item>
-    <item android:id="@+id/item_update_new" android:title="@string/item_update_new" android:icon="@drawable/ic_menu_add"></item>
-    <item android:id="@+id/item_search" android:title="@string/item_search" android:icon="@drawable/ic_menu_search"></item>
-    <item android:id="@+id/item_sort" android:title="@string/item_sort" android:icon="@drawable/ic_menu_sort_by_size"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/item_update"
+        android:icon="@drawable/ic_menu_refresh"
+        android:title="@string/item_update">
+		<menu >
+            <item
+                android:id="@+id/item_update_all"
+                android:title="@string/item_update_all"
+                />
+            <item
+                android:id="@+id/item_update_new"
+                android:title="@string/item_update_new"
+                />
+            <item
+                android:id="@+id/item_update_in_history"
+                android:title="@string/item_update_in_history"
+                />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/item_update_bulk"
+        android:icon="@drawable/ic_menu_refresh"
+        android:title="@string/item_update_bulk"
+        />
+    <item
+        android:id="@+id/item_search"
+        android:icon="@drawable/ic_menu_search"
+        android:title="@string/item_search"
+        />
+    <item
+        android:id="@+id/item_sort"
+        android:icon="@drawable/ic_menu_sort_by_size"
+        android:title="@string/item_sort"
+        />
 </menu>

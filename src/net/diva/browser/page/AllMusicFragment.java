@@ -26,9 +26,10 @@ public class AllMusicFragment extends MusicListFragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		boolean update = DdN.isAllowUpdateMusics(m_preferences);
 		boolean selection = isSelectionMode();
-		menu.findItem(R.id.item_update_all).setVisible(update && !selection);
-		menu.findItem(R.id.item_update_bulk).setVisible(update && selection);
-		menu.findItem(R.id.item_update_new).setVisible(!update);
+		menu.findItem(R.id.item_update).setVisible(!selection);
+		menu.findItem(R.id.item_update_all).setEnabled(update);
+		menu.findItem(R.id.item_update_in_history).setEnabled(update);
+		menu.findItem(R.id.item_update_bulk).setVisible(selection).setEnabled(update);
 	}
 
 	protected List<MusicInfo> getMusics() {

@@ -118,6 +118,14 @@ public class ServiceClient {
 		return list;
 	}
 
+	public long getMusicsInHistory(List<String> musics, long since) throws IOException, ParseException {
+		final long[] params = new long[] { since, since };
+		String path = "/divanet/personal/playHistory/0";
+		while (path != null)
+			path = MusicParser.parsePlayHistory(getFrom(path), musics, params);
+		return params[1];
+	}
+
 	public void updatePublishOrder(List<MusicInfo> musics, int order) throws IOException {
 		List<MusicInfo> list = getMusics("/divanet/pv/sort/0/true/0");
 		final int lSize = musics.size();

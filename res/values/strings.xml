@@ -14,6 +14,7 @@
     <string name="item_update_new">新曲チェック</string>
     <string name="item_update_selction">更新</string>
     <string name="item_update_bulk">一括更新</string>
+    <string name="item_update_in_history">履歴から更新</string>
     <string name="item_search">検索</string>
     <string name="item_sort">ソート</string>
     <string name="item_open_web">DIVA.NET</string>
@@ -153,4 +154,5 @@
     <string name="do_exchange">交換する</string>
     <string name="exchanging">交換しています...</string>
     <string name="exchange_failure">交換に失敗しました</string>
+    <string name="found_unknown_musics">未登録の楽曲が見つかりました。\n続けて新曲チェックを実行しますか?</string>
 </resources>

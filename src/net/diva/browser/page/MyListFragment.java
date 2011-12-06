@@ -50,7 +50,7 @@ public class MyListFragment extends MusicListFragment {
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.item_activate_mylist).setEnabled(!m_musics.isEmpty());
+		menu.findItem(R.id.item_activate_mylist).setEnabled(m_musics != null && !m_musics.isEmpty());
 		menu.findItem(R.id.item_update_bulk).setEnabled(DdN.isAllowUpdateMusics(m_preferences));
 	}
 

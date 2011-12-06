@@ -4,4 +4,5 @@
 <color name="hard">#e2e511</color>
 <color name="extreme">#d42d1d</color>
 <color name="easy">#2795ff</color>
+    <color name="translucent">#AA000000</color>
 </resources>

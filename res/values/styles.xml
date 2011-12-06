@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="translucent">#AA000000</color>
-    <style name="Theme.Translucent" parent="android:Theme.Translucent.NoTitleBar">
+    <style name="Theme.DdN" parent="android:Theme" />
+    <style name="Theme.DdN.Translucent">
         <item name="android:windowBackground">@color/translucent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
     </style>
+    <style name="Theme.DdN.Translucent.NoTitleBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+    <style name="Button.Difficulty" parent="android:Widget.Button" />
 </resources>

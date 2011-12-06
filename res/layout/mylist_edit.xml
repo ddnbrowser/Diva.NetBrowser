@@ -72,6 +72,7 @@
 			android:layout_weight="1"
 			android:text="EASY"
 			android:onClick="setDifficulty"
+			style="@style/Button.Difficulty"
 			/>
 		<Button
 			android:id="@+id/button_normal"
@@ -80,6 +81,7 @@
 			android:layout_weight="1"
 			android:text="NORMAL"
 			android:onClick="setDifficulty"
+			style="@style/Button.Difficulty"
 			/>
 		<Button
 			android:id="@+id/button_hard"
@@ -88,6 +90,7 @@
 			android:layout_weight="1"
 			android:text="HARD"
 			android:onClick="setDifficulty"
+			style="@style/Button.Difficulty"
 			/>
 		<Button
 			android:id="@+id/button_extreme"
@@ -96,6 +99,7 @@
 			android:layout_weight="1"
 			android:text="EXTREME"
 			android:onClick="setDifficulty"
+			style="@style/Button.Difficulty"
 			/>
 	</LinearLayout>
 </LinearLayout>

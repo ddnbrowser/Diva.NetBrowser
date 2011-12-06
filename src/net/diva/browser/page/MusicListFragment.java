@@ -45,6 +45,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 
+@SuppressWarnings("deprecation")
 public abstract class MusicListFragment extends ListFragment
 		implements DdN.Observer, PageAdapter {
 	protected View m_buttons[];

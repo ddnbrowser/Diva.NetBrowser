@@ -525,7 +525,7 @@ public abstract class MusicListFragment extends ListFragment
 	}
 
 	protected boolean isSelectionMode() {
-		return getListView().getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE;
+		return getView() != null && getListView().getChoiceMode() == ListView.CHOICE_MODE_MULTIPLE;
 	}
 
 	protected void setSelectionMode(boolean on) {

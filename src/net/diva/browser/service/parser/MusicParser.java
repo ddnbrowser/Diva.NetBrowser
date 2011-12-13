@@ -182,7 +182,9 @@ public class MusicParser {
 					return null;
 				if (playTime > params[1])
 					params[1] = playTime;
-				ids.add(m.group(2));
+				final String id = m.group(2);
+				if (!ids.contains(id))
+					ids.add(id);
 			}
 		}
 		catch (Exception e) {

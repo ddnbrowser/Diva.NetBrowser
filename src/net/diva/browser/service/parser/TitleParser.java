@@ -5,6 +5,7 @@ package net.diva.browser.service.parser;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +48,10 @@ public class TitleParser {
 			if (!DecorTitle.OFF.equals(decor))
 				titles.add(decor);
 		}
+
+		m = m.usePattern(Parser.RE_NEXT);
+		if (m.find())
+			return Collections.singletonList(m.group(1));
 
 		List<String> urls = new ArrayList<String>();
 		m = m.usePattern(RE_GROUP);

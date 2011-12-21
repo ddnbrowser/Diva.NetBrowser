@@ -119,7 +119,7 @@ public class SortableListView extends ListView implements OnItemLongClickListene
 
 	/** ACTION_DOWN 時の MotionEvent をプロパティに格納 */
 	private void storeMotionEvent(MotionEvent event) {
-		mActionDownEvent = event;
+		mActionDownEvent = MotionEvent.obtain(event);
 	}
 
 	/** ドラッグ開始 */

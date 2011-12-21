@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:icon="@drawable/ic_menu_refresh" android:id="@+id/item_update" android:title="@string/item_update"></item>
+    <item
+        android:id="@+id/item_update"
+        android:title="@string/item_update"
+        android:icon="@drawable/ic_menu_refresh"
+        android:showAsAction="ifRoom"
+        />
 	<item android:icon="@drawable/android:ic_menu_agenda" android:id="@+id/item_switch_display" android:title="@string/item_switch_display">
 		<menu>
 			<group android:id="@+id/group_display_mode" android:checkableBehavior="single">

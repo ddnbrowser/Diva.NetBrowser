@@ -4,5 +4,6 @@
         android:id="@+id/item_update"
         android:title="@string/item_update"
         android:icon="@drawable/ic_menu_refresh"
+        android:showAsAction="ifRoom"
         />
 </menu>

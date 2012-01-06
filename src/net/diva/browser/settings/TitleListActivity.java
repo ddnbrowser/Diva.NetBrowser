@@ -5,6 +5,7 @@ import java.util.List;
 import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.db.LocalStore;
+import net.diva.browser.model.DecorTitle;
 import net.diva.browser.model.TitleInfo;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
@@ -42,8 +43,9 @@ public class TitleListActivity extends ListActivity {
 		m_decorViews[1] = (TextView)findViewById(R.id.post_decor);
 		m_titles = m_store.getTitles();
 
-		refresh();
+		m_adapter.setTitles(m_titles);
 		setListAdapter(m_adapter);
+		setDecorTitles();
 	}
 
 	@Override
@@ -100,12 +102,59 @@ public class TitleListActivity extends ListActivity {
 		m_decorViews[index].setText(data.getStringExtra("name"));
 	}
 
-	private void refresh() {
-		m_adapter.setTitles(m_titles);
-
+	private void setDecorTitles() {
 		String current = DdN.getPlayRecord().title;
 		if (current == null)
 			return;
+
+		boolean hasPre = false;
+		for (DecorTitle deco: m_store.getDecorTitles(true)) {
+			if (current.startsWith(deco.name)) {
+				current = current.substring(deco.name.length());
+				m_decorViews[0].setText(deco.name);
+				hasPre = true;
+				break;
+			}
+		}
+
+		boolean hasPost = false;
+		for (DecorTitle deco: m_store.getDecorTitles(false)) {
+			if (current.endsWith(deco.name)) {
+				int length = current.length();
+				current = current.substring(length-deco.name.length(), length);
+				m_decorViews[1].setText(deco.name);
+				hasPost = true;
+				break;
+			}
+		}
+
+		if (hasPre && hasPost)
+			return;
+
+		if (hasPre) {
+			for (TitleInfo title: m_titles) {
+				if (current.startsWith(title.name)) {
+					final int start = title.name.length();
+					final int end = current.length();
+					if (start < end)
+						m_decorViews[1].setText(current.subSequence(start, end));
+					break;
+				}
+			}
+			return;
+		}
+
+		if (hasPost) {
+			for (TitleInfo title: m_titles) {
+				if (current.endsWith(title.name)) {
+					final int length = current.length() - title.name.length();
+					if (length > 0)
+						m_decorViews[0].setText(current.subSequence(0, length));
+					break;
+				}
+			}
+			return;
+		}
 
 		for (TitleInfo title: m_titles) {
 			int index = current.indexOf(title.name);
@@ -166,22 +215,22 @@ public class TitleListActivity extends ListActivity {
 		}
 	}
 
-	private class TitleDownloader extends ServiceTask<Void, Void, Boolean> {
+	private class TitleDownloader extends ServiceTask<Void, Void, List<TitleInfo>> {
 		TitleDownloader() {
 			super(TitleListActivity.this, R.string.message_updating);
 		}
 
 		@Override
-		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
-			m_titles = service.getTitles(m_titles);
-			m_store.updateTitles(m_titles);
-			return Boolean.TRUE;
+		protected List<TitleInfo> doTask(ServiceClient service, Void... params) throws Exception {
+			List<TitleInfo> titles = service.getTitles(m_titles);
+			m_store.updateTitles(titles);
+			return titles;
 		}
 
 		@Override
-		protected void onResult(Boolean result) {
-			if (result)
-				refresh();
+		protected void onResult(List<TitleInfo> result) {
+			if (result != null)
+				m_adapter.setTitles(m_titles = result);
 		}
 	}
 }

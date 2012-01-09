@@ -31,6 +31,7 @@ import android.view.ViewGroup;
 public class MainFragment extends Fragment
 		implements DdN.Observer, MainActivity.Content {
 
+	private ActionBar m_bar;
 	private TabsAdapter m_adapter;
 	private SparseArray<ActionBar.Tab> m_myListTabs = new SparseArray<ActionBar.Tab>();
 
@@ -40,10 +41,13 @@ public class MainFragment extends Fragment
 		view.setId(R.id.pager);
 
 		final FragmentActivity activity = getActivity();
+		m_bar = activity.getActionBar();
+		m_bar.setDisplayShowHomeEnabled(false);
+		m_bar.setDisplayShowTitleEnabled(false);
 		m_adapter = new TabsAdapter(activity, view);
 
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-		addTabs(activity.getActionBar(), preferences.getString("default_tab", null));
+		addTabs(m_bar, preferences.getString("default_tab", null));
 
 		return view;
 	}

@@ -7,6 +7,7 @@ import net.diva.browser.model.MusicInfo;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 
 
 public class AllMusicFragment extends MusicListFragment {
@@ -26,9 +27,11 @@ public class AllMusicFragment extends MusicListFragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		boolean update = DdN.isAllowUpdateMusics(m_preferences);
 		boolean selection = isSelectionMode();
-		menu.findItem(R.id.item_update).setVisible(!selection);
-		menu.findItem(R.id.item_update_all).setEnabled(update);
-		menu.findItem(R.id.item_update_in_history).setEnabled(update);
+		MenuItem menuUpdate = menu.findItem(R.id.item_update);
+		if (menuUpdate != null)
+			menuUpdate.setVisible(!selection);
+		menu.findItem(R.id.item_update_all).setVisible(!selection).setEnabled(update);
+		menu.findItem(R.id.item_update_in_history).setVisible(!selection).setEnabled(update);
 		menu.findItem(R.id.item_update_bulk).setVisible(selection).setEnabled(update);
 	}
 

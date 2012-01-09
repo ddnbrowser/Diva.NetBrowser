@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/item_sort" android:title="@string/item_sort" android:icon="@drawable/ic_menu_sort_by_size"/>
+    <item
+        android:id="@+id/item_sort"
+        android:icon="@drawable/ic_menu_sort_by_size"
+        android:title="@string/item_sort"
+        android:showAsAction="ifRoom"
+        />
 </menu>

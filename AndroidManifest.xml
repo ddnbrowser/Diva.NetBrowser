@@ -9,7 +9,11 @@
         android:theme="@style/Theme.DdN"
         >
         <activity android:name=".MainActivity"
-                  android:label="@string/app_name" android:screenOrientation="user" android:configChanges="keyboardHidden|orientation">
+                  android:label="@string/app_name"
+                  android:screenOrientation="user"
+                  android:configChanges="keyboardHidden|orientation"
+                  android:uiOptions="splitActionBarWhenNarrow"
+                  >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

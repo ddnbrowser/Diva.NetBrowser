@@ -1,5 +1,6 @@
 package net.diva.browser.page;
 
+import java.util.Collections;
 import java.util.List;
 
 import net.diva.browser.DdN;
@@ -16,7 +17,8 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
 public class RecordFragment extends ListFragment implements PageAdapter {
-	ArrayAdapter<CharSequence> m_adapter;
+	private ArrayAdapter<CharSequence> m_adapter;
+	private List<String> m_records;
 	private String m_title;
 
 	@Override
@@ -56,6 +58,10 @@ public class RecordFragment extends ListFragment implements PageAdapter {
 		case R.id.item_check_record:
 			new CheckRecord().execute();
 			break;
+		case R.id.item_sort:
+			Collections.reverse(m_records);
+			refresh(m_records);
+			break;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -82,7 +88,7 @@ public class RecordFragment extends ListFragment implements PageAdapter {
 				++cleared;
 		}
 		m_adapter.notifyDataSetChanged();
-
+		m_records = records;
 		m_title = getString(R.string.title_record_tab, cleared, records.size());
 	}
 

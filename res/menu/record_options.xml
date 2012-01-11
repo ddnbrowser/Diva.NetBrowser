@@ -12,4 +12,10 @@
         android:icon="@drawable/ic_menu_notifications"
         android:showAsAction="ifRoom"
         />
+    <item
+        android:id="@+id/item_sort"
+        android:title="@string/item_reverse_order"
+        android:icon="@drawable/ic_menu_sort_by_size"
+        android:showAsAction="ifRoom"
+        />
 </menu>

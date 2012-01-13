@@ -32,4 +32,16 @@
         android:title="@string/item_sort"
         android:showAsAction="ifRoom"
         />
+    <item
+        android:id="@+id/item_enable_selection"
+        android:title="@string/item_enable_selection"
+        android:icon="@drawable/ic_menu_mark"
+        android:showAsAction="ifRoom"
+        />
+    <item
+        android:id="@+id/item_cancel_selection"
+        android:title="@string/item_cancel_selection"
+        android:icon="@drawable/ic_menu_mark"
+        android:showAsAction="ifRoom"
+        />
 </menu>

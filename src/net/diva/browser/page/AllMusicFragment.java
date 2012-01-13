@@ -33,6 +33,8 @@ public class AllMusicFragment extends MusicListFragment {
 		menu.findItem(R.id.item_update_all).setVisible(!selection).setEnabled(update);
 		menu.findItem(R.id.item_update_in_history).setVisible(!selection).setEnabled(update);
 		menu.findItem(R.id.item_update_bulk).setVisible(selection).setEnabled(update);
+		menu.findItem(R.id.item_enable_selection).setVisible(!selection);
+		menu.findItem(R.id.item_cancel_selection).setVisible(selection);
 	}
 
 	protected List<MusicInfo> getMusics() {

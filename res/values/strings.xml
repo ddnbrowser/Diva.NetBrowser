@@ -35,6 +35,8 @@
     <string name="item_activate_mylist">筐体で使用</string>
     <string name="item_edit_mylist">マイリスト編集</string>
     <string name="item_select">選択</string>
+    <string name="item_enable_selection">複数選択</string>
+    <string name="item_cancel_selection">選択解除</string>
     <string name="item_edit_reading">読み仮名編集</string>
     <string name="item_ranking">ランキング表示</string>
     <string name="item_copy_title">曲名をコピー</string>

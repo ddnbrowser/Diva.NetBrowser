@@ -51,11 +51,14 @@ public class MyListFragment extends MusicListFragment {
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		final boolean canUpdate = DdN.isAllowUpdateMusics(m_preferences);
+		final boolean selection = isSelectionMode();
 		menu.findItem(R.id.item_activate_mylist).setEnabled(m_musics != null && !m_musics.isEmpty());
 		menu.findItem(R.id.item_update_bulk).setEnabled(canUpdate);
 		MenuItem updateInHistory = menu.findItem(R.id.item_update_in_history);
 		if (updateInHistory != null)
 			updateInHistory.setEnabled(canUpdate);
+		menu.findItem(R.id.item_enable_selection).setVisible(!selection);
+		menu.findItem(R.id.item_cancel_selection).setVisible(selection);
 	}
 
 	@Override

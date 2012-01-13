@@ -5,6 +5,7 @@
 	>
 	<fragment class="net.diva.browser.compatibility.v4.MainFragment"
 		android:id="@+id/content"
+		android:tag="support"
 		android:layout_width="fill_parent"
 		android:layout_height="fill_parent"
 		/>

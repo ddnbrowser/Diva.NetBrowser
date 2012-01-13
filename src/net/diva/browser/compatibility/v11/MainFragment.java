@@ -6,6 +6,7 @@ import java.util.List;
 import net.diva.browser.DdN;
 import net.diva.browser.MainActivity;
 import net.diva.browser.R;
+import net.diva.browser.compatibility.ActivitySupport;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
@@ -29,7 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class MainFragment extends Fragment
-		implements DdN.Observer, MainActivity.Content {
+		implements DdN.Observer, MainActivity.Content, ActivitySupport {
 
 	private ActionBar m_bar;
 	private TabsAdapter m_adapter;
@@ -99,6 +100,11 @@ public class MainFragment extends Fragment
 	@Override
 	public boolean onSearchRequested() {
 		return true;
+	}
+
+	@Override
+	public void invalidateOptionsMenu() {
+		getActivity().invalidateOptionsMenu();
 	}
 
 	private void addTabs(ActionBar bar, String selected) {

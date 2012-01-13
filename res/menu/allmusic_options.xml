@@ -34,4 +34,14 @@
         android:icon="@drawable/ic_menu_sort_by_size"
         android:title="@string/item_sort"
         />
+    <item
+        android:id="@+id/item_enable_selection"
+        android:title="@string/item_enable_selection"
+        android:icon="@drawable/ic_menu_mark"
+        />
+    <item
+        android:id="@+id/item_cancel_selection"
+        android:title="@string/item_cancel_selection"
+        android:icon="@drawable/ic_menu_mark"
+        />
 </menu>

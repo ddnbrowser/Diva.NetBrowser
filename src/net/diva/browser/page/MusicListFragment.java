@@ -33,6 +33,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.text.ClipboardManager;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
@@ -552,8 +553,14 @@ public abstract class MusicListFragment extends ListFragment
 	}
 
 	private class MyAdapter extends MusicAdapter {
+		int checkMarkId;
+
 		MyAdapter(Context context) {
 			super(context);
+
+			TypedValue value = new TypedValue();
+			context.getTheme().resolveAttribute(android.R.attr.listChoiceIndicatorMultiple, value, true);
+			checkMarkId = value.resourceId;
 		}
 
 		@Override
@@ -561,7 +568,7 @@ public abstract class MusicListFragment extends ListFragment
 			view = super.getView(position, view, parent);
 			if (view instanceof CheckedFrameLayout) {
 				if (isSelectionMode()) {
-					((CheckedFrameLayout) view).setCheckMarkDrawable(R.drawable.btn_check);
+					((CheckedFrameLayout) view).setCheckMarkDrawable(checkMarkId);
 					MusicInfo music = getItem(position);
 					m_list.setItemChecked(position, m_selections.contains(music));
 				}

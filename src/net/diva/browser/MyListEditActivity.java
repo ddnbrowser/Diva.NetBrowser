@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -174,8 +175,14 @@ public class MyListEditActivity extends ListActivity {
 	}
 
 	private class EditAdapter extends MusicAdapter {
+		int checkMarkId;
+
 		EditAdapter(Context context) {
 			super(context);
+
+			TypedValue value = new TypedValue();
+			context.getTheme().resolveAttribute(android.R.attr.listChoiceIndicatorMultiple, value, true);
+			checkMarkId = value.resourceId;
 		}
 
 		@Override
@@ -185,7 +192,7 @@ public class MyListEditActivity extends ListActivity {
 				if (isSortMode())
 					((CheckedFrameLayout) view).setCheckMarkDrawable(0);
 				else {
-					((CheckedFrameLayout) view).setCheckMarkDrawable(R.drawable.btn_check);
+					((CheckedFrameLayout) view).setCheckMarkDrawable(checkMarkId);
 					MusicInfo music = getItem(position);
 					m_list.setItemChecked(position, m_musics.contains(music));
 				}

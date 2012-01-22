@@ -11,15 +11,20 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.text.Html;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 public class RecordFragment extends ListFragment implements PageAdapter {
 	private ArrayAdapter<CharSequence> m_adapter;
 	private List<String> m_records;
 	private String m_title;
+	private TextView m_text;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -28,9 +33,19 @@ public class RecordFragment extends ListFragment implements PageAdapter {
 	}
 
 	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(R.layout.record_list, container, false);
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		m_text = (TextView)view.findViewById(R.id.text);
+	}
+
+	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		setEmptyText(getText(R.string.no_records));
 
 		m_adapter = new ArrayAdapter<CharSequence>(getActivity(), R.layout.record_item, R.id.text1);
 		refresh(DdN.getLocalStore().getDIVARecords());
@@ -90,6 +105,7 @@ public class RecordFragment extends ListFragment implements PageAdapter {
 		m_adapter.notifyDataSetChanged();
 		m_records = records;
 		m_title = getString(R.string.title_record_tab, cleared, records.size());
+		m_text.setText(m_title);
 	}
 
 	private class UpdateRecord extends ServiceTask<Void, Void, List<String>> {

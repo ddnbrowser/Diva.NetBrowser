@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/hist_search_music_and_rank" android:title="@string/hist_menu_search_music_and_rank"></item>
+    <item android:id="@+id/hist_search_music" android:title="@string/hist_menu_search_music"></item>
+    <item android:id="@+id/hist_search_date" android:title="@string/hist_menu_search_date"></item>
+</menu>

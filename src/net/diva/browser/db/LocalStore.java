@@ -1,5 +1,6 @@
 package net.diva.browser.db;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Map;
 import net.diva.browser.R;
 import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.DecorTitle;
+import net.diva.browser.model.History;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -23,8 +25,8 @@ import android.content.ContextWrapper;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
@@ -712,6 +714,278 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
+	public List<History> getPlayHistoryList(List<String> dateList, String orderBy) {
+		List<History> records = new ArrayList<History>();
+
+		String where = HistoryTable.PLAY_DATE + " in (";
+		for(int i = 0; i < dateList.size(); i++){
+			if(i != 0)
+				where += ",";
+			where += "?";
+		}
+		where += ")";
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(HistoryTable.TABLE_NAME, new String[] {
+				HistoryTable.MUSIC_ID,
+				HistoryTable.RANK,
+				HistoryTable.PLAY_DATE,
+				HistoryTable.PLAY_PLACE,
+				HistoryTable.CLEAR_STATUS,
+				HistoryTable.ACHIEVEMENT,
+				HistoryTable.SCORE,
+				HistoryTable.COOL,
+				HistoryTable.COOL_PER,
+				HistoryTable.FINE,
+				HistoryTable.FINE_PER,
+				HistoryTable.SAFE,
+				HistoryTable.SAFE_PER,
+				HistoryTable.SAD,
+				HistoryTable.SAD_PER,
+				HistoryTable.WORST,
+				HistoryTable.WORST_PER,
+				HistoryTable.COMBO,
+				HistoryTable.CHALLANGE_TIME,
+				HistoryTable.HOLD,
+				HistoryTable.TRIAL,
+				HistoryTable.TRIAL_RESULT,
+				HistoryTable.MODULE1,
+				HistoryTable.MODULE2,
+				HistoryTable.SE,
+				HistoryTable.SKIN,
+				HistoryTable.LOCK,
+		}, where, dateList.toArray(new String[0]), null, null, orderBy);
+		try {
+			while (c.moveToNext()){
+				History h = new History();
+				h.music_id = c.getString(0);
+				h.rank = c.getInt(1);
+				h.play_date = c.getInt(2);
+				h.play_place = c.getString(3);
+				h.clear_status = c.getInt(4);
+				h.achievement = c.getInt(5);
+				h.score = c.getInt(6);
+				h.cool = c.getInt(7);
+				h.cool_per = c.getInt(8);
+				h.fine = c.getInt(9);
+				h.fine_per = c.getInt(10);
+				h.safe = c.getInt(11);
+				h.safe_per = c.getInt(12);
+				h.sad = c.getInt(13);
+				h.sad_per = c.getInt(14);
+				h.worst = c.getInt(15);
+				h.worst_per = c.getInt(16);
+				h.combo = c.getInt(17);
+				h.challange_time = c.getInt(18);
+				h.hold = c.getInt(19);
+				h.trial = c.getInt(20);
+				h.trial_result = c.getInt(21);
+				h.module1_id = c.getString(22);
+				h.module2_id = c.getString(23);
+				h.se_id = c.getString(24);
+				h.skin_id = c.getString(25);
+				h.lock = c.getInt(26);
+
+				records.add(h);
+			}
+		}
+		finally {
+			c.close();
+		}
+
+		return records;
+	}
+
+	public List<String> getPlayHistoryList(String where, List<String> params, String orderBy){
+		List<String> ret = new ArrayList<String>();
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(HistoryTable.TABLE_NAME, new String[] {
+				HistoryTable.PLAY_DATE,
+		}, where, params.toArray(new String[0]), null, null, orderBy);
+		try {
+			while (c.moveToNext()){
+				ret.add(c.getString(0));
+			}
+		}
+		finally {
+			c.close();
+		}
+
+		return ret;
+	}
+
+	public void insert(History history){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		HistoryTable.insert(db, history);
+	}
+
+	public void deleteHistory(String music_id, int rank, int limit_date){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		HistoryTable.delete(db, music_id, rank, limit_date);
+	}
+
+	public void deleteHistory(History history){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		HistoryTable.delete(db, history);
+	}
+
+	public void lockHistory(History history){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		HistoryTable.lock(db, history);
+	}
+
+	public String getButtonSeId(String name){
+		String retId = "unknown";
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(ButtonSETable.TABLE_NAME, new String[] {
+				ButtonSETable.ID,
+		}, String.format("%s=?", ButtonSETable.NAME), new String[] { String.valueOf(name) }, null, null, ButtonSETable.ID);
+		try {
+			while (c.moveToNext())
+				retId = c.getString(0);
+		}
+		finally {
+			c.close();
+		}
+		return retId;
+	}
+
+	public String getSkinId(String name){
+		String retId = "unknown";
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(SkinTable.TABLE_NAME, new String[] {
+				SkinTable.ID,
+		}, String.format("%s=?", SkinTable.NAME), new String[] { String.valueOf(name) }, null, null, SkinTable.ID);
+		try {
+			while (c.moveToNext())
+				retId = c.getString(0);
+		}
+		finally {
+			c.close();
+		}
+		return retId;
+	}
+
+	public SkinInfo getSkinInfo(String skin_id){
+		SkinInfo retSkin = null;
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor c = db.query(SkinTable.TABLE_NAME, new String[] {
+				SkinTable.GROUP_ID,
+				SkinTable.ID,
+				SkinTable.NAME,
+				SkinTable.PATH,
+				SkinTable.STATUS,
+		}, String.format("%s=?", SkinTable.ID), new String[]{skin_id}, null, null, SkinTable._ID);
+		try {
+			while (c.moveToNext()) {
+				retSkin = new SkinInfo(c.getString(0), c.getString(1), c.getString(2), c.getInt(4) == 1);
+				retSkin.prize = c.getInt(4) == 2;
+				retSkin.image_path = c.getString(3);
+			}
+		}
+		finally {
+			c.close();
+		}
+		return retSkin;
+	}
+
+	public Module getModule(String mod_id){
+		Module retMod = null;
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+		Cursor cm = db.query(ModuleTable.TABLE_NAME, new String[] {
+				ModuleTable.ID,
+				ModuleTable.NAME,
+				ModuleTable.STATUS,
+				ModuleTable.GROUP_ID,
+				ModuleTable.IMAGE,
+				ModuleTable.THUMBNAIL,
+		}, String.format("%s=?", ModuleTable.ID), new String[]{mod_id}, null, null, ModuleTable._ID);
+		try {
+			while (cm.moveToNext()) {
+				retMod = new Module();
+				retMod.id = cm.getString(0);
+				retMod.name = cm.getString(1);
+				retMod.purchased = cm.getInt(2) == 1;
+				retMod.image = cm.getString(4);
+				retMod.thumbnail = cm.getString(5);
+			}
+		}
+		finally {
+			cm.close();
+		}
+
+		return retMod;
+	}
+
+	public List<byte[]> csvExport() throws IOException {
+		List<byte[]> list = new ArrayList<byte[]>();
+
+		Cursor c = m_helper.getReadableDatabase().query(HistoryTable.TABLE_NAME, new String[] {
+				HistoryTable.MUSIC_ID,
+				HistoryTable.RANK,
+				HistoryTable.PLAY_DATE,
+				HistoryTable.PLAY_PLACE,
+				HistoryTable.CLEAR_STATUS,
+				HistoryTable.ACHIEVEMENT,
+				HistoryTable.SCORE,
+				HistoryTable.COOL,
+				HistoryTable.COOL_PER,
+				HistoryTable.FINE,
+				HistoryTable.FINE_PER,
+				HistoryTable.SAFE,
+				HistoryTable.SAFE_PER,
+				HistoryTable.SAD,
+				HistoryTable.SAD_PER,
+				HistoryTable.WORST,
+				HistoryTable.WORST_PER,
+				HistoryTable.COMBO,
+				HistoryTable.CHALLANGE_TIME,
+				HistoryTable.HOLD,
+				HistoryTable.TRIAL,
+				HistoryTable.TRIAL_RESULT,
+				HistoryTable.MODULE1,
+				HistoryTable.MODULE2,
+				HistoryTable.SE,
+				HistoryTable.SKIN,
+				HistoryTable.LOCK,
+		}, null, null, null, null, null);
+
+		while (c.moveToNext()){
+			StringBuffer sb = new StringBuffer();
+			sb.append(c.getString(0)).append(",");
+			sb.append(c.getInt(1)).append(",");
+			sb.append(c.getInt(2)).append(",");
+			sb.append(c.getString(3)).append(",");
+			sb.append(c.getInt(4)).append(",");
+			sb.append(c.getInt(5)).append(",");
+			sb.append(c.getInt(6)).append(",");
+			sb.append(c.getInt(7)).append(",");
+			sb.append(c.getInt(8)).append(",");
+			sb.append(c.getInt(9)).append(",");
+			sb.append(c.getInt(10)).append(",");
+			sb.append(c.getInt(11)).append(",");
+			sb.append(c.getInt(12)).append(",");
+			sb.append(c.getInt(13)).append(",");
+			sb.append(c.getInt(14)).append(",");
+			sb.append(c.getInt(15)).append(",");
+			sb.append(c.getInt(16)).append(",");
+			sb.append(c.getInt(17)).append(",");
+			sb.append(c.getInt(18)).append(",");
+			sb.append(c.getInt(19)).append(",");
+			sb.append(c.getInt(20)).append(",");
+			sb.append(c.getInt(21)).append(",");
+			sb.append(c.getString(22)).append(",");
+			sb.append(c.getString(23)).append(",");
+			sb.append(c.getString(24)).append(",");
+			sb.append(c.getString(25)).append(",");
+			sb.append(c.getInt(26)).append("\r\n");
+
+			list.add(sb.toString().getBytes());
+		}
+
+		return list;
+	}
+
 	private static class OpenHelper extends SQLiteOpenHelper {
 		public OpenHelper(Context context, String name, CursorFactory factory, int version) {
 			super(context, name, factory, version);
@@ -730,6 +1004,7 @@ public class LocalStore extends ContextWrapper {
 			db.execSQL(MyListTable.create_statement());
 			db.execSQL(MyListEntryTable.create_statement());
 			db.execSQL(RecordTable.create_statement());
+			db.execSQL(HistoryTable.create_statement());
 			initializeMyList(db);
 		}
 
@@ -786,6 +1061,8 @@ public class LocalStore extends ContextWrapper {
 			case 23:
 				db.execSQL(String.format("DELETE FROM %s WHERE %s='%s'",
 						DecorTitleTable.TABLE_NAME, DecorTitleTable.ID, DecorTitle.OFF.id));
+			case 24:
+				db.execSQL(HistoryTable.create_statement());
 			default:
 				break;
 			}

@@ -7,4 +7,5 @@
 	<item type="id" name="item_select_decor_title"/>
 	<item type="id" name="notification_news_updated" />
 	<item type="id" name="notification_ranking_updated" />
+	<item type="id" name="notification_history_get" />
 </resources>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/history_update"
+        android:icon="@drawable/ic_menu_refresh"
+        android:title="@string/hist_menu_update"
+        />
+    <item
+        android:id="@+id/history_sort"
+        android:icon="@drawable/ic_menu_sort_by_size"
+        android:title="@string/item_sort"
+        />
+    <item
+        android:id="@+id/history_delete"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:title="@string/hist_menu_delete"
+        >
+        <menu >
+            <item
+                android:id="@+id/history_delete_all"
+                android:title="@string/hist_menu_delete_all"
+                />
+            <item
+                android:id="@+id/history_delete_selected"
+                android:title="@string/hist_menu_delete_selected"
+                />
+        </menu>
+    </item>
+    <item
+        android:id="@+id/history_data_manage"
+        android:icon="@android:drawable/ic_menu_save"
+        android:title="@string/hist_menu_export"
+        >
+        <menu>
+            <item
+                android:id="@+id/history_export"
+                android:title="エクスポート"
+                />
+            <item
+                android:id="@+id/history_import"
+                android:title="インポート"
+                />
+        </menu>
+        </item>>
+    <item
+        android:id="@+id/history_awake"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="@string/hist_menu_awake"
+        />
+</menu>

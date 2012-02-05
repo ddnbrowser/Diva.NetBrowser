@@ -6,4 +6,5 @@
 	<item android:id="@+id/item_edit_reading" android:title="@string/item_edit_reading"></item>
     <item android:id="@+id/item_copy_title" android:title="@string/item_copy_title"></item>
     <item android:id="@+id/item_ranking" android:title="@string/item_ranking"></item>
+    <item android:id="@+id/item_play_record" android:title="@string/item_play_history"></item>
 </menu>

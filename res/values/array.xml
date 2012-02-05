@@ -16,24 +16,28 @@
     <item>all</item>
     <item>mylist</item>
     <item>record</item>
+    <item>history</item>
 </string-array>
 <string-array name="tab_names">
     <item>プレイヤー情報</item>
     <item>全て</item>
     <item>筐体使用マイリスト</item>
     <item>レコード</item>
+    <item>プレイ履歴</item>
 </string-array>
 <array name="tab_icons">
     <item>@drawable/ic_tab_user</item>
     <item>@drawable/ic_tab_all</item>
     <item>@drawable/ic_tab_mylist</item>
     <item>@drawable/ic_tab_record</item>
+    <item>@drawable/ic_tab_user</item>
 </array>
 <string-array name="tab_classes">
     <item>net.diva.browser.page.InformationFragment</item>
     <item>net.diva.browser.page.AllMusicFragment</item>
     <item>net.diva.browser.page.MyListFragment</item>
     <item>net.diva.browser.page.RecordFragment</item>
+    <item>net.diva.browser.page.HistoryFragment</item>
 </string-array>
 <string-array name="music_layout_names">
     <item>3行表示 (達成率)</item>
@@ -69,4 +73,62 @@
     <item>by_trial_status</item>
     <item>by_difference_to_saturation</item>
 </string-array>
+<string-array name="clear_status_names">
+    <item>NOT CLEAR</item>
+    <item>STANDARD</item>
+    <item>GREAT</item>
+    <item>PERFECT</item>
+</string-array>
+<integer-array name="clear_status_ids">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+</integer-array>
+<string-array name="difficulty_names">
+    <item>EASY</item>
+    <item>NORMAL</item>
+    <item>HARD</item>
+    <item>EXTREME</item>
+</string-array>
+<integer-array name="difficulty_ids">
+    <item>0</item>
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+</integer-array>
+<string-array name="trial_names">
+    <item></item>
+    <item>グレート</item>
+    <item>パーフェクト</item>
+</string-array>
+<integer-array name="trial_ids">
+    <item>1</item>
+    <item>2</item>
+    <item>3</item>
+</integer-array>
+<string-array name="trial_result_names">
+    <item>失敗</item>
+    <item>成功</item>
+</string-array>
+<integer-array name="trial_result_ids">
+    <item>1</item>
+    <item>2</item>
+</integer-array>
+<string-array name="hist_sort_order_names">
+    <item>スコア</item>
+    <item>達成率</item>
+    <item>日付</item>
+    <item>ロック有無</item>
+</string-array>
+<string-array name="hist_sort_order_values">
+    <item>score</item>
+    <item>achievement</item>
+    <item>play_date</item>
+    <item>lock</item>
+</string-array>
+<integer-array name="capture_size">
+    <item>900</item>
+    <item>540</item>
+</integer-array>
 </resources>

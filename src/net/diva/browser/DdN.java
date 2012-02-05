@@ -10,6 +10,7 @@ import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.util.DdNUtil;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Notification;
@@ -68,6 +69,8 @@ public class DdN extends Application {
 			LocalStore store = LocalStore.instance(this);
 			m_record = store.load(account.access_code);
 		}
+
+		DdNUtil.init(getResources());
 	}
 
 	private PlayRecord setPlayRecord_(PlayRecord record) {

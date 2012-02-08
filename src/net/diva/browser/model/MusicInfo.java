@@ -27,8 +27,6 @@ public class MusicInfo {
 	public String skin;
 	public String button;
 
-	private Drawable image;
-
 	public ScoreRecord[] records;
 
 	public static int maxRankPoint() {
@@ -72,9 +70,7 @@ public class MusicInfo {
 	}
 
 	public Drawable getCoverArt(Context context) {
-		if(image == null)
-			image = new BitmapDrawable(getCoverArtPath(context).getAbsolutePath());
-		return image;
+		return new BitmapDrawable(getCoverArtPath(context).getAbsolutePath());
 	}
 
 	@Override

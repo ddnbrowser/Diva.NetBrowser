@@ -15,8 +15,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.db.HistoryStore;
 import net.diva.browser.db.HistoryTable;
 import net.diva.browser.history.HistoryDetailActivity;
 import net.diva.browser.history.UpdateHistoryTask;
@@ -49,6 +49,7 @@ import android.widget.Toast;
 
 /** @author silvia */
 public class HistoryFragment extends ListFragment implements PageAdapter {
+	private HistoryStore m_store;
 	private HistoryAdapter m_adapter;
 
 	private static int VIEW_COUNT = 20;
@@ -75,6 +76,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
+		m_store = HistoryStore.getInstance(activity);
 		m_adapter = new HistoryAdapter(activity);
 	}
 
@@ -206,7 +208,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 
 			addCount++;
 			int limit = dateList.size() < addCount * VIEW_COUNT ? dateList.size() : addCount * VIEW_COUNT;
-			m_adapter.addData(DdN.getLocalStore().getPlayHistoryList(dateList.subList(next, limit), orderBy));
+			m_adapter.addData(m_store.getPlayHistoryList(dateList.subList(next, limit), orderBy));
 			getListView().invalidateViews();
 
 			return;
@@ -263,7 +265,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				cal.set(Calendar.SECOND, 0);
 				long sec = cal.getTimeInMillis() / 1000;
 				String music_id = isAllDel ? null : m_music_id;
-				DdN.getLocalStore().deleteHistory(music_id, m_rank, (int) sec);
+				m_store.deleteHistory(music_id, m_rank, (int) sec);
 				refresh();
 			}
 		});
@@ -309,7 +311,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				if(!csv.createNewFile())
 					return false;
 
-			List<byte[]> data = DdN.getLocalStore().csvExport();
+			List<byte[]> data = m_store.csvExport();
 
 			fos = new FileOutputStream(csv);
 			for(byte[] b : data)
@@ -401,7 +403,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				h.se_id = data[24];
 				h.skin_id = data[25];
 				h.lock = Integer.valueOf(data[26]);
-				DdN.getLocalStore().insert(h);
+				m_store.insert(h);
 			}
 
 		}catch(Exception e){
@@ -453,10 +455,10 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		if(v != null && v.getFooterViewsCount() == 0)
 			v.addFooterView(getFooter());
 		createOrder();
-		dateList = DdN.getLocalStore().getPlayHistoryList(where, params, orderBy);
+		dateList = m_store.getPlayHistoryList(where, params, orderBy);
 		int limit = dateList.size() < VIEW_COUNT ? dateList.size() : VIEW_COUNT;
 		addCount = 1;
-		m_adapter.setData(DdN.getLocalStore().getPlayHistoryList(dateList.subList(0, limit), orderBy));
+		m_adapter.setData(m_store.getPlayHistoryList(dateList.subList(0, limit), orderBy));
 		m_adapter.notifyDataSetChanged();
 	}
 

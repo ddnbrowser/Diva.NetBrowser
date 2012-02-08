@@ -13,6 +13,7 @@ import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.db.HistoryStore;
 import net.diva.browser.model.History;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.util.DdNUtil;
@@ -65,6 +66,7 @@ public class HistoryDetailActivity extends Activity {
 	private static final String LOCAL_STRAGE_IMAGE_DIR = "/data/data/" + PACKAGE_NAME + "/files";
 	private static final String IMAGE_FILE_NAME_HEADER = "DdNB_";
 
+	private HistoryStore m_store;
 	private History m_history;
 	private MusicInfo m_music;
 	private String m_localFilePath;
@@ -75,6 +77,8 @@ public class HistoryDetailActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.history_detail);
+
+		m_store = HistoryStore.getInstance(this);
 
 		for(File file : new File(LOCAL_STRAGE_IMAGE_DIR).listFiles()){
 			if(file.getName().matches("DdNB_.+\\.jpg")){
@@ -298,7 +302,7 @@ public class HistoryDetailActivity extends Activity {
 		m_history.lock = m_history.lock == 0 ? 1 : 0;
 		h.lock.setText(m_history.isLocked() ? "ロック解除" : "ロック");
 		h.delete.setEnabled(!m_history.isLocked());
-		DdN.getLocalStore().lockHistory(m_history);
+		m_store.lockHistory(m_history);
 	}
 
 	public void ranking(){
@@ -342,7 +346,7 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	private void delete(){
-		DdN.getLocalStore().deleteHistory(m_history);
+		m_store.deleteHistory(m_history);
 	}
 
 

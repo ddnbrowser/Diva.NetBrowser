@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.diva.browser.DdN;
+import net.diva.browser.db.HistoryStore;
 import net.diva.browser.model.History;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.service.ServiceClient;
@@ -41,6 +41,8 @@ public class UpdateHistory {
 		if(hasItem){
 			if(manual)
 				task.myPublishProgress(0, newHistorys.size());
+
+			HistoryStore store = HistoryStore.getInstance(m_context);
 			for(String historyId : newHistorys){
 				History h = null;
 				try {
@@ -48,7 +50,7 @@ public class UpdateHistory {
 				} catch(Exception e){
 				}
 
-				DdN.getLocalStore().insert(h);
+				store.insert(h);
 				if(manual)
 					task.myPublishProgress(1);
 			}

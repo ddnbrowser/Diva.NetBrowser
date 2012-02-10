@@ -53,7 +53,7 @@ public class DownloadHistoryService extends Service {
 				}
 				catch (Throwable e) {
 					e.printStackTrace();
-					m_preferences.edit().putBoolean("download_rankin", false).commit();
+					m_preferences.edit().putBoolean("download_history", false).commit();
 				}
 				finally {
 					unlock();

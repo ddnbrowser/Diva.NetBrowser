@@ -21,7 +21,11 @@
         </activity>
         <activity android:name=".MyListEditActivity"></activity>
         <activity android:name=".MusicDetailActivity" android:theme="@style/Theme.DdN.Translucent.NoTitleBar"></activity>
-        <activity android:name=".WebBrowseActivity" android:configChanges="keyboardHidden|orientation"></activity>
+        <activity
+            android:name=".WebBrowseActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:uiOptions="splitActionBarWhenNarrow"
+            />
         <activity android:name=".CommonConfigActivity"></activity>
         <activity android:name=".SettingsActivity"></activity>
         <activity android:name=".settings.TitleListActivity"></activity>

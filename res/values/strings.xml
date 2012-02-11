@@ -158,4 +158,6 @@
     <string name="exchanging">交換しています...</string>
     <string name="exchange_failure">交換に失敗しました</string>
     <string name="found_unknown_musics">未登録の楽曲が見つかりました。\n続けて新曲チェックを実行しますか?</string>
+    <string name="item_back">戻る</string>
+    <string name="item_forward">進む</string>
 </resources>

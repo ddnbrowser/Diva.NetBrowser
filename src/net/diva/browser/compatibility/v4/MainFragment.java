@@ -6,7 +6,6 @@ import java.util.List;
 import net.diva.browser.DdN;
 import net.diva.browser.MainActivity;
 import net.diva.browser.R;
-import net.diva.browser.compatibility.ActivitySupport;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
@@ -33,7 +32,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 
 public class MainFragment extends Fragment
-		implements DdN.Observer, MainActivity.Content, ActivitySupport, OnGlobalLayoutListener {
+		implements DdN.Observer, MainActivity.Content, OnGlobalLayoutListener {
 	private class TabHolder {
 		MyList myList;
 		TextView title;
@@ -135,10 +134,6 @@ public class MainFragment extends Fragment
 			holder.icon.setImageDrawable(getMyListIcon(holder.myList.id == active));
 		}
 		m_adapter.updateTitle();
-	}
-
-	@Override
-	public void invalidateOptionsMenu() {
 	}
 
 	private void addTabs(TabHost host, TabWidget widget, TabsAdapter adapter) {

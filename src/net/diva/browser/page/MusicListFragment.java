@@ -10,7 +10,7 @@ import net.diva.browser.R;
 import net.diva.browser.SortOrder;
 import net.diva.browser.WebBrowseActivity;
 import net.diva.browser.common.DownloadPlayRecord;
-import net.diva.browser.compatibility.ActivitySupport;
+import net.diva.browser.compatibility.Compatibility;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.MyList;
@@ -30,7 +30,6 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.ListFragment;
 import android.text.ClipboardManager;
 import android.util.TypedValue;
@@ -51,7 +50,6 @@ import android.widget.ListView;
 @SuppressWarnings("deprecation")
 public abstract class MusicListFragment extends ListFragment
 		implements DdN.Observer, PageAdapter {
-	protected ActivitySupport m_support;
 	protected View m_buttons[];
 	protected ListView m_list;
 	protected MusicAdapter m_adapter;
@@ -71,10 +69,6 @@ public abstract class MusicListFragment extends ListFragment
 		m_localPrefs = activity.getSharedPreferences(getArguments().getString("tag"), Context.MODE_PRIVATE);
 		m_store = LocalStore.instance(activity);
 		m_adapter = new MyAdapter(activity);
-
-		Fragment f = getFragmentManager().findFragmentByTag("support");
-		if (f instanceof ActivitySupport)
-			m_support = (ActivitySupport)f;
 	}
 
 	@Override
@@ -548,8 +542,7 @@ public abstract class MusicListFragment extends ListFragment
 			m_selections.clear();
 		}
 		m_adapter.notifyDataSetChanged();
-		if (m_support != null)
-			m_support.invalidateOptionsMenu();
+		Compatibility.invalidateOptionsMenu(this);
 	}
 
 	private class MyAdapter extends MusicAdapter {

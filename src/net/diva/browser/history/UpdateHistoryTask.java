@@ -2,7 +2,6 @@ package net.diva.browser.history;
 
 import net.diva.browser.DdN;
 import net.diva.browser.model.PlayRecord;
-import net.diva.browser.page.HistoryFragment;
 import net.diva.browser.service.ServiceClient;
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -54,9 +53,6 @@ public class UpdateHistoryTask extends AsyncTask<Void, Integer, Boolean> {
 
 	@Override
 	protected final void onPostExecute(Boolean result) {
-		if (result != null && result){
-			((HistoryFragment)fragment).refresh();
-		}
 		m_progress.dismiss();
 	}
 

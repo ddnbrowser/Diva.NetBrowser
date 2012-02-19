@@ -9,10 +9,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import net.diva.browser.R;
@@ -28,9 +27,14 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.ResourceCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -40,7 +44,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -48,61 +51,69 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /** @author silvia */
-public class HistoryFragment extends ListFragment implements PageAdapter {
+public class HistoryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+	private static final String KEY_MUSIC = HistoryFragment.class.getName() + ":music";
+	private static final String KEY_RANK = HistoryFragment.class.getName() + ":rank";
+	private static final String KEY_DATE = HistoryFragment.class.getName() + ":date";
+	private static final String KEY_ORDER = HistoryFragment.class.getName() + ":order";
+	private static final String KEY_REVERSE = HistoryFragment.class.getName() + ":reverse";
+
 	private HistoryStore m_store;
 	private HistoryAdapter m_adapter;
 
-	private static int VIEW_COUNT = 20;
+	private Bundle m_args = new Bundle();
 
-	private static String m_hist_back;
-
-	private static String m_music_id;
-	private static int m_rank;
-	private static int m_date;
-	private static boolean m_lock;
-	private static String sort;
-	private static boolean isReverseOrder;
-	static { initOrder(); }
-
-	private View mFooter;
-	private int addCount;
-	private List<String> dateList;
-	private String where;
-	private List<String> params;
-	private String orderBy;
-
-	private int selectedItemPosition;
+	private String m_music_id = null;
+	private int m_rank = -1;
+	private long m_date = -1;
+	private String m_sortOrder = HistoryTable.PLAY_DATE;
+	private boolean m_isReverseOrder = true;
 
 	@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		m_store = HistoryStore.getInstance(activity);
-		m_adapter = new HistoryAdapter(activity);
-	}
-
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setHasOptionsMenu(true);
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.basic_list, container, false);
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		setEmptyText(getText(R.string.no_record));
+		setHasOptionsMenu(true);
 
-		refresh();
+		Bundle args = savedInstanceState;
+		if (savedInstanceState == null)
+			args = getArguments();
+		if (args != null) {
+			m_sortOrder = args.getString(KEY_ORDER, m_sortOrder);
+			m_isReverseOrder = args.getBoolean(KEY_REVERSE, m_isReverseOrder);
+			m_music_id = args.getString(KEY_MUSIC, m_music_id);
+			m_rank = args.getInt(KEY_RANK, m_rank);
+			m_date = args.getLong(KEY_DATE, m_date);
+		}
+		setSortOrder(m_sortOrder, m_isReverseOrder);
+		setFilterCondition(m_music_id, m_rank, m_date);
 
 		ListView listView = getListView();
 		listView.setFocusable(true);
 		listView.setTextFilterEnabled(true);
-
-		setListAdapter(m_adapter);
 		registerForContextMenu(listView);
+
+		m_adapter = new HistoryAdapter(getActivity());
+		setListAdapter(m_adapter);
+		setListShown(false);
+
+		getLoaderManager().initLoader(0, m_args, this);
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle bundle) {
+		super.onSaveInstanceState(bundle);
+		bundle.putString(KEY_MUSIC, m_music_id);
+		bundle.putInt(KEY_RANK, m_rank);
+		bundle.putLong(KEY_DATE, m_date);
+		bundle.putString(KEY_ORDER, m_sortOrder);
+		bundle.putBoolean(KEY_REVERSE, m_isReverseOrder);
 	}
 
 	@Override
@@ -137,7 +148,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 			csvImport();
 			break;
 		case R.id.history_awake:
-			initOrder();
+			setFilterCondition(null, -1, -1);
 			refresh();
 			break;
 		default:
@@ -152,7 +163,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		getActivity().getMenuInflater().inflate(R.menu.history_context, menu);
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-		History history = m_adapter.getItem(info.position);
+		History history = m_adapter.getHistory(info.position);
 		menu.setHeaderTitle(DdNUtil.getMusicTitle(history.music_id));
 	}
 
@@ -162,22 +173,18 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		if (getListView().getPositionForView(info.targetView) != info.position)
 			return false;
 
-		History history = m_adapter.getItem(info.position);
+		History history = m_adapter.getHistory(info.position);
 		switch (item.getItemId()) {
 		case R.id.hist_search_music_and_rank:
-			initOrder();
-			m_music_id = history.music_id;
-			m_rank = history.rank;
+			setFilterCondition(history.music_id, history.rank, -1);
 			refresh();
 			return true;
 		case R.id.hist_search_music:
-			initOrder();
-			m_music_id = history.music_id;
+			setFilterCondition(history.music_id, -1, -1);
 			refresh();
 			return true;
 		case R.id.hist_search_date:
-			initOrder();
-			m_date = history.play_date;
+			setFilterCondition(null, -1, history.play_date*1000L);
 			refresh();
 			return true;
 		default:
@@ -185,65 +192,43 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		}
 	}
 
-	private View getFooter() {
-		if (mFooter == null) {
-			mFooter = getActivity().getLayoutInflater().inflate(R.layout.listview_footer, null);
-		}
-		return mFooter;
-	}
-
 	@Override
 	public void onListItemClick(ListView list, View v, int position, long id) {
-
-		if(v.getId() == R.id.history_footer){
-			int next = addCount * VIEW_COUNT;
-			if(next >= dateList.size()){
-				try{
-					getListView().removeFooterView(getFooter());
-				}catch(ClassCastException e){
-					e.printStackTrace();
-				}
-				return;
-			}
-
-			addCount++;
-			int limit = dateList.size() < addCount * VIEW_COUNT ? dateList.size() : addCount * VIEW_COUNT;
-			m_adapter.addData(m_store.getPlayHistoryList(dateList.subList(next, limit), orderBy));
-			getListView().invalidateViews();
-
-			return;
-		}
-
-		selectedItemPosition = position;
-		History history = m_adapter.getItem(position);
-		if (history == null)
-			return;
-
 		Intent i = new Intent(getActivity(), HistoryDetailActivity.class);
-		i.putExtra("history", history);
-		startActivityForResult(i, 0);
+		i.putExtra("history_id", m_adapter.getItemId(position));
+		startActivity(i);
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode == Activity.RESULT_OK) {
-			refresh();
-		} else if (resultCode == Activity.RESULT_FIRST_USER) {
-			History history = (History) data.getSerializableExtra("history");
-			m_adapter.setItem(selectedItemPosition, history);
+	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+		String selection = null;
+		String[] selectionArgs = null;
+		String sortOrder = HistoryTable.PLAY_DATE + " DESC";
+		if (args != null) {
+			selection = args.getString("selection", selection);
+			selectionArgs = args.getStringArray("selectionArgs");
+			sortOrder = args.getString("sortOrder", sortOrder);
 		}
-
-		super.onActivityResult(requestCode, resultCode, data);
+		return new CursorLoader(getActivity(),
+				HistoryStore.URI_HISTORIES,
+				HistoryAdapter.COLUMNS,
+				selection,
+				selectionArgs,
+				sortOrder);
 	}
 
 	@Override
-	public CharSequence getTitle() {
-		return getActivity().getResources().getString(R.string.hist_tab_title);
+	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+		m_adapter.swapCursor(data);
+		if (isResumed())
+			setListShown(true);
+		else
+			setListShownNoAnimation(true);
 	}
 
 	@Override
-	public boolean onSearchRequested() {
-		return false;
+	public void onLoaderReset(Loader<Cursor> loader) {
+		m_adapter.swapCursor(null);
 	}
 
 	private void delete(final boolean isAllDel) {
@@ -266,7 +251,6 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				long sec = cal.getTimeInMillis() / 1000;
 				String music_id = isAllDel ? null : m_music_id;
 				m_store.deleteHistory(music_id, m_rank, (int) sec);
-				refresh();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, null);
@@ -420,19 +404,18 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 
 	private void selectSortOrder() {
 		Context context = getActivity();
-		final List<String> orderBys = Arrays.asList(context.getResources().getStringArray(R.array.hist_sort_order_values));
+		final String[] orderBys = context.getResources().getStringArray(R.array.hist_sort_order_values);
 
 		View custom = LayoutInflater.from(context).inflate(R.layout.descending_order, null);
 		final CheckBox descending = (CheckBox)custom.findViewById(R.id.descending);
-		descending.setChecked(isReverseOrder);
+		descending.setChecked(m_isReverseOrder);
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(R.string.item_sort);
 		builder.setItems(R.array.hist_sort_order_names,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				HistoryFragment.isReverseOrder = descending.isChecked();
-				HistoryFragment.sort = orderBys.get(which);
+				setSortOrder(orderBys[which], descending.isChecked());
 				refresh();
 				dialog.dismiss();
 			}
@@ -441,178 +424,162 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		builder.show();
 	}
 
-	private static void initOrder(){
-		m_music_id = null;
-		m_rank = -1;
-		m_date = -1;
-		m_lock = false;
-		sort = HistoryTable.PLAY_DATE;
-		isReverseOrder = true;
+	private void refresh() {
+		getLoaderManager().restartLoader(0, m_args, this);
 	}
 
-	public void refresh(){
-		ListView v = getListView();
-		if(v != null && v.getFooterViewsCount() == 0)
-			v.addFooterView(getFooter());
-		createOrder();
-		dateList = m_store.getPlayHistoryList(where, params, orderBy);
-		int limit = dateList.size() < VIEW_COUNT ? dateList.size() : VIEW_COUNT;
-		addCount = 1;
-		m_adapter.setData(m_store.getPlayHistoryList(dateList.subList(0, limit), orderBy));
-		m_adapter.notifyDataSetChanged();
+	private void setSortOrder(String sortOrder, boolean reverse) {
+		m_sortOrder = sortOrder;
+		m_isReverseOrder = reverse;
+
+		StringBuilder sb = new StringBuilder(sortOrder);
+		if (reverse)
+			sb.append(" DESC");
+		if (HistoryTable.LOCK.equals(sortOrder))
+			sb.append(',').append(HistoryTable.PLAY_DATE).append(" DESC");
+
+		m_args.putString("sortOrder", sb.toString());
 	}
 
-	private void createOrder(){
-		List<String> wl = new ArrayList<String>();
-		params = new ArrayList<String>();
-		String hatena = " = ? ";
-		String and = " and ";
-
-		if(m_music_id != null){
-			wl.add(HistoryTable.MUSIC_ID + hatena);
-			params.add(m_music_id);
-		}
-
-		if(-1 < m_rank && m_rank < 4){
-			wl.add(HistoryTable.RANK + hatena);
-			params.add(String.valueOf(m_rank));
-		}
-
-		if(-1 < m_date){
-			wl.add(" ? <= " + HistoryTable.PLAY_DATE + and + HistoryTable.PLAY_DATE + " < ? ");
-			Calendar cal = Calendar.getInstance();
-			cal.setTimeInMillis(m_date * 1000L);
-			cal.set(Calendar.HOUR_OF_DAY, 0);
-			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 0);
-			params.add(String.valueOf(cal.getTimeInMillis() / 1000));
-			cal.add(Calendar.DATE, 1);
-			params.add(String.valueOf((cal.getTimeInMillis() / 1000) - 1));
-		}
-
-		if(m_lock){
-			wl.add(HistoryTable.LOCK + hatena);
-			params.add(String.valueOf(1));
-		}
-
-		StringBuffer sb = new StringBuffer();
-
-		for(int i = 0; i < wl.size(); i++){
-			if(!sb.toString().isEmpty())
-				sb.append(and);
-			sb.append(wl.get(i));
-		}
-		where = sb.toString();
-
-		if("lock".equals(sort)){
-			orderBy = sort + (isReverseOrder ? " DESC" : "") + ", play_date DESC";
-		}else{
-			orderBy = sort + (isReverseOrder ? " DESC" : "");
-		}
-	}
-
-	public static void setMusicId(String music_id){
+	private void setFilterCondition(String music_id, int rank, long date) {
 		m_music_id = music_id;
-	}
-	public static void setRank(int rank){
 		m_rank = rank;
+		m_date = date;
+
+		StringBuilder sb = new StringBuilder();
+		List<String> args = new ArrayList<String>();
+		if (music_id != null) {
+			sb.append(" AND ").append(HistoryTable.MUSIC_ID).append("=?");
+			args.add(music_id);
+		}
+		if (rank >=0 ) {
+			sb.append(" AND ").append(HistoryTable.RANK).append("=?");
+			args.add(String.valueOf(rank));
+		}
+		if (date >= 0) {
+			sb.append(" AND ?<=")
+			.append(HistoryTable.PLAY_DATE).append(" AND ")
+			.append(HistoryTable.PLAY_DATE).append("<?");
+			Calendar t = Calendar.getInstance();
+			t.setTimeInMillis(date);
+			Calendar d = new GregorianCalendar(t.get(Calendar.YEAR), t.get(Calendar.MONTH), t.get(Calendar.DAY_OF_MONTH));
+			args.add(String.valueOf(d.getTimeInMillis()/1000));
+			d.add(Calendar.DATE, 1);
+			args.add(String.valueOf(d.getTimeInMillis()/1000));
+		}
+
+		if (!args.isEmpty()) {
+			m_args.putString("selection", sb.substring(4));
+			m_args.putStringArray("selectionArgs", args.toArray(new String[args.size()]));
+		}
+		else {
+			m_args.putString("selection", null);
+			m_args.putStringArray("selectionArgs", null);
+		}
 	}
-	public static void setHistBack(String hist_back){
-		m_hist_back = hist_back;
-	}
 
-	public static String getHistBack(){
-		return m_hist_back;
-	}
-
-	private static class HistoryAdapter extends BaseAdapter {
-		Context m_context;
-		List<History> m_historys = Collections.emptyList();
-
-		int[] rankColor = {R.color.easy, R.color.normal, R.color.hard, R.color.extreme};
-
-		public HistoryAdapter(Context context) {
-			m_context = context;
-		}
-
-		void setData(List<History> historys) {
-			m_historys = historys;
-			if (m_historys.isEmpty())
-				notifyDataSetInvalidated();
-			else
-				notifyDataSetChanged();
-		}
-
-		void addData(List<History> historys){
-			m_historys.addAll(historys);
-		}
-
-		public int getCount() {
-			return m_historys.size();
-		}
-
-		public History getItem(int position) {
-			return m_historys.get(position);
-		}
-
-		public void setItem(int position, History history){
-			m_historys.set(position, history);
-			notifyDataSetChanged();
-		}
-
-		public long getItemId(int position) {
-			return position;
-		}
+	private static class HistoryAdapter extends ResourceCursorAdapter {
+		private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[yyyy/MM/dd]");
+		private static final int[] RANK_COLORS = { R.color.easy, R.color.normal, R.color.hard, R.color.extreme };
+		private static final String[] COLUMNS = new String[] {
+			HistoryTable.PLAY_DATE,
+			HistoryTable.RANK,
+			HistoryTable.CLEAR_STATUS,
+			HistoryTable.MUSIC_ID,
+			HistoryTable.SCORE,
+			HistoryTable.ACHIEVEMENT,
+			HistoryTable.LOCK,
+		};
 
 		private class Holder {
-			TextView play_date;
+			TextView date;
 			TextView rank;
-			TextView clear_status;
-			TextView music_title;
+			TextView status;
+			TextView music;
 			TextView score;
-			ImageView lock;
 			TextView achievement;
+			ImageView lock;
+		}
 
-			private Holder(View view) {
-				play_date = (TextView)view.findViewById(R.id.play_date);
-				rank = (TextView)view.findViewById(R.id.rank);
-				clear_status = (TextView)view.findViewById(R.id.clear_status);
-				music_title = (TextView)view.findViewById(R.id.music_title);
-				lock = (ImageView)view.findViewById(R.id.lock);
-				score = (TextView)view.findViewById(R.id.score);
-				achievement = (TextView)view.findViewById(R.id.achievement);
-			}
+		private int[] m_from;
 
-			void attach(History history) {
-				play_date.setText(String.format("[%s]", history.getPlayDateStr()));
-				rank.setText(DdNUtil.getDifficultyName(history.rank));
-				rank.setTextColor(m_context.getResources().getColor(rankColor[history.rank]));
-				clear_status.setText(m_context.getResources().getStringArray(R.array.clear_status_names)[history.clear_status]);
-				music_title.setText(DdNUtil.getMusicTitle(history.music_id));
-				lock.setVisibility(history.isLocked() ? View.VISIBLE : View.INVISIBLE);
-				score.setText(String.format("%dpts", history.score));
-				achievement.setText(String.format("%d.%02d%%", history.achievement/100, history.achievement%100));
-			}
+		public HistoryAdapter(Context context) {
+			super(context, R.layout.history_item, null, true);
+		}
 
+		public History getHistory(int position) {
+			Cursor c = (Cursor)getItem(position);
+			if (c == null)
+				return null;
+
+			return getHistory(c);
+		}
+
+		public History getHistory(Cursor c) {
+			History h = new History();
+			h.play_date = c.getInt(m_from[0]);
+			h.rank = c.getInt(m_from[1]);
+			h.clear_status = c.getInt(m_from[2]);
+			h.music_id = c.getString(m_from[3]);
+			h.score = c.getInt(m_from[4]);
+			h.achievement = c.getInt(m_from[5]);
+			h.lock = c.getInt(m_from[6]);
+			return h;
 		}
 
 		@Override
-		public View getView(int position, View view, ViewGroup parent) {
-			Holder holder;
-
-			if (view != null)
-				holder = (Holder)view.getTag();
-			else {
-				LayoutInflater inflater = LayoutInflater.from(m_context);
-				view = inflater.inflate(R.layout.history_item, parent, false);
-				holder = new Holder(view);
-				view.setTag(holder);
-			}
-			History history = getItem(position);
-			if(history != null)
-				holder.attach(history);
-
+		public View newView(Context context, Cursor cursor, ViewGroup parent) {
+			View view = super.newView(context, cursor, parent);
+			Holder h = new Holder();
+			h.date = (TextView)view.findViewById(R.id.play_date);
+			h.rank = (TextView)view.findViewById(R.id.rank);
+			h.status = (TextView)view.findViewById(R.id.clear_status);
+			h.music = (TextView)view.findViewById(R.id.music_title);
+			h.score = (TextView)view.findViewById(R.id.score);
+			h.achievement = (TextView)view.findViewById(R.id.achievement);
+			h.lock = (ImageView)view.findViewById(R.id.lock);
+			view.setTag(h);
 			return view;
+		}
+
+		@Override
+		public void bindView(View view, Context context, Cursor c) {
+			final History d = getHistory(c);
+			final Holder h = (Holder)view.getTag();
+			h.date.setText(DATE_FORMAT.format(new Date(d.play_date*1000L)));
+			h.rank.setText(DdNUtil.getDifficultyName(d.rank));
+			h.rank.setTextColor(context.getResources().getColor(RANK_COLORS[d.rank]));
+			h.status.setText(context.getResources().getStringArray(R.array.clear_status_names)[d.clear_status]);
+			h.music.setText(DdNUtil.getMusicTitle(d.music_id));
+			h.score.setText(String.format("%dpts", d.score));
+			h.achievement.setText(String.format("%d.%02d%%", d.achievement/100, d.achievement%100));
+			h.lock.setVisibility(d.isLocked() ? View.VISIBLE : View.INVISIBLE);
+		}
+
+		private void findColumns(String[] from) {
+			if (mCursor != null) {
+				int i;
+				int count = from.length;
+				if (m_from == null || m_from.length != count) {
+					m_from = new int[count];
+				}
+				for (i = 0; i < count; i++) {
+					m_from[i] = mCursor.getColumnIndexOrThrow(from[i]);
+				}
+			}
+			else {
+				m_from = null;
+			}
+		}
+
+		@Override
+		public Cursor swapCursor(Cursor c) {
+			if (m_from == null)
+				findColumns(COLUMNS);
+
+			Cursor res = super.swapCursor(c);
+			findColumns(COLUMNS);
+			return res;
 		}
 	}
 }

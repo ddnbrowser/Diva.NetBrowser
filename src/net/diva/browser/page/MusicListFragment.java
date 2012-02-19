@@ -46,7 +46,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TabHost;
 
 @SuppressWarnings("deprecation")
 public abstract class MusicListFragment extends ListFragment
@@ -212,15 +211,6 @@ public abstract class MusicListFragment extends ListFragment
 				clipboard.setText(music.title);
 			return true;
 		case R.id.item_play_record:
-			try{
-				TabHost host = (TabHost)getActivity().findViewById(android.R.id.tabhost);
-				HistoryFragment.setMusicId(music.id);
-				HistoryFragment.setRank(m_adapter.getDifficulty());
-				HistoryFragment.setHistBack(host.getCurrentTabTag());
-				host.setCurrentTabByTag("history");
-			}catch(Exception e){
-				return false;
-			}
 			return true;
 		default:
 			return super.onContextItemSelected(item);

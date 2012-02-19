@@ -45,6 +45,7 @@
         </receiver>
         <service android:name=".DownloadRankingService"></service>
         <service android:name=".history.DownloadHistoryService"></service>
+        <provider android:name=".db.HistoryStore" android:authorities="net.diva.browser.history"></provider>
     </application>
 
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>

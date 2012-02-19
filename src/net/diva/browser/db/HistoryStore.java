@@ -5,35 +5,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.model.History;
+import android.content.ContentProvider;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.net.Uri;
 
-public class HistoryStore {
+public class HistoryStore extends ContentProvider {
 	private static final String DATABASE_NAME = "history.db";
 	private static final int VERSION = 1;
 
 	private static HistoryStore s_instance;
-	private static Object[] s_lock = new Object[0];
 
 	public static HistoryStore getInstance(Context context) {
-		if (s_instance != null)
-			return s_instance;
-
-		synchronized (s_lock) {
-			if (s_instance == null)
-				s_instance = new HistoryStore(context.getApplicationContext());
-		}
 		return s_instance;
 	}
 
 	private OpenHelper m_helper;
-
-	private HistoryStore(Context context) {
-		m_helper = new OpenHelper(context, DATABASE_NAME, null, VERSION);
-	}
 
 	public List<History> getPlayHistoryList(List<String> dateList, String orderBy) {
 		List<History> records = new ArrayList<History>();
@@ -237,5 +230,67 @@ public class HistoryStore {
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		}
+	}
+
+	private static final String AUTHORITY = "net.diva.browser.history";
+
+	private static final int PLAY_HISTORIES = 1;
+	private static final int PLAY_HISTORY = 2;
+
+	private static final UriMatcher s_matcher;
+
+	static {
+		s_matcher = new UriMatcher(UriMatcher.NO_MATCH);
+		s_matcher.addURI(AUTHORITY, "plays", PLAY_HISTORIES);
+		s_matcher.addURI(AUTHORITY, "plays/#", PLAY_HISTORY);
+	}
+
+	public static final Uri URI_HISTORIES = new Uri.Builder().scheme("content").authority(AUTHORITY).path("plays").build();
+
+	@Override
+	public boolean onCreate() {
+		m_helper = new OpenHelper(getContext(), DATABASE_NAME, null, VERSION);
+		s_instance = this;
+		return true;
+	}
+
+	@Override
+	public String getType(Uri uri) {
+		return null;
+	}
+
+	@Override
+	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+		qb.setTables(HistoryTable.TABLE_NAME);
+
+		switch (s_matcher.match(uri)) {
+		case PLAY_HISTORIES:
+			break;
+		case PLAY_HISTORY:
+			qb.appendWhere(HistoryTable._ID + "=" + uri.getPathSegments().get(1));
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown URI: " + uri);
+		}
+
+		Cursor c = qb.query(m_helper.getReadableDatabase(), null, selection, selectionArgs, null, null, sortOrder);
+		c.setNotificationUri(getContext().getContentResolver(), uri);
+		return c;
+	}
+
+	@Override
+	public Uri insert(Uri uri, ContentValues values) {
+		return null;
+	}
+
+	@Override
+	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+		return 0;
+	}
+
+	@Override
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		return 0;
 	}
 }

@@ -184,7 +184,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			refresh();
 			return true;
 		case R.id.hist_search_date:
-			setFilterCondition(null, -1, history.play_date*1000L);
+			setFilterCondition(null, -1, history.play_date);
 			refresh();
 			return true;
 		default:
@@ -362,7 +362,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 				History h = new History();
 				h.music_id = data[0];
 				h.rank = Integer.valueOf(data[1]);
-				h.play_date = Integer.valueOf(data[2]);
+				h.play_date = Long.valueOf(data[2]) * 1000L;
 				h.play_place = data[3];
 				h.clear_status = Integer.valueOf(data[4]);
 				h.achievement = Integer.valueOf(data[5]);
@@ -463,9 +463,9 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			Calendar t = Calendar.getInstance();
 			t.setTimeInMillis(date);
 			Calendar d = new GregorianCalendar(t.get(Calendar.YEAR), t.get(Calendar.MONTH), t.get(Calendar.DAY_OF_MONTH));
-			args.add(String.valueOf(d.getTimeInMillis()/1000));
+			args.add(String.valueOf(d.getTimeInMillis()));
 			d.add(Calendar.DATE, 1);
-			args.add(String.valueOf(d.getTimeInMillis()/1000));
+			args.add(String.valueOf(d.getTimeInMillis()));
 		}
 
 		if (!args.isEmpty()) {
@@ -518,7 +518,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 		public History getHistory(Cursor c) {
 			History h = new History();
-			h.play_date = c.getInt(m_from[0]);
+			h.play_date = c.getLong(m_from[0]);
 			h.rank = c.getInt(m_from[1]);
 			h.clear_status = c.getInt(m_from[2]);
 			h.music_id = c.getString(m_from[3]);
@@ -547,7 +547,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		public void bindView(View view, Context context, Cursor c) {
 			final History d = getHistory(c);
 			final Holder h = (Holder)view.getTag();
-			h.date.setText(DATE_FORMAT.format(new Date(d.play_date*1000L)));
+			h.date.setText(DATE_FORMAT.format(new Date(d.play_date)));
 			h.rank.setText(DdNUtil.getDifficultyName(d.rank));
 			h.rank.setTextColor(context.getResources().getColor(RANK_COLORS[d.rank]));
 			h.status.setText(context.getResources().getStringArray(R.array.clear_status_names)[d.clear_status]);

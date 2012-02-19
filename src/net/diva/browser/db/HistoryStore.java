@@ -65,7 +65,7 @@ public class HistoryStore extends ContentProvider {
 			History h = new History();
 			h.music_id = c.getString(0);
 			h.rank = c.getInt(1);
-			h.play_date = c.getInt(2);
+			h.play_date = c.getLong(2);
 			h.play_place = c.getString(3);
 			h.clear_status = c.getInt(4);
 			h.achievement = c.getInt(5);

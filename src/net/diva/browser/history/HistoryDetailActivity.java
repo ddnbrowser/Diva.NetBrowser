@@ -9,6 +9,9 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import net.diva.browser.DdN;
@@ -348,6 +351,7 @@ public class HistoryDetailActivity extends Activity {
 
 
 	private static class Holder{
+		private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
 		Activity m_act;
 
@@ -412,7 +416,7 @@ public class HistoryDetailActivity extends Activity {
 			if(title1 != null)
 				title1.setText(res.getString(R.string.hist_title1));
 			if(play_date != null)
-				play_date.setText(h.getPlayDateStr());
+				play_date.setText(DATE_FORMAT.format(new Date(h.play_date)));
 			if(play_place != null)
 				play_place.setText(h.play_place);
 			title2.setText(res.getString(R.string.hist_title2));

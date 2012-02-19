@@ -1,23 +1,14 @@
 package net.diva.browser.model;
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 /**
  *
  * @author silvia
  *
  */
-public class History implements Serializable {
-
-	private static final long serialVersionUID = -7599523144951319032L;
-
-	public static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm");
-
+public class History {
 	public String music_id;
 	public int rank;
-	public int play_date;
+	public long play_date;
 	public String play_place;
 	public int clear_status;
 	public int achievement;
@@ -42,27 +33,6 @@ public class History implements Serializable {
 	public String se_id;
 	public String skin_id;
 	public int lock;
-
-	public void setPlayDate(String play_date){
-		Long date = 0L;
-		try{
-			date = DATE_FORMAT.parse(play_date).getTime() / 1000;
-		} catch(ParseException e){
-			e.printStackTrace();
-		}
-
-		this.play_date = date.intValue();
-	}
-
-	public String getPlayDateStr(){
-		if(play_date == 0)
-			return "日付不明";
-
-		Calendar cal = Calendar.getInstance();
-
-		cal.setTimeInMillis(((long)play_date) * 1000);
-		return DATE_FORMAT.format(cal.getTime());
-	}
 
 	public boolean isLocked(){
 		return lock == 1;

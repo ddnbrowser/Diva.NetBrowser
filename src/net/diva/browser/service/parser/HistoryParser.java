@@ -1,6 +1,7 @@
 package net.diva.browser.service.parser;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,6 +18,7 @@ import net.diva.browser.util.DdNUtil;
  *
  */
 public class HistoryParser {
+	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm");
 	private final static Pattern RE_HISTORY = Pattern.compile(
 			"<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/0/0\">.+<br></a>\\s*"
 			+"\\[.+\\] .+<br>\\s*達成率：.+%<br>SCORE：.+<br>\\s*"
@@ -29,7 +31,7 @@ public class HistoryParser {
 
 		try {
 			while (m.find()) {
-				long playTime = History.DATE_FORMAT.parse(m.group(1)).getTime();
+				long playTime = DATE_FORMAT.parse(m.group(1)).getTime();
 				if (playTime <= params[0])
 					return null;
 				if (playTime > params[1])
@@ -72,7 +74,7 @@ public class HistoryParser {
 
 		try{
 			String body = Parser.read(content);
-			history.setPlayDate(getMatchText(HIST_DATE, body)[0]);
+			history.play_date = DATE_FORMAT.parse(getMatchText(HIST_DATE, body)[0]).getTime();
 			history.play_place = getMatchText(HIST_PLACE, body)[0];
 			history.music_id = getMatchText(HIST_MUSIC_ID, body)[0];
 			history.rank = DdNUtil.getDifficultyCord((getMatchText(HIST_RANK, body)[0]));

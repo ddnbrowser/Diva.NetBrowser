@@ -261,7 +261,7 @@ public class HistoryStore extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
 
-		Cursor c = qb.query(m_helper.getReadableDatabase(), null, selection, selectionArgs, null, null, sortOrder);
+		Cursor c = qb.query(m_helper.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
 		c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}

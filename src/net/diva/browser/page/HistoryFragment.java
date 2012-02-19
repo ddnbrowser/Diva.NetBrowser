@@ -195,7 +195,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 	@Override
 	public void onListItemClick(ListView list, View v, int position, long id) {
 		Intent i = new Intent(getActivity(), HistoryDetailActivity.class);
-		i.putExtra("history_id", m_adapter.getItemId(position));
+		i.putExtra("history_id", id);
 		startActivity(i);
 	}
 
@@ -489,6 +489,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			HistoryTable.SCORE,
 			HistoryTable.ACHIEVEMENT,
 			HistoryTable.LOCK,
+			HistoryTable._ID,
 		};
 
 		private class Holder {

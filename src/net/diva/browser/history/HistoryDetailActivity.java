@@ -90,12 +90,9 @@ public class HistoryDetailActivity extends Activity {
 			}
 		}
 
-		Intent intent = new Intent();
-		m_history = (History) getIntent().getSerializableExtra("history");
+		Intent intent = getIntent();
+		m_history = m_store.getPlayHistory(intent.getLongExtra("history_id", 0));
 		m_music = getMusic(DdN.getPlayRecord().musics, m_history.music_id);
-
-		intent.putExtra("history", m_history);
-		setResult(RESULT_FIRST_USER, intent);
 
 		h = new Holder(this, null);
 		h.attach(m_history, m_music);

@@ -28,17 +28,7 @@ public class HistoryStore extends ContentProvider {
 
 	private OpenHelper m_helper;
 
-	public List<History> getPlayHistoryList(List<String> dateList, String orderBy) {
-		List<History> records = new ArrayList<History>();
-
-		String where = HistoryTable.PLAY_DATE + " in (";
-		for(int i = 0; i < dateList.size(); i++){
-			if(i != 0)
-				where += ",";
-			where += "?";
-		}
-		where += ")";
-
+	public History getPlayHistory(long rowId) {
 		SQLiteDatabase db = m_helper.getReadableDatabase();
 		Cursor c = db.query(HistoryTable.TABLE_NAME, new String[] {
 				HistoryTable.MUSIC_ID,
@@ -68,46 +58,43 @@ public class HistoryStore extends ContentProvider {
 				HistoryTable.SE,
 				HistoryTable.SKIN,
 				HistoryTable.LOCK,
-		}, where, dateList.toArray(new String[0]), null, null, orderBy);
+		}, HistoryTable._ID + "=?", new String[] { String.valueOf(rowId) }, null, null, null);
 		try {
-			while (c.moveToNext()){
-				History h = new History();
-				h.music_id = c.getString(0);
-				h.rank = c.getInt(1);
-				h.play_date = c.getInt(2);
-				h.play_place = c.getString(3);
-				h.clear_status = c.getInt(4);
-				h.achievement = c.getInt(5);
-				h.score = c.getInt(6);
-				h.cool = c.getInt(7);
-				h.cool_per = c.getInt(8);
-				h.fine = c.getInt(9);
-				h.fine_per = c.getInt(10);
-				h.safe = c.getInt(11);
-				h.safe_per = c.getInt(12);
-				h.sad = c.getInt(13);
-				h.sad_per = c.getInt(14);
-				h.worst = c.getInt(15);
-				h.worst_per = c.getInt(16);
-				h.combo = c.getInt(17);
-				h.challange_time = c.getInt(18);
-				h.hold = c.getInt(19);
-				h.trial = c.getInt(20);
-				h.trial_result = c.getInt(21);
-				h.module1_id = c.getString(22);
-				h.module2_id = c.getString(23);
-				h.se_id = c.getString(24);
-				h.skin_id = c.getString(25);
-				h.lock = c.getInt(26);
-
-				records.add(h);
-			}
+			if (!c.moveToNext())
+				return null;
+			History h = new History();
+			h.music_id = c.getString(0);
+			h.rank = c.getInt(1);
+			h.play_date = c.getInt(2);
+			h.play_place = c.getString(3);
+			h.clear_status = c.getInt(4);
+			h.achievement = c.getInt(5);
+			h.score = c.getInt(6);
+			h.cool = c.getInt(7);
+			h.cool_per = c.getInt(8);
+			h.fine = c.getInt(9);
+			h.fine_per = c.getInt(10);
+			h.safe = c.getInt(11);
+			h.safe_per = c.getInt(12);
+			h.sad = c.getInt(13);
+			h.sad_per = c.getInt(14);
+			h.worst = c.getInt(15);
+			h.worst_per = c.getInt(16);
+			h.combo = c.getInt(17);
+			h.challange_time = c.getInt(18);
+			h.hold = c.getInt(19);
+			h.trial = c.getInt(20);
+			h.trial_result = c.getInt(21);
+			h.module1_id = c.getString(22);
+			h.module2_id = c.getString(23);
+			h.se_id = c.getString(24);
+			h.skin_id = c.getString(25);
+			h.lock = c.getInt(26);
+			return h;
 		}
 		finally {
 			c.close();
 		}
-
-		return records;
 	}
 
 	public List<String> getPlayHistoryList(String where, List<String> params, String orderBy){

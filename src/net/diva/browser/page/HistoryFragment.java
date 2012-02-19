@@ -52,11 +52,11 @@ import android.widget.Toast;
 
 /** @author silvia */
 public class HistoryFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-	private static final String KEY_MUSIC = HistoryFragment.class.getName() + ":music";
-	private static final String KEY_RANK = HistoryFragment.class.getName() + ":rank";
-	private static final String KEY_DATE = HistoryFragment.class.getName() + ":date";
-	private static final String KEY_ORDER = HistoryFragment.class.getName() + ":order";
-	private static final String KEY_REVERSE = HistoryFragment.class.getName() + ":reverse";
+	public static final String KEY_MUSIC = HistoryFragment.class.getName() + ":music";
+	public static final String KEY_RANK = HistoryFragment.class.getName() + ":rank";
+	public static final String KEY_DATE = HistoryFragment.class.getName() + ":date";
+	public static final String KEY_ORDER = HistoryFragment.class.getName() + ":order";
+	public static final String KEY_REVERSE = HistoryFragment.class.getName() + ":reverse";
 
 	private HistoryStore m_store;
 	private HistoryAdapter m_adapter;

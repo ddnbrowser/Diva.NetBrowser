@@ -28,6 +28,7 @@
             />
         <activity android:name=".CommonConfigActivity"></activity>
         <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".common.ContainerActivity"></activity>
         <activity android:name=".settings.TitleListActivity"></activity>
         <activity android:name=".settings.DecorTitlesActivity"></activity>
         <activity android:name=".settings.ModuleListActivity"></activity>

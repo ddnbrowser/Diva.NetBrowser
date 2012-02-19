@@ -368,15 +368,10 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 				h.achievement = Integer.valueOf(data[5]);
 				h.score = Integer.valueOf(data[6]);
 				h.cool = Integer.valueOf(data[7]);
-				h.cool_per = Integer.valueOf(data[8]);
 				h.fine = Integer.valueOf(data[9]);
-				h.fine_per = Integer.valueOf(data[10]);
 				h.safe = Integer.valueOf(data[11]);
-				h.safe_per = Integer.valueOf(data[12]);
 				h.sad = Integer.valueOf(data[13]);
-				h.sad_per = Integer.valueOf(data[14]);
 				h.worst = Integer.valueOf(data[15]);
-				h.worst_per = Integer.valueOf(data[16]);
 				h.combo = Integer.valueOf(data[17]);
 				h.challange_time = Integer.valueOf(data[18]);
 				h.hold = Integer.valueOf(data[19]);

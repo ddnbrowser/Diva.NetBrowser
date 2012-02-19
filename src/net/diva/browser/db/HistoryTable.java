@@ -21,15 +21,10 @@ public class HistoryTable implements BaseColumns {
 	public static final String ACHIEVEMENT = "achievement";
 	public static final String SCORE = "score";
 	public static final String COOL = "cool";
-	public static final String COOL_PER = "cool_per";
 	public static final String FINE = "fine";
-	public static final String FINE_PER = "fine_per";
 	public static final String SAFE = "safe";
-	public static final String SAFE_PER = "safe_per";
 	public static final String SAD = "sad";
-	public static final String SAD_PER = "sad_per";
 	public static final String WORST = "worst";
-	public static final String WORST_PER = "worst_per";
 	public static final String COMBO = "combo";
 	public static final String CHALLANGE_TIME = "challange_time";
 	public static final String HOLD = "hold";
@@ -60,15 +55,10 @@ public class HistoryTable implements BaseColumns {
 		.append(ACHIEVEMENT).append(" integer,")
 		.append(SCORE).append(" integer,")
 		.append(COOL).append(" integer,")
-		.append(COOL_PER).append(" integer,")
 		.append(FINE).append(" integer,")
-		.append(FINE_PER).append(" integer,")
 		.append(SAFE).append(" integer,")
-		.append(SAFE_PER).append(" integer,")
 		.append(SAD).append(" integer,")
-		.append(SAD_PER).append(" integer,")
 		.append(WORST).append(" integer,")
-		.append(WORST_PER).append(" integer,")
 		.append(COMBO).append(" integer,")
 		.append(CHALLANGE_TIME).append(" integer,")
 		.append(HOLD).append(" integer,")
@@ -108,15 +98,10 @@ public class HistoryTable implements BaseColumns {
 		values.put(ACHIEVEMENT, history.achievement);
 		values.put(SCORE, history.score);
 		values.put(COOL, history.cool);
-		values.put(COOL_PER, history.cool_per);
 		values.put(FINE, history.fine);
-		values.put(FINE_PER, history.fine_per);
 		values.put(SAFE, history.safe);
-		values.put(SAFE_PER, history.safe_per);
 		values.put(SAD, history.sad);
-		values.put(SAD_PER, history.sad_per);
 		values.put(WORST, history.worst);
-		values.put(WORST_PER, history.worst_per);
 		values.put(COMBO, history.combo);
 		values.put(CHALLANGE_TIME, history.challange_time);
 		values.put(HOLD, history.hold);

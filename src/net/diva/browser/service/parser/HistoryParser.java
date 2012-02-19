@@ -84,27 +84,22 @@ public class HistoryParser {
 			{
 				String[] cool = getMatchText(HIST_COOL, body);
 				history.cool = Integer.valueOf(cool[0]);
-				history.cool_per = (int) (Double.valueOf(cool[1]) * 100);
 			}
 			{
 				String[] fine = getMatchText(HIST_FINE, body);
 				history.fine = Integer.valueOf(fine[0]);
-				history.fine_per = (int) (Double.valueOf(fine[1]) * 100);
 			}
 			{
 				String[] safe = getMatchText(HIST_SAFE, body);
 				history.safe = Integer.valueOf(safe[0]);
-				history.safe_per = (int)(Double.valueOf(safe[1]) * 100);
 			}
 			{
 				String[] sad = getMatchText(HIST_SAD, body);
 				history.sad = Integer.valueOf(sad[0]);
-				history.sad_per = (int)(Double.valueOf(sad[1]) * 100);
 			}
 			{
 				String[] worst = getMatchText(HIST_WORST, body);
 				history.worst = Integer.valueOf(worst[0]);
-				history.worst_per = (int)(Double.valueOf(worst[1]) * 100);
 			}
 			history.combo = Integer.valueOf(getMatchText(HIST_COMBO, body)[0]);
 			history.challange_time = Integer.valueOf(getMatchText(HIST_CHALLENGE_TIME, body)[0]);

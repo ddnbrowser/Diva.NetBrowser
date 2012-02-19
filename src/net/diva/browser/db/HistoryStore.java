@@ -39,15 +39,10 @@ public class HistoryStore extends ContentProvider {
 				HistoryTable.ACHIEVEMENT,
 				HistoryTable.SCORE,
 				HistoryTable.COOL,
-				HistoryTable.COOL_PER,
 				HistoryTable.FINE,
-				HistoryTable.FINE_PER,
 				HistoryTable.SAFE,
-				HistoryTable.SAFE_PER,
 				HistoryTable.SAD,
-				HistoryTable.SAD_PER,
 				HistoryTable.WORST,
-				HistoryTable.WORST_PER,
 				HistoryTable.COMBO,
 				HistoryTable.CHALLANGE_TIME,
 				HistoryTable.HOLD,
@@ -71,25 +66,20 @@ public class HistoryStore extends ContentProvider {
 			h.achievement = c.getInt(5);
 			h.score = c.getInt(6);
 			h.cool = c.getInt(7);
-			h.cool_per = c.getInt(8);
-			h.fine = c.getInt(9);
-			h.fine_per = c.getInt(10);
-			h.safe = c.getInt(11);
-			h.safe_per = c.getInt(12);
-			h.sad = c.getInt(13);
-			h.sad_per = c.getInt(14);
-			h.worst = c.getInt(15);
-			h.worst_per = c.getInt(16);
-			h.combo = c.getInt(17);
-			h.challange_time = c.getInt(18);
-			h.hold = c.getInt(19);
-			h.trial = c.getInt(20);
-			h.trial_result = c.getInt(21);
-			h.module1_id = c.getString(22);
-			h.module2_id = c.getString(23);
-			h.se_id = c.getString(24);
-			h.skin_id = c.getString(25);
-			h.lock = c.getInt(26);
+			h.fine = c.getInt(8);
+			h.safe = c.getInt(9);
+			h.sad = c.getInt(10);
+			h.worst = c.getInt(11);
+			h.combo = c.getInt(12);
+			h.challange_time = c.getInt(13);
+			h.hold = c.getInt(14);
+			h.trial = c.getInt(15);
+			h.trial_result = c.getInt(16);
+			h.module1_id = c.getString(17);
+			h.module2_id = c.getString(18);
+			h.se_id = c.getString(19);
+			h.skin_id = c.getString(20);
+			h.lock = c.getInt(21);
 			return h;
 		}
 		finally {
@@ -147,15 +137,10 @@ public class HistoryStore extends ContentProvider {
 				HistoryTable.ACHIEVEMENT,
 				HistoryTable.SCORE,
 				HistoryTable.COOL,
-				HistoryTable.COOL_PER,
 				HistoryTable.FINE,
-				HistoryTable.FINE_PER,
 				HistoryTable.SAFE,
-				HistoryTable.SAFE_PER,
 				HistoryTable.SAD,
-				HistoryTable.SAD_PER,
 				HistoryTable.WORST,
-				HistoryTable.WORST_PER,
 				HistoryTable.COMBO,
 				HistoryTable.CHALLANGE_TIME,
 				HistoryTable.HOLD,
@@ -187,16 +172,11 @@ public class HistoryStore extends ContentProvider {
 			sb.append(c.getInt(14)).append(",");
 			sb.append(c.getInt(15)).append(",");
 			sb.append(c.getInt(16)).append(",");
-			sb.append(c.getInt(17)).append(",");
-			sb.append(c.getInt(18)).append(",");
-			sb.append(c.getInt(19)).append(",");
-			sb.append(c.getInt(20)).append(",");
-			sb.append(c.getInt(21)).append(",");
-			sb.append(c.getString(22)).append(",");
-			sb.append(c.getString(23)).append(",");
-			sb.append(c.getString(24)).append(",");
-			sb.append(c.getString(25)).append(",");
-			sb.append(c.getInt(26)).append("\r\n");
+			sb.append(c.getString(17)).append(",");
+			sb.append(c.getString(18)).append(",");
+			sb.append(c.getString(19)).append(",");
+			sb.append(c.getString(20)).append(",");
+			sb.append(c.getInt(21)).append("\r\n");
 
 			list.add(sb.toString().getBytes());
 		}

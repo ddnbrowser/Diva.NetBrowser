@@ -14,15 +14,10 @@ public class History {
 	public int achievement;
 	public int score;
 	public int cool;
-	public int cool_per;
 	public int fine;
-	public int fine_per;
 	public int safe;
-	public int safe_per;
 	public int sad;
-	public int sad_per;
 	public int worst;
-	public int worst_per;
 	public int combo;
 	public int challange_time;
 	public int hold;
@@ -38,4 +33,7 @@ public class History {
 		return lock == 1;
 	}
 
+	public int totalNotes() {
+		return cool + fine + safe + sad + worst;
+	}
 }

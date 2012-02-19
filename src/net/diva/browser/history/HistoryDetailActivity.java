@@ -433,21 +433,27 @@ public class HistoryDetailActivity extends Activity {
 			}
 			if(title3 != null)
 				title3.setText(res.getString(R.string.hist_title3));
-			cool.setText(String.format("%3s/%3s.%02d%%", h.cool, h.cool_per/100, h.cool_per%100));
+			final int total = h.totalNotes();
+			cool.setText(formatNotes(h.cool, total));
 			cool.setTypeface(Typeface.MONOSPACE);
-			fine.setText(String.format("%3s/%3s.%02d%%", h.fine, h.fine_per/100, h.fine_per%100));
+			fine.setText(formatNotes(h.fine, total));
 			fine.setTypeface(Typeface.MONOSPACE);
-			safe.setText(String.format("%3s/%3s.%02d%%", h.safe, h.safe_per/100, h.safe_per%100));
+			safe.setText(formatNotes(h.safe, total));
 			safe.setTypeface(Typeface.MONOSPACE);
-			sad.setText(String.format("%3s/%3s.%02d%%", h.sad, h.sad_per/100, h.sad_per%100));
+			sad.setText(formatNotes(h.sad, total));
 			sad.setTypeface(Typeface.MONOSPACE);
-			worst.setText(String.format("%3s/%3s.%02d%%", h.worst, h.worst_per/100, h.worst_per%100));
+			worst.setText(formatNotes(h.worst, total));
 			worst.setTypeface(Typeface.MONOSPACE);
 			combo.setText(String.valueOf(h.combo));
 			challenge_time.setText(String.format("%d pts", h.challange_time));
 			hold.setText(String.format("%d pts", h.hold));
 			lock.setText(h.isLocked() ? "ロック解除" : "ロック");
 			delete.setEnabled(!h.isLocked());
+		}
+
+		private String formatNotes(int notes, int total) {
+			int rate = (notes*100000 / total + 5) / 10;
+			return String.format("%3s/%3s.%02d%%", notes, rate/100, rate%100);
 		}
 	}
 

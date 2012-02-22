@@ -1,6 +1,5 @@
 package net.diva.browser.db;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +9,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -125,63 +125,34 @@ public class HistoryStore extends ContentProvider {
 		HistoryTable.lock(db, history);
 	}
 
-	public List<byte[]> csvExport() throws IOException {
-		List<byte[]> list = new ArrayList<byte[]>();
+	public interface DataBinder {
+		boolean bindNext(DatabaseUtils.InsertHelper helper, int[] indices);
+	}
 
-		Cursor c = m_helper.getReadableDatabase().query(HistoryTable.TABLE_NAME, new String[] {
-				HistoryTable.MUSIC_ID,
-				HistoryTable.RANK,
-				HistoryTable.PLAY_DATE,
-				HistoryTable.PLAY_PLACE,
-				HistoryTable.CLEAR_STATUS,
-				HistoryTable.ACHIEVEMENT,
-				HistoryTable.SCORE,
-				HistoryTable.COOL,
-				HistoryTable.FINE,
-				HistoryTable.SAFE,
-				HistoryTable.SAD,
-				HistoryTable.WORST,
-				HistoryTable.COMBO,
-				HistoryTable.CHALLANGE_TIME,
-				HistoryTable.HOLD,
-				HistoryTable.TRIAL,
-				HistoryTable.TRIAL_RESULT,
-				HistoryTable.MODULE1,
-				HistoryTable.MODULE2,
-				HistoryTable.SE,
-				HistoryTable.SKIN,
-				HistoryTable.LOCK,
-		}, null, null, null, null, null);
+	public void insertHistory(DataBinder binder, String[] names) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		DatabaseUtils.InsertHelper helper = new DatabaseUtils.InsertHelper(db, HistoryTable.TABLE_NAME);
+		db.beginTransaction();
+		try {
+			int[] indices = new int[names.length];
+			for (int i = 0; i < names.length; ++i)
+				indices[i] = helper.getColumnIndex(names[i]);
 
-		while (c.moveToNext()){
-			StringBuffer sb = new StringBuffer();
-			sb.append(c.getString(0)).append(",");
-			sb.append(c.getInt(1)).append(",");
-			sb.append(c.getInt(2)).append(",");
-			sb.append(c.getString(3)).append(",");
-			sb.append(c.getInt(4)).append(",");
-			sb.append(c.getInt(5)).append(",");
-			sb.append(c.getInt(6)).append(",");
-			sb.append(c.getInt(7)).append(",");
-			sb.append(c.getInt(8)).append(",");
-			sb.append(c.getInt(9)).append(",");
-			sb.append(c.getInt(10)).append(",");
-			sb.append(c.getInt(11)).append(",");
-			sb.append(c.getInt(12)).append(",");
-			sb.append(c.getInt(13)).append(",");
-			sb.append(c.getInt(14)).append(",");
-			sb.append(c.getInt(15)).append(",");
-			sb.append(c.getInt(16)).append(",");
-			sb.append(c.getString(17)).append(",");
-			sb.append(c.getString(18)).append(",");
-			sb.append(c.getString(19)).append(",");
-			sb.append(c.getString(20)).append(",");
-			sb.append(c.getInt(21)).append("\r\n");
+			for (;;) {
+				helper.prepareForInsert();
+				if (!binder.bindNext(helper, indices))
+					break;
+				helper.execute();
+			}
 
-			list.add(sb.toString().getBytes());
+			db.setTransactionSuccessful();
+		}
+		finally {
+			db.endTransaction();
+			helper.close();
 		}
 
-		return list;
+		getContext().getContentResolver().notifyChange(URI_HISTORIES, null);
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {

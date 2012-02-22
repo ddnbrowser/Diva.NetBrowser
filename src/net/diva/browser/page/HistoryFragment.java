@@ -1,12 +1,10 @@
 package net.diva.browser.page;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,6 +16,7 @@ import net.diva.browser.R;
 import net.diva.browser.db.HistoryStore;
 import net.diva.browser.db.HistoryTable;
 import net.diva.browser.history.HistoryDetailActivity;
+import net.diva.browser.history.HistorySerializer;
 import net.diva.browser.history.UpdateHistoryTask;
 import net.diva.browser.model.History;
 import net.diva.browser.util.DdNUtil;
@@ -288,31 +287,18 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 		String outputCsv = outStragePath + "/DdNB_history_"+ DdNUtil.now() + "_exported.csv";
 		File csv = new File(outputCsv);
-		FileOutputStream fos = null;
-
 		try {
-			if(!csv.exists())
-				if(!csv.createNewFile())
-					return false;
+			if(!csv.createNewFile())
+				return false;
 
-			List<byte[]> data = m_store.csvExport();
-
-			fos = new FileOutputStream(csv);
-			for(byte[] b : data)
-				fos.write(b);
-
-		} catch(Exception e) {
-			return false;
-		} finally {
-			if(fos != null){
-				try{
-					fos.close();
-				}catch(IOException e){
-				}
-			}
+			HistorySerializer serializer = new HistorySerializer(m_store);
+			serializer.exportTo(new FileOutputStream(csv));
+			return true;
 		}
-
-		return true;
+		catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	private void csvImport(){
@@ -352,48 +338,12 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 	}
 
 	private void importCsv(File csv){
-		BufferedReader br = null;
-		try{
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(csv)));
-
-			String line;
-			while((line = br.readLine()) != null) {
-				String[] data = line.split(",", -1);
-				History h = new History();
-				h.music_id = data[0];
-				h.rank = Integer.valueOf(data[1]);
-				h.play_date = Long.valueOf(data[2]) * 1000L;
-				h.play_place = data[3];
-				h.clear_status = Integer.valueOf(data[4]);
-				h.achievement = Integer.valueOf(data[5]);
-				h.score = Integer.valueOf(data[6]);
-				h.cool = Integer.valueOf(data[7]);
-				h.fine = Integer.valueOf(data[9]);
-				h.safe = Integer.valueOf(data[11]);
-				h.sad = Integer.valueOf(data[13]);
-				h.worst = Integer.valueOf(data[15]);
-				h.combo = Integer.valueOf(data[17]);
-				h.challange_time = Integer.valueOf(data[18]);
-				h.hold = Integer.valueOf(data[19]);
-				h.trial = Integer.valueOf(data[20]);
-				h.trial_result = Integer.valueOf(data[21]);
-				h.module1_id = data[22];
-				h.module2_id = data[23];
-				h.se_id = data[24];
-				h.skin_id = data[25];
-				h.lock = Integer.valueOf(data[26]);
-				m_store.insert(h);
-			}
-
-		}catch(Exception e){
-			//mouyada-
-		}finally{
-			try{
-				if(br !=null)
-					br.close();
-			}catch(Exception e){
-				// mouyada-
-			}
+		HistorySerializer serializer = new HistorySerializer(m_store);
+		try {
+			serializer.importFrom(new FileInputStream(csv));
+		}
+		catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

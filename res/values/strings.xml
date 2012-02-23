@@ -190,7 +190,6 @@
     <string name="hist_hold_txt">同時/HOLD :</string>
     <string name="hist_delete_btn">履歴削除</string>
     <string name="hist_capture_menu">履歴を共有</string>
-    <string name="hist_ranking_menu">ランキング</string>
     <string name="hist_delete_msg">表示中のプレイ履歴を削除しますか？</string>
     <string name="hist_menu_update">履歴取得</string>
     <string name="hist_menu_delete">履歴削除</string>

@@ -3,12 +3,8 @@ package net.diva.browser.history;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,16 +16,6 @@ import net.diva.browser.db.HistoryStore;
 import net.diva.browser.model.History;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.util.DdNUtil;
-
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -56,7 +42,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 /**
  *
  * @author silvia
@@ -113,9 +98,6 @@ public class HistoryDetailActivity extends Activity {
 		switch (item.getItemId()) {
 		case R.id.history_capture:
 			shareOtherApp(screenCapture());
-			break;
-		case R.id.history_ranking:
-			ranking();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -303,46 +285,6 @@ public class HistoryDetailActivity extends Activity {
 		h.lock.setText(m_history.isLocked() ? "ロック解除" : "ロック");
 		h.delete.setEnabled(!m_history.isLocked());
 		m_store.lockHistory(m_history);
-	}
-
-	public void ranking(){
-		final URI uri = URI.create(String.format("http://eario.jp/diva/ranking.cgi?music_name=%s&rank=%s&score=%s", URLEncoder.encode(DdNUtil.getMusicTitle(m_history.music_id)), m_history.rank, m_history.score));
-		try{
-			String ranking = read(uri);
-			Toast.makeText(this, ranking, Toast.LENGTH_LONG).show();
-		}catch(Exception e){
-		}
-	}
-	private String read(URI uri) throws IOException {
-		HttpClient client = new DefaultHttpClient();
-		HttpResponse response = client.execute(new HttpGet(uri));
-		final int status = response.getStatusLine().getStatusCode();
-		if (status != HttpStatus.SC_OK)
-			throw new IOException(String.format("Invalid Server Response: %d", status));
-
-		String charset = findCharset(response.getFirstHeader("Content-Type"));
-
-		InputStream in = null;
-		try {
-			in = response.getEntity().getContent();
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			for (int read; (read = in.read(buffer)) != -1;)
-				out.write(buffer, 0, read);
-			return out.toString(charset);
-		}
-		finally {
-			if (in != null)
-				in.close();
-		}
-	}
-	private String findCharset(Header header) {
-		for (HeaderElement e: header.getElements()) {
-			NameValuePair pair = e.getParameterByName("charset");
-			if (pair != null)
-				return pair.getValue();
-		}
-		return "UTF-8";
 	}
 
 	private void delete(){

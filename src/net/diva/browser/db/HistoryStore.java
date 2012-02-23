@@ -50,7 +50,7 @@ public class HistoryStore extends ContentProvider {
 				HistoryTable.TRIAL_RESULT,
 				HistoryTable.MODULE1,
 				HistoryTable.MODULE2,
-				HistoryTable.SE,
+				HistoryTable.BUTTON_SE,
 				HistoryTable.SKIN,
 				HistoryTable.LOCK,
 		}, HistoryTable._ID + "=?", new String[] { String.valueOf(rowId) }, null, null, null);
@@ -75,10 +75,10 @@ public class HistoryStore extends ContentProvider {
 			h.hold = c.getInt(14);
 			h.trial = c.getInt(15);
 			h.trial_result = c.getInt(16);
-			h.module1_id = c.getString(17);
-			h.module2_id = c.getString(18);
-			h.se_id = c.getString(19);
-			h.skin_id = c.getString(20);
+			h.module1 = c.getString(17);
+			h.module2 = c.getString(18);
+			h.button_se = c.getString(19);
+			h.skin = c.getString(20);
 			h.lock = c.getInt(21);
 			return h;
 		}

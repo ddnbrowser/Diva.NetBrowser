@@ -35,7 +35,7 @@ public class HistorySerializer {
 		HistoryTable.TRIAL_RESULT,
 		HistoryTable.MODULE1,
 		HistoryTable.MODULE2,
-		HistoryTable.SE,
+		HistoryTable.BUTTON_SE,
 		HistoryTable.SKIN,
 		HistoryTable.LOCK,
 	};

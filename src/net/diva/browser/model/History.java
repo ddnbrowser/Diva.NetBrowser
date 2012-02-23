@@ -23,10 +23,10 @@ public class History {
 	public int hold;
 	public int trial;
 	public int trial_result;
-	public String module1_id;
-	public String module2_id;
-	public String se_id;
-	public String skin_id;
+	public String module1;
+	public String module2;
+	public String button_se;
+	public String skin;
 	public int lock;
 
 	public boolean isLocked(){

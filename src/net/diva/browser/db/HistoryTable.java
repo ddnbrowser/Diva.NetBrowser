@@ -32,7 +32,7 @@ public class HistoryTable implements BaseColumns {
 	public static final String TRIAL_RESULT = "trial_result";
 	public static final String MODULE1 = "module1";
 	public static final String MODULE2 = "module2";
-	public static final String SE = "se";
+	public static final String BUTTON_SE = "button_se";
 	public static final String SKIN = "skin";
 	public static final String LOCK = "lock";
 
@@ -66,7 +66,7 @@ public class HistoryTable implements BaseColumns {
 		.append(TRIAL_RESULT).append(" integer,")
 		.append(MODULE1).append(" text,")
 		.append(MODULE2).append(" text,")
-		.append(SE).append(" text,")
+		.append(BUTTON_SE).append(" text,")
 		.append(SKIN).append(" text,")
 		.append(LOCK).append(" integer")
 		.append(")");
@@ -107,10 +107,10 @@ public class HistoryTable implements BaseColumns {
 		values.put(HOLD, history.hold);
 		values.put(TRIAL, history.trial);
 		values.put(TRIAL_RESULT, history.trial_result);
-		values.put(MODULE1, history.module1_id);
-		values.put(MODULE2, history.module2_id);
-		values.put(SE, history.se_id);
-		values.put(SKIN, history.skin_id);
+		values.put(MODULE1, history.module1);
+		values.put(MODULE2, history.module2);
+		values.put(BUTTON_SE, history.button_se);
+		values.put(SKIN, history.skin);
 		values.put(LOCK, history.lock);
 
 		return db.insert(TABLE_NAME, null, values);

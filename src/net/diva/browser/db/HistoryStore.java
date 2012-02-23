@@ -31,7 +31,7 @@ public class HistoryStore extends ContentProvider {
 	public History getPlayHistory(long rowId) {
 		SQLiteDatabase db = m_helper.getReadableDatabase();
 		Cursor c = db.query(HistoryTable.TABLE_NAME, new String[] {
-				HistoryTable.MUSIC_ID,
+				HistoryTable.MUSIC_TITLE,
 				HistoryTable.RANK,
 				HistoryTable.PLAY_DATE,
 				HistoryTable.PLAY_PLACE,
@@ -58,7 +58,7 @@ public class HistoryStore extends ContentProvider {
 			if (!c.moveToNext())
 				return null;
 			History h = new History();
-			h.music_id = c.getString(0);
+			h.music_title = c.getString(0);
 			h.rank = c.getInt(1);
 			h.play_date = c.getLong(2);
 			h.play_place = c.getString(3);
@@ -110,9 +110,9 @@ public class HistoryStore extends ContentProvider {
 		HistoryTable.insert(db, history);
 	}
 
-	public void deleteHistory(String music_id, int rank, int limit_date){
+	public void deleteHistory(String music_title, int rank, int limit_date){
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		HistoryTable.delete(db, music_id, rank, limit_date);
+		HistoryTable.delete(db, music_title, rank, limit_date);
 	}
 
 	public void deleteHistory(History history){

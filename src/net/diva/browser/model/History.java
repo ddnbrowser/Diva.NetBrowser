@@ -6,7 +6,7 @@ package net.diva.browser.model;
  *
  */
 public class History {
-	public String music_id;
+	public String music_title;
 	public int rank;
 	public long play_date;
 	public String play_place;

@@ -213,7 +213,7 @@ public abstract class MusicListFragment extends ListFragment
 			return true;
 		case R.id.item_play_record:
 			Bundle args = new Bundle();
-			args.putString(HistoryFragment.KEY_MUSIC, music.id);
+			args.putString(HistoryFragment.KEY_MUSIC, music.title);
 			args.putInt(HistoryFragment.KEY_RANK, m_adapter.getDifficulty());
 			startActivity(ContainerActivity.makeIntent(getActivity(), HistoryFragment.class.getName(), args));
 			return true;

@@ -13,7 +13,7 @@ import android.provider.BaseColumns;
 public class HistoryTable implements BaseColumns {
 	public static final String TABLE_NAME = "History";
 
-	public static final String MUSIC_ID = "music_id";
+	public static final String MUSIC_TITLE = "music_title";
 	public static final String RANK = "rank";
 	public static final String PLAY_DATE = "play_date";
 	public static final String PLAY_PLACE = "play_place";
@@ -37,9 +37,9 @@ public class HistoryTable implements BaseColumns {
 	public static final String LOCK = "lock";
 
 	public static final String WHERE_IDENTITY = String.format("%s=?", PLAY_DATE);
-	public static final String WHERE_BY_MUSIC = String.format("%s=? and %s=?", MUSIC_ID, RANK);
+	public static final String WHERE_BY_MUSIC = String.format("%s=? and %s=?", MUSIC_TITLE, RANK);
 	public static final String WHERE_BY_DELETE = String.format("%s<? and %s<>?", PLAY_DATE, LOCK);
-	public static final String WHERE_BY_MUSIC_DELETE = String.format("%s=? and %s=? and %s<? and %s<>?", MUSIC_ID, RANK, PLAY_DATE, LOCK);
+	public static final String WHERE_BY_MUSIC_DELETE = String.format("%s=? and %s=? and %s<? and %s<>?", MUSIC_TITLE, RANK, PLAY_DATE, LOCK);
 
 	private HistoryTable() {}
 
@@ -47,10 +47,10 @@ public class HistoryTable implements BaseColumns {
 		StringBuilder builder = new StringBuilder();
 		builder.append("create table ").append(TABLE_NAME).append(" (")
 		.append(_ID).append(" integer primary key autoincrement,")
-		.append(MUSIC_ID).append(" text,")
-		.append(RANK).append(" integer,")
-		.append(PLAY_DATE).append(" integer,")
+		.append(PLAY_DATE).append(" integer UNIQUE,")
 		.append(PLAY_PLACE).append(" text,")
+		.append(MUSIC_TITLE).append(" text,")
+		.append(RANK).append(" integer,")
 		.append(CLEAR_STATUS).append(" integer,")
 		.append(ACHIEVEMENT).append(" integer,")
 		.append(SCORE).append(" integer,")
@@ -90,7 +90,7 @@ public class HistoryTable implements BaseColumns {
 			return 0;
 
 		ContentValues values = new ContentValues(27);
-		values.put(MUSIC_ID, history.music_id);
+		values.put(MUSIC_TITLE, history.music_title);
 		values.put(RANK, history.rank);
 		values.put(PLAY_DATE, history.play_date);
 		values.put(PLAY_PLACE, history.play_place);
@@ -116,12 +116,12 @@ public class HistoryTable implements BaseColumns {
 		return db.insert(TABLE_NAME, null, values);
 	}
 
-	static boolean delete(SQLiteDatabase db, String music_id, int rank, int limit_date) {
+	static boolean delete(SQLiteDatabase db, String music_title, int rank, int limit_date) {
 		String where = null;
 		String[] values = null;
-		if(music_id != null){
+		if(music_title != null){
 			where = WHERE_BY_MUSIC_DELETE;
-			values = new String[] {music_id, String.valueOf(rank), String.valueOf(limit_date), String.valueOf(1)};
+			values = new String[] {music_title, String.valueOf(rank), String.valueOf(limit_date), String.valueOf(1)};
 		}else{
 			where = WHERE_BY_DELETE;
 			values = new String[] {String.valueOf(limit_date), String.valueOf(1)};

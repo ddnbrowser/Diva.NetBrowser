@@ -62,7 +62,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 	private Bundle m_args = new Bundle();
 
-	private String m_music_id = null;
+	private String m_music_title = null;
 	private int m_rank = -1;
 	private long m_date = -1;
 	private String m_sortOrder = HistoryTable.PLAY_DATE;
@@ -86,12 +86,12 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		if (args != null) {
 			m_sortOrder = args.getString(KEY_ORDER, m_sortOrder);
 			m_isReverseOrder = args.getBoolean(KEY_REVERSE, m_isReverseOrder);
-			m_music_id = args.getString(KEY_MUSIC, m_music_id);
+			m_music_title = args.getString(KEY_MUSIC, m_music_title);
 			m_rank = args.getInt(KEY_RANK, m_rank);
 			m_date = args.getLong(KEY_DATE, m_date);
 		}
 		setSortOrder(m_sortOrder, m_isReverseOrder);
-		setFilterCondition(m_music_id, m_rank, m_date);
+		setFilterCondition(m_music_title, m_rank, m_date);
 
 		ListView listView = getListView();
 		listView.setFocusable(true);
@@ -108,7 +108,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 	@Override
 	public void onSaveInstanceState(Bundle bundle) {
 		super.onSaveInstanceState(bundle);
-		bundle.putString(KEY_MUSIC, m_music_id);
+		bundle.putString(KEY_MUSIC, m_music_title);
 		bundle.putInt(KEY_RANK, m_rank);
 		bundle.putLong(KEY_DATE, m_date);
 		bundle.putString(KEY_ORDER, m_sortOrder);
@@ -122,7 +122,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.history_delete_selected).setEnabled(m_music_id != null);
+		menu.findItem(R.id.history_delete_selected).setEnabled(m_music_title != null);
 	}
 
 	@Override
@@ -163,7 +163,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		getActivity().getMenuInflater().inflate(R.menu.history_context, menu);
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
 		History history = m_adapter.getHistory(info.position);
-		menu.setHeaderTitle(DdNUtil.getMusicTitle(history.music_id));
+		menu.setHeaderTitle(history.music_title);
 	}
 
 	@Override
@@ -175,11 +175,11 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		History history = m_adapter.getHistory(info.position);
 		switch (item.getItemId()) {
 		case R.id.hist_search_music_and_rank:
-			setFilterCondition(history.music_id, history.rank, -1);
+			setFilterCondition(history.music_title, history.rank, -1);
 			refresh();
 			return true;
 		case R.id.hist_search_music:
-			setFilterCondition(history.music_id, -1, -1);
+			setFilterCondition(history.music_title, -1, -1);
 			refresh();
 			return true;
 		case R.id.hist_search_date:
@@ -235,7 +235,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 		String confirmMsg = String.format(
 				"ロックされていないプレイ履歴を全削除します。よろしいですか？\n対象曲：%s\n難易度：%s",
-				isAllDel ? res.getString(R.string.all_music) : (DdNUtil.getMusicTitle(m_music_id)),
+				isAllDel ? res.getString(R.string.all_music) : m_music_title,
 				isAllDel ? res.getString(R.string.all_difficulty) : DdNUtil.getDifficultyName(m_rank));
 		Context context = getActivity();
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -248,8 +248,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 				cal.set(Calendar.MINUTE, 0);
 				cal.set(Calendar.SECOND, 0);
 				long sec = cal.getTimeInMillis() / 1000;
-				String music_id = isAllDel ? null : m_music_id;
-				m_store.deleteHistory(music_id, m_rank, (int) sec);
+				m_store.deleteHistory(isAllDel ? null : m_music_title, m_rank, (int) sec);
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, null);
@@ -386,16 +385,16 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		m_args.putString("sortOrder", sb.toString());
 	}
 
-	private void setFilterCondition(String music_id, int rank, long date) {
-		m_music_id = music_id;
+	private void setFilterCondition(String music_title, int rank, long date) {
+		m_music_title = music_title;
 		m_rank = rank;
 		m_date = date;
 
 		StringBuilder sb = new StringBuilder();
 		List<String> args = new ArrayList<String>();
-		if (music_id != null) {
-			sb.append(" AND ").append(HistoryTable.MUSIC_ID).append("=?");
-			args.add(music_id);
+		if (music_title != null) {
+			sb.append(" AND ").append(HistoryTable.MUSIC_TITLE).append("=?");
+			args.add(music_title);
 		}
 		if (rank >=0 ) {
 			sb.append(" AND ").append(HistoryTable.RANK).append("=?");
@@ -430,7 +429,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			HistoryTable.PLAY_DATE,
 			HistoryTable.RANK,
 			HistoryTable.CLEAR_STATUS,
-			HistoryTable.MUSIC_ID,
+			HistoryTable.MUSIC_TITLE,
 			HistoryTable.SCORE,
 			HistoryTable.ACHIEVEMENT,
 			HistoryTable.LOCK,
@@ -466,7 +465,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			h.play_date = c.getLong(m_from[0]);
 			h.rank = c.getInt(m_from[1]);
 			h.clear_status = c.getInt(m_from[2]);
-			h.music_id = c.getString(m_from[3]);
+			h.music_title = c.getString(m_from[3]);
 			h.score = c.getInt(m_from[4]);
 			h.achievement = c.getInt(m_from[5]);
 			h.lock = c.getInt(m_from[6]);
@@ -496,7 +495,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			h.rank.setText(DdNUtil.getDifficultyName(d.rank));
 			h.rank.setTextColor(context.getResources().getColor(RANK_COLORS[d.rank]));
 			h.status.setText(context.getResources().getStringArray(R.array.clear_status_names)[d.clear_status]);
-			h.music.setText(DdNUtil.getMusicTitle(d.music_id));
+			h.music.setText(d.music_title);
 			h.score.setText(String.format("%dpts", d.score));
 			h.achievement.setText(String.format("%d.%02d%%", d.achievement/100, d.achievement%100));
 			h.lock.setVisibility(d.isLocked() ? View.VISIBLE : View.INVISIBLE);

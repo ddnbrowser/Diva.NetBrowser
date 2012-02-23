@@ -47,7 +47,7 @@ public class HistoryParser {
 
 	private static final Pattern HIST_DATE = Pattern.compile("\\[日時\\] </font>(.+?)<br>");
 	private static final Pattern HIST_PLACE = Pattern.compile("\\[場所\\] </font>(.+?)<br>");
-	private static final Pattern HIST_MUSIC_ID = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/0\">");
+	private static final Pattern HIST_MUSIC = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/0\">(.+)</a>");
 	private static final Pattern HIST_RANK = Pattern.compile("\\s*(.+?)　★");
 	private static final Pattern HIST_CLEAR_STATUS = Pattern.compile("\\[CLEAR RANK\\]</font><br>(.+?)<br>");
 	private static final Pattern HIST_ACHIEVEMENT = Pattern.compile("\\[達成率\\]</font><br>(.+?)％<br>");
@@ -73,7 +73,7 @@ public class HistoryParser {
 			String body = Parser.read(content);
 			history.play_date = DATE_FORMAT.parse(getMatchText(HIST_DATE, body)[0]).getTime();
 			history.play_place = getMatchText(HIST_PLACE, body)[0];
-			history.music_id = getMatchText(HIST_MUSIC_ID, body)[0];
+			history.music_title = getMatchText(HIST_MUSIC, body)[1];
 			history.rank = DdNUtil.getDifficultyCord((getMatchText(HIST_RANK, body)[0]));
 			history.clear_status = DdNUtil.getClearStatusCord((getMatchText(HIST_CLEAR_STATUS, body)[0]));
 			history.achievement = (int)(Double.valueOf(getMatchText(HIST_ACHIEVEMENT, body)[0]) * 100);

@@ -18,7 +18,7 @@ public class HistorySerializer {
 	private static final String[] COLUMNS = new String[] {
 		HistoryTable.PLAY_DATE,
 		HistoryTable.PLAY_PLACE,
-		HistoryTable.MUSIC_ID,
+		HistoryTable.MUSIC_TITLE,
 		HistoryTable.RANK,
 		HistoryTable.CLEAR_STATUS,
 		HistoryTable.ACHIEVEMENT,

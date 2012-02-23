@@ -8,7 +8,6 @@ import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
@@ -29,6 +28,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -80,7 +80,7 @@ public class HistoryDetailActivity extends Activity {
 
 		Intent intent = getIntent();
 		m_history = m_store.getPlayHistory(intent.getLongExtra("history_id", 0));
-		m_music = getMusic(DdN.getPlayRecord().musics, m_history.music_id);
+		m_music = DdN.getPlayRecord().getMusicByTitle(m_history.music_title);
 
 		h = new Holder(this, null);
 		h.attach(m_history, m_music);
@@ -247,21 +247,14 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	private String createTweetMsg(){
+		final int difficulty = m_music != null ? m_music.records[m_history.rank].difficulty : 0;
 		StringBuffer sb = new StringBuffer();
-		sb.append(m_music.title + " / ");
-		sb.append(String.format("%s ★%d / ", getResources().getStringArray(R.array.difficulty_names)[m_history.rank], m_music.records[m_history.rank].difficulty));
+		sb.append(m_history.music_title + " / ");
+		sb.append(String.format("%s ★%d / ", getResources().getStringArray(R.array.difficulty_names)[m_history.rank], difficulty));
 		sb.append(String.format("%d pts / ", m_history.score));
 		sb.append(String.format("%d.%02d %% ", m_history.achievement/100, m_history.achievement%100));
 		sb.append("#DdNBrowser");
 		return sb.toString();
-	}
-
-	private MusicInfo getMusic(List<MusicInfo> musics, String id){
-		for(MusicInfo m : musics){
-			if(m.id.equals(id))
-				return m;
-		}
-		return null;
 	}
 
 	public void delete(View view){
@@ -354,6 +347,12 @@ public class HistoryDetailActivity extends Activity {
 		private void attach(History h, MusicInfo m){
 
 			final Resources res = m_act.getResources();
+			int difficulty = 0;
+			Drawable coverArt = null;
+			if (m != null) {
+				difficulty = m.records[h.rank].difficulty;
+				coverArt = m.getCoverArt(m_act.getApplicationContext());
+			}
 
 			if(title1 != null)
 				title1.setText(res.getString(R.string.hist_title1));
@@ -362,9 +361,9 @@ public class HistoryDetailActivity extends Activity {
 			if(play_place != null)
 				play_place.setText(h.play_place);
 			title2.setText(res.getString(R.string.hist_title2));
-			cover_art.setImageDrawable(m.getCoverArt(m_act.getApplicationContext()));
-			music_title.setText(m.title);
-			rank.setText(String.format("%s ★%d", res.getStringArray(R.array.difficulty_names)[h.rank], m.records[h.rank].difficulty));
+			cover_art.setImageDrawable(coverArt);
+			music_title.setText(h.music_title);
+			rank.setText(String.format("%s ★%d", res.getStringArray(R.array.difficulty_names)[h.rank], difficulty));
 			clear_status.setText(res.getStringArray(R.array.clear_status_names)[h.clear_status]);
 			achievement.setText(String.format("%d.%02d%%", h.achievement/100, h.achievement%100));
 			score.setText(String.format("%d pts", h.score));

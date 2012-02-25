@@ -206,4 +206,6 @@
     <string name="hist_confirm_export_msg">保存されている履歴を全てSDカードへエクスポートします。よろしいですか？\n※量によっては時間がかかったりアプリが落ちたりするかもしれません</string>
     <string name="all_music">全曲</string>
     <string name="all_difficulty">全難易度</string>
+    <string name="no_got_histories">新たに取得した履歴はありません</string>
+    <string name="get_histories_failed">履歴の取得に失敗しました</string>
 </resources>

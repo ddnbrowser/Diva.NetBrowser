@@ -15,20 +15,25 @@ import java.util.List;
 import net.diva.browser.R;
 import net.diva.browser.db.HistoryStore;
 import net.diva.browser.db.HistoryTable;
+import net.diva.browser.history.DownloadHistoryService;
 import net.diva.browser.history.HistoryDetailActivity;
 import net.diva.browser.history.HistorySerializer;
-import net.diva.browser.history.UpdateHistoryTask;
 import net.diva.browser.model.History;
 import net.diva.browser.util.DdNUtil;
+import net.diva.browser.util.ProgressTask;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.IBinder;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -59,6 +64,20 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 	private HistoryStore m_store;
 	private HistoryAdapter m_adapter;
+
+	private DownloadHistoryService m_service;
+	private ServiceConnection m_connection = new ServiceConnection() {
+		@Override
+		public void onServiceConnected(ComponentName name, IBinder service) {
+			DownloadHistoryService.LocalBinder binder = (DownloadHistoryService.LocalBinder)service;
+			m_service = binder.getService();
+		}
+
+		@Override
+		public void onServiceDisconnected(ComponentName name) {
+			m_service = null;
+		}
+	};
 
 	private Bundle m_args = new Bundle();
 
@@ -116,6 +135,22 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		Intent intent = new Intent(getActivity(), DownloadHistoryService.class);
+		getActivity().bindService(intent, m_connection, Context.BIND_AUTO_CREATE);
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		if (m_service != null) {
+			getActivity().unbindService(m_connection);
+			m_service = null;
+		}
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.history_options, menu);
 	}
@@ -129,7 +164,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.history_update:
-			new UpdateHistoryTask(this, R.string.message_downloading).execute();
+			new UpdateTask(getActivity(), R.string.message_downloading).execute(m_service);
 			break;
 		case R.id.history_sort:
 			selectSortOrder();
@@ -419,6 +454,47 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		else {
 			m_args.putString("selection", null);
 			m_args.putStringArray("selectionArgs", null);
+		}
+	}
+
+	private static class UpdateTask extends ProgressTask<DownloadHistoryService, Integer, String> {
+		public UpdateTask(Context context, int message) {
+			super(context, message);
+			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		}
+
+		@Override
+		protected String doInBackground(DownloadHistoryService... args) {
+			try {
+				if (!args[0].downloadHistory(
+						new DownloadHistoryService.ProgressListener() {
+							@Override
+							public void onProgress(int value, int max) {
+								publishProgress(value, max);
+							}
+						}))
+					return m_context.getString(R.string.no_got_histories);
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+				return m_context.getString(R.string.get_histories_failed);
+			}
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			if (values.length > 1) {
+				m_progress.setMax(values[1]);
+				m_progress.setIndeterminate(false);
+			}
+			m_progress.setProgress(values[0]);
+		}
+
+		@Override
+		protected void onResult(String error) {
+			if (error != null)
+				Toast.makeText(m_context, error, Toast.LENGTH_LONG).show();
 		}
 	}
 

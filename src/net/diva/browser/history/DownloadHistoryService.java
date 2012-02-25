@@ -1,10 +1,15 @@
 package net.diva.browser.history;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.diva.browser.DdN;
 import net.diva.browser.DdNBrowserReceiver;
 import net.diva.browser.MainActivity;
 import net.diva.browser.R;
+import net.diva.browser.db.HistoryStore;
+import net.diva.browser.model.History;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.service.ServiceClient;
@@ -16,6 +21,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -30,6 +37,7 @@ public class DownloadHistoryService extends Service {
 
 	private static PowerManager.WakeLock m_lock;
 
+	private IBinder m_binder = new LocalBinder();
 	private SharedPreferences m_preferences;
 
 	@Override
@@ -44,8 +52,8 @@ public class DownloadHistoryService extends Service {
 			public void run() {
 				Scheduler scheduler = new Scheduler(getApplicationContext());
 				try {
-					boolean updated = downloadHistory();
-					if (m_preferences.getBoolean("notify_history_download", false) && updated)
+					boolean updated = downloadHistory(null);
+					if (updated && m_preferences.getBoolean("notify_history_download", false))
 						sendNotification();
 				}
 				catch (IOException e) {
@@ -63,18 +71,65 @@ public class DownloadHistoryService extends Service {
 		}).start();
 	}
 
-	@Override
-	public IBinder onBind(Intent intent) {
-		return null;
+	public class LocalBinder extends Binder {
+		public DownloadHistoryService getService() {
+			return DownloadHistoryService.this;
+		}
 	}
 
-	private boolean downloadHistory() throws LoginFailedException, IOException, ParseException {
-		ServiceClient service = new ServiceClient(
-				m_preferences.getString("access_code", null),
-				m_preferences.getString("password", null));
+	@Override
+	public IBinder onBind(Intent intent) {
+		return m_binder;
+	}
+
+	public interface ProgressListener {
+		void onProgress(int value, int max);
+	}
+
+	public boolean downloadHistory(ProgressListener listener)
+			throws LoginFailedException, IOException, ParseException {
+		DdN.Account account = DdN.Account.load(m_preferences);
+		if (account == null)
+			return false;
+
+		ServiceClient service = new ServiceClient(account.access_code, account.password);
 		service.login();
 
-		return new UpdateHistory(this).update(service);
+		List<String> newHistories = new ArrayList<String>();
+		long lastPlayed = m_preferences.getLong("last_played_use_history", 0);
+		lastPlayed = service.getHistory(newHistories, lastPlayed);
+		final int count = newHistories.size();
+		final boolean hasItem = count > 0;
+
+		final Editor editor = m_preferences.edit();
+		if (hasItem) {
+			if (listener != null)
+				listener.onProgress(0, count);
+
+			HistoryStore store = HistoryStore.getInstance(getApplicationContext());
+			for (int i = 0; i < count; ++i) {
+				History h = null;
+				try {
+					h = service.getHistoryDetail(newHistories.get(i));
+					store.insert(h);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				if (listener != null)
+					listener.onProgress(i, count);
+			}
+
+			editor.putLong("last_played_use_history", lastPlayed);
+		}
+		editor.putLong("history_last_download_time", System.currentTimeMillis());
+		editor.commit();
+
+		if (m_preferences.getBoolean("download_history", false))
+			new Scheduler(this).reserve(!hasItem && listener == null);
+
+		return hasItem;
 	}
 
 	public static void lock(Context context) {

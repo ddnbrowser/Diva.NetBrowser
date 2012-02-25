@@ -5,11 +5,13 @@ import java.util.List;
 
 import net.diva.browser.model.History;
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -218,8 +220,25 @@ public class HistoryStore extends ContentProvider {
 	}
 
 	@Override
-	public Uri insert(Uri uri, ContentValues values) {
-		return null;
+	public Uri insert(Uri uri, ContentValues initialValues) {
+		if (s_matcher.match(uri) != PLAY_HISTORIES)
+			throw new IllegalArgumentException("Unknown URI: " + uri);
+
+		ContentValues values = null;
+		if (initialValues != null)
+			values = new ContentValues(initialValues);
+		else
+			values = new ContentValues();
+
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		long rowId = db.insert(HistoryTable.TABLE_NAME, null, values);
+		if (rowId > 0) {
+			Uri newUri = ContentUris.withAppendedId(URI_HISTORIES, rowId);
+			getContext().getContentResolver().notifyChange(newUri, null);
+			return newUri;
+		}
+
+		throw new SQLException("Failed to insert row into " + uri);
 	}
 
 	@Override

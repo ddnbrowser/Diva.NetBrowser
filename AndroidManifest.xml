@@ -2,6 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
       android:versionCode="321" android:versionName="3.21">
+
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
+
+    <permission
+        android:name="net.diva.browser.permission.WRITE_HISTORY"
+        android:label="@string/permission_label_write_history"
+        android:description="@string/permisstion_desc_write_history"
+        android:protectionLevel="signature"
+        />
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="net.diva.browser.permisstion.WRITE_HISTORY"/>
+
     <application
         android:label="@string/app_name"
         android:icon="@drawable/icon"
@@ -46,12 +61,11 @@
         </receiver>
         <service android:name=".DownloadRankingService"></service>
         <service android:name=".history.DownloadHistoryService"></service>
-        <provider android:name=".db.HistoryStore" android:authorities="net.diva.browser.history"></provider>
+        <provider android:name=".db.LocalStore" android:authorities="net.diva.browser.store"></provider>
+        <provider
+            android:name=".db.HistoryStore"
+            android:authorities="net.diva.browser.history"
+            android:writePermission="net.diva.browser.permission.WRITE_HISTORY"
+            />
     </application>
-
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
-
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
 </manifest>

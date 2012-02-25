@@ -36,10 +36,9 @@ public class HistoryTable implements BaseColumns {
 	public static final String SKIN = "skin";
 	public static final String LOCK = "lock";
 
+	public static final int LOCKED = 1;
+
 	public static final String WHERE_IDENTITY = String.format("%s=?", PLAY_DATE);
-	public static final String WHERE_BY_MUSIC = String.format("%s=? and %s=?", MUSIC_TITLE, RANK);
-	public static final String WHERE_BY_DELETE = String.format("%s<? and %s<>?", PLAY_DATE, LOCK);
-	public static final String WHERE_BY_MUSIC_DELETE = String.format("%s=? and %s=? and %s<? and %s<>?", MUSIC_TITLE, RANK, PLAY_DATE, LOCK);
 
 	private HistoryTable() {}
 
@@ -114,20 +113,6 @@ public class HistoryTable implements BaseColumns {
 		values.put(LOCK, history.lock);
 
 		return db.insert(TABLE_NAME, null, values);
-	}
-
-	static boolean delete(SQLiteDatabase db, String music_title, int rank, int limit_date) {
-		String where = null;
-		String[] values = null;
-		if(music_title != null){
-			where = WHERE_BY_MUSIC_DELETE;
-			values = new String[] {music_title, String.valueOf(rank), String.valueOf(limit_date), String.valueOf(1)};
-		}else{
-			where = WHERE_BY_DELETE;
-			values = new String[] {String.valueOf(limit_date), String.valueOf(1)};
-		}
-
-		return db.delete(TABLE_NAME, where, values) > 0;
 	}
 
 	static boolean delete(SQLiteDatabase db, History history) {

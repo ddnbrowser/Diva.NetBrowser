@@ -193,8 +193,6 @@
     <string name="hist_delete_msg">表示中のプレイ履歴を削除しますか？</string>
     <string name="hist_menu_update">履歴取得</string>
     <string name="hist_menu_delete">履歴削除</string>
-    <string name="hist_menu_delete_all">全曲削除</string>
-    <string name="hist_menu_delete_selected">表示曲削除</string>
     <string name="hist_menu_awake">全て表示</string>
     <string name="hist_menu_search_music_and_rank">選択曲と難易度を検索</string>
     <string name="hist_menu_search_music">選択曲を検索</string>
@@ -203,6 +201,7 @@
     <string name="history_export">エクスポート</string>
     <string name="history_import">インポート</string>
     <string name="hist_confirm_delete_dialog">プレイ履歴削除確認</string>
+    <string name="hist_confirm_delete_message">表示されているプレイ履歴のうちロックされていないものを全て削除します。よろしいですか?\n対象曲：%1$s\n難易度：%2$s\n対象日：%3$s</string>
     <string name="hist_confirm_export_dialog">履歴エクスポート確認</string>
     <string name="hist_confirm_export_msg">保存されている履歴を全てSDカードへエクスポートします。よろしいですか?</string>
     <string name="histories_exporting">プレイ履歴をエクスポートしています...</string>
@@ -214,8 +213,7 @@
     <string name="histories_importing">プレイ履歴をインポートしています...</string>
     <string name="history_imported">%1$d件のプレイ履歴をインポートしました</string>
     <string name="no_history_imported">インポートされたプレイ履歴はありません</string>
-    <string name="all_music">全曲</string>
-    <string name="all_difficulty">全難易度</string>
+    <string name="all">全て</string>
     <string name="no_got_histories">新たに取得した履歴はありません</string>
     <string name="get_histories_failed">履歴の取得に失敗しました</string>
     <string name="permission_label_write_history">プレイ履歴の更新</string>

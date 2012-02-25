@@ -33,7 +33,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
@@ -161,7 +160,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.history_delete_selected).setEnabled(m_music_title != null);
+		menu.setGroupEnabled(R.id.group_require_records, m_adapter != null && !m_adapter.isEmpty());
 	}
 
 	@Override
@@ -173,11 +172,8 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		case R.id.history_sort:
 			selectSortOrder();
 			break;
-		case R.id.history_delete_all:
-			delete(true);
-			break;
-		case R.id.history_delete_selected:
-			delete(false);
+		case R.id.history_delete:
+			deleteHistories();
 			break;
 		case R.id.history_export:
 			exportHistories();
@@ -269,25 +265,21 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		m_adapter.swapCursor(null);
 	}
 
-	private void delete(final boolean isAllDel) {
-		Resources res = getResources();
+	private void deleteHistories() {
+		final CharSequence all = getText(R.string.all);
+		final String message = getString(R.string.hist_confirm_delete_message,
+				(m_music_title == null ? all : m_music_title),
+				(m_rank == -1 ? all : DdNUtil.getDifficultyName(m_rank)),
+				(m_date == -1 ? all : android.text.format.DateFormat.format("yyyy/MM/dd", m_date)));
 
-		String confirmMsg = String.format(
-				"ロックされていないプレイ履歴を全削除します。よろしいですか？\n対象曲：%s\n難易度：%s",
-				isAllDel ? res.getString(R.string.all_music) : m_music_title,
-				isAllDel ? res.getString(R.string.all_difficulty) : DdNUtil.getDifficultyName(m_rank));
-		Context context = getActivity();
-		AlertDialog.Builder builder = new AlertDialog.Builder(context);
-		builder.setTitle(res.getString(R.string.hist_confirm_delete_dialog));
-		builder.setMessage(confirmMsg);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(getString(R.string.hist_confirm_delete_dialog));
+		builder.setMessage(message);
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				Calendar cal = Calendar.getInstance();
-				cal.set(Calendar.HOUR_OF_DAY, 0);
-				cal.set(Calendar.MINUTE, 0);
-				cal.set(Calendar.SECOND, 0);
-				long sec = cal.getTimeInMillis() / 1000;
-				m_store.deleteHistory(isAllDel ? null : m_music_title, m_rank, (int) sec);
+				List<String> args = new ArrayList<String>();
+				String selection = buildSelection(m_music_title, m_rank, m_date, true, args);
+				m_store.deleteHistory(selection, args.toArray(new String[args.size()]));
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, null);
@@ -476,8 +468,18 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		m_rank = rank;
 		m_date = date;
 
-		StringBuilder sb = new StringBuilder();
 		List<String> args = new ArrayList<String>();
+		String selection = buildSelection(music_title, rank, date, false, args);
+		m_args.putString("selection", selection);
+		if (!args.isEmpty())
+			m_args.putStringArray("selectionArgs", args.toArray(new String[args.size()]));
+		else
+			m_args.putStringArray("selectionArgs", null);
+	}
+
+	private String buildSelection(String music_title, int rank, long date, boolean ignoreLocked,
+			List<String> args) {
+		StringBuilder sb = new StringBuilder();
 		if (music_title != null) {
 			sb.append(" AND ").append(HistoryTable.MUSIC_TITLE).append("=?");
 			args.add(music_title);
@@ -497,15 +499,12 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			d.add(Calendar.DATE, 1);
 			args.add(String.valueOf(d.getTimeInMillis()));
 		}
+		if (ignoreLocked) {
+			sb.append(" AND ").append(HistoryTable.LOCK).append("<>?");
+			args.add(String.valueOf(HistoryTable.LOCKED));
+		}
 
-		if (!args.isEmpty()) {
-			m_args.putString("selection", sb.substring(4));
-			m_args.putStringArray("selectionArgs", args.toArray(new String[args.size()]));
-		}
-		else {
-			m_args.putString("selection", null);
-			m_args.putStringArray("selectionArgs", null);
-		}
+		return sb.length() > 5 ? sb.substring(5) : null;
 	}
 
 	private static class UpdateTask extends ProgressTask<DownloadHistoryService, Integer, String> {

@@ -112,9 +112,15 @@ public class HistoryStore extends ContentProvider {
 		HistoryTable.insert(db, history);
 	}
 
-	public void deleteHistory(String music_title, int rank, int limit_date){
+	public int deleteHistory(String selection, String[] args) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		HistoryTable.delete(db, music_title, rank, limit_date);
+		try {
+			return db.delete(HistoryTable.TABLE_NAME, selection, args);
+		}
+		finally {
+			db.close();
+			getContext().getContentResolver().notifyChange(URI_HISTORIES, null);
+		}
 	}
 
 	public void deleteHistory(History history){

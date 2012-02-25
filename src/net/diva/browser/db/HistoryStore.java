@@ -131,7 +131,8 @@ public class HistoryStore extends ContentProvider {
 		boolean bindNext(DatabaseUtils.InsertHelper helper, int[] indices);
 	}
 
-	public void insertHistory(DataBinder binder, String[] names) {
+	public int insertHistory(DataBinder binder, String[] names) {
+		int count = 0;
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		DatabaseUtils.InsertHelper helper = new DatabaseUtils.InsertHelper(db, HistoryTable.TABLE_NAME);
 		db.beginTransaction();
@@ -144,7 +145,8 @@ public class HistoryStore extends ContentProvider {
 				helper.prepareForInsert();
 				if (!binder.bindNext(helper, indices))
 					break;
-				helper.execute();
+				if (helper.execute() != -1)
+					++count;
 			}
 
 			db.setTransactionSuccessful();
@@ -155,6 +157,7 @@ public class HistoryStore extends ContentProvider {
 		}
 
 		getContext().getContentResolver().notifyChange(URI_HISTORIES, null);
+		return count;
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {

@@ -29,16 +29,16 @@
     <item
         android:id="@+id/history_data_manage"
         android:icon="@android:drawable/ic_menu_save"
-        android:title="@string/hist_menu_export"
+        android:title="@string/hist_menu_data_manage"
         >
         <menu>
             <item
                 android:id="@+id/history_export"
-                android:title="エクスポート"
+                android:title="@string/history_export"
                 />
             <item
                 android:id="@+id/history_import"
-                android:title="インポート"
+                android:title="@string/history_import"
                 />
         </menu>
         </item>>

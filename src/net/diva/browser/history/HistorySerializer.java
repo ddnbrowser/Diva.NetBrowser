@@ -46,11 +46,11 @@ public class HistorySerializer {
 		m_store = store;
 	}
 
-	public void importFrom(InputStream in) throws IOException {
+	public int importFrom(InputStream in) throws IOException {
 		CSVReader reader = null;
 		try {
 			reader = new CSVReader(new InputStreamReader(in, "UTF-8"));
-			m_store.insertHistory(new ImportBinder(reader), COLUMNS);
+			return m_store.insertHistory(new ImportBinder(reader), COLUMNS);
 		}
 		finally {
 			if (reader != null)
@@ -58,20 +58,25 @@ public class HistorySerializer {
 		}
 	}
 
-	public void exportTo(OutputStream out) throws IOException {
+	public int exportTo(OutputStream out) throws IOException {
 		Cursor c = null;
 		CSVWriter writer = null;
 		try {
 			c = m_store.query(HistoryStore.URI_HISTORIES, COLUMNS, null, null, HistoryTable.PLAY_DATE);
 			if (c == null || !c.moveToNext())
-				return;
+				return 0;
+
+			int exported = 0;
 			writer = new CSVWriter(new OutputStreamWriter(out, "UTF-8"));
 			String[] values = new String[COLUMNS.length];
 			do {
 				for (int i = 0; i < COLUMNS.length; ++i)
 					values[i] = c.getString(i);
 				writer.writeNext(values);
+				++exported;
 			} while (c.moveToNext());
+
+			return exported;
 		}
 		finally {
 			if (c != null)

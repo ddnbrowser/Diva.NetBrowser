@@ -5,9 +5,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
@@ -176,10 +180,10 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			delete(false);
 			break;
 		case R.id.history_export:
-			export();
+			exportHistories();
 			break;
 		case R.id.history_import:
-			csvImport();
+			importHistories();
 			break;
 		case R.id.history_awake:
 			setFilterCondition(null, -1, -1);
@@ -290,94 +294,141 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		builder.show();
 	}
 
-	private void export(){
-		Resources res = getResources();
-		String confirmMsg = res.getString(R.string.hist_confirm_export_msg);
+	private static File getBackupDirectory() {
+		return new File(Environment.getExternalStorageDirectory(), "net.diva.browser");
+	}
 
+	private static DateFormat getExportFileFormat() {
+		return new SimpleDateFormat("'history_'yyyyMMdd'T'HHmmss'_exported.csv'");
+	}
+
+	private void exportHistories(){
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(res.getString(R.string.hist_confirm_export_dialog));
-		builder.setMessage(confirmMsg);
+		builder.setTitle(getString(R.string.hist_confirm_export_dialog));
+		builder.setMessage(getString(R.string.hist_confirm_export_msg));
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				if(exportCsv()){
-					Toast.makeText(getActivity(), "エクスポート成功", Toast.LENGTH_LONG).show();
-				}else{
-					Toast.makeText(getActivity(), "エクスポート失敗", Toast.LENGTH_LONG).show();
-				}
+				new Exporter(getActivity(), m_store).execute();
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.show();
 	}
 
-	private boolean exportCsv(){
-		if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
-			return false;
+	private static class Exporter extends ProgressTask<Void, Void, CharSequence> {
+		HistoryStore m_store;
 
-		String outStragePath = Environment.getExternalStorageDirectory().getPath() + "/net.diva.browser";
-		File dir = new File(outStragePath);
-		if(!dir.exists())
-			dir.mkdirs();
-
-		String outputCsv = outStragePath + "/DdNB_history_"+ DdNUtil.now() + "_exported.csv";
-		File csv = new File(outputCsv);
-		try {
-			if(!csv.createNewFile())
-				return false;
-
-			HistorySerializer serializer = new HistorySerializer(m_store);
-			serializer.exportTo(new FileOutputStream(csv));
-			return true;
+		Exporter(Context context, HistoryStore store) {
+			super(context, R.string.histories_exporting);
+			m_store = store;
 		}
-		catch (IOException e) {
-			e.printStackTrace();
-			return false;
+
+		@Override
+		protected CharSequence doInBackground(Void... params) {
+			if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
+				return m_context.getText(R.string.unmounted_sdcard);
+
+			File dir = getBackupDirectory();
+			if (!dir.exists())
+				dir.mkdirs();
+
+			final DateFormat fmt = getExportFileFormat();
+			File file = new File(dir, fmt.format(new Date()));
+			HistorySerializer serializer = new HistorySerializer(m_store);
+			try {
+				final int exported = serializer.exportTo(new FileOutputStream(file));
+				if (exported > 0)
+					return m_context.getString(R.string.history_exported, exported);
+				else
+					return m_context.getText(R.string.no_history_exported);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+				return e.getMessage();
+			}
+		}
+
+		@Override
+		protected void onResult(CharSequence message) {
+			if (message != null)
+				Toast.makeText(m_context, message, Toast.LENGTH_SHORT).show();
 		}
 	}
 
-	private void csvImport(){
-		File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/net.diva.browser/");
-
-		if(!dir.exists()){
-			Toast.makeText(getActivity(), "ファイルがありません", Toast.LENGTH_LONG).show();
+	private void importHistories(){
+		File dir = getBackupDirectory();
+		if (!dir.exists()) {
+			Toast.makeText(getActivity(), R.string.no_exported_files, Toast.LENGTH_SHORT).show();
 			return;
 		}
 
-		final File[] files = dir.listFiles(
-				new FilenameFilter() {
-					public boolean accept(File dir, String name) {
-						return name.matches("DdNB_history_\\d{10}_exported\\.csv$");
-					}
-				});
-
-		if(files.length == 0){
-			Toast.makeText(getActivity(), "ファイルがありません", Toast.LENGTH_LONG).show();
+		final File[] files = dir.listFiles(new FilenameFilter() {
+			public boolean accept(File dir, String name) {
+				return name.matches("history_\\d{8}T\\d{6}_exported\\.csv$");
+			}
+		});
+		if (files.length == 0) {
+			Toast.makeText(getActivity(), R.string.no_exported_files, Toast.LENGTH_SHORT).show();
 			return;
 		}
+		Arrays.sort(files, new Comparator<File>() {
+			@Override
+			public int compare(File lhs, File rhs) {
+				return rhs.compareTo(lhs);
+			}
+		});
+
+		final DateFormat ifmt = getExportFileFormat();
+		final DateFormat ofmt = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
 
 		String[] items = new String[files.length];
-		for(int i = 0; i < files.length; i++)
-			items[i] = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date(1000L * Integer.valueOf(files[i].getName().substring(13, 23))));
+		for (int i = 0; i < files.length; ++i) {
+			try {
+				items[i] = ofmt.format(ifmt.parse(files[i].getName()));
+			}
+			catch (ParseException e) {
+				e.printStackTrace();
+			}
+		}
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.hist_menu_import);
-		builder.setItems(items,
-				new DialogInterface.OnClickListener() {
+		builder.setTitle(R.string.select_import_history);
+		builder.setItems(items, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				importCsv(files[which]);
-				dialog.dismiss();
+				new Importer(getActivity(), m_store).execute(files[which]);
 			}
 		});
 		builder.show();
 	}
 
-	private void importCsv(File csv){
-		HistorySerializer serializer = new HistorySerializer(m_store);
-		try {
-			serializer.importFrom(new FileInputStream(csv));
+	private static class Importer extends ProgressTask<File, Void, CharSequence> {
+		HistoryStore m_store;
+
+		Importer(Context context, HistoryStore store) {
+			super(context, R.string.histories_importing);
+			m_store = store;
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+
+		@Override
+		protected CharSequence doInBackground(File... params) {
+			HistorySerializer serializer = new HistorySerializer(m_store);
+			try {
+				final int imported = serializer.importFrom(new FileInputStream(params[0]));
+				if (imported > 0)
+					return m_context.getString(R.string.history_imported, imported);
+				else
+					return m_context.getText(R.string.no_history_imported);
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+				return e.getMessage();
+			}
+		}
+
+		@Override
+		protected void onResult(CharSequence message) {
+			if (message != null)
+				Toast.makeText(m_context, message, Toast.LENGTH_SHORT).show();
 		}
 	}
 

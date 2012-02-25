@@ -31,7 +31,7 @@
     <item>@drawable/ic_tab_all</item>
     <item>@drawable/ic_tab_mylist</item>
     <item>@drawable/ic_tab_record</item>
-    <item>@drawable/ic_tab_user</item>
+    <item>@drawable/ic_tab_history</item>
 </array>
 <string-array name="tab_classes">
     <item>net.diva.browser.page.InformationFragment</item>

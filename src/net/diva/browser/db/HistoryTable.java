@@ -2,7 +2,6 @@ package net.diva.browser.db;
 
 import net.diva.browser.model.History;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 /**
@@ -73,22 +72,7 @@ public class HistoryTable implements BaseColumns {
 	}
 
 	static long insert(SQLiteDatabase db, History history) {
-
-		String exist = null;
-		Cursor c = db.query(TABLE_NAME, new String[] {
-				PLAY_DATE,
-		}, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date) }, null, null, PLAY_DATE);
-		try {
-			while (c.moveToNext())
-				exist = c.getString(0);
-		}
-		finally {
-			c.close();
-		}
-		if(exist != null)
-			return 0;
-
-		ContentValues values = new ContentValues(27);
+		ContentValues values = new ContentValues(22);
 		values.put(MUSIC_TITLE, history.music_title);
 		values.put(RANK, history.rank);
 		values.put(PLAY_DATE, history.play_date);
@@ -119,7 +103,7 @@ public class HistoryTable implements BaseColumns {
 		return db.delete(TABLE_NAME, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date) }) == 1;
 	}
 
-	static boolean lock(SQLiteDatabase db, History history){
+	static boolean updateLockStatus(SQLiteDatabase db, History history) {
 		ContentValues cv = new ContentValues(1);
 		cv.put(LOCK, history.lock);
 		return db.update(TABLE_NAME, cv, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date) }) == 1;

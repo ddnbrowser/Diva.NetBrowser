@@ -279,7 +279,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			public void onClick(DialogInterface dialog, int which) {
 				List<String> args = new ArrayList<String>();
 				String selection = buildSelection(m_music_title, m_rank, m_date, true, args);
-				m_store.deleteHistory(selection, args.toArray(new String[args.size()]));
+				m_store.deleteHistories(selection, args.toArray(new String[args.size()]));
 			}
 		});
 		builder.setNegativeButton(R.string.cancel, null);

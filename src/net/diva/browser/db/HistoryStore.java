@@ -109,28 +109,31 @@ public class HistoryStore extends ContentProvider {
 
 	public void insert(History history){
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		HistoryTable.insert(db, history);
+		long rowId = HistoryTable.insert(db, history);
+		if (rowId > 0) {
+			Uri newUri = ContentUris.withAppendedId(URI_HISTORIES, rowId);
+			getContext().getContentResolver().notifyChange(newUri, null);
+		}
 	}
 
-	public int deleteHistory(String selection, String[] args) {
+	public int deleteHistories(String selection, String[] args) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		try {
-			return db.delete(HistoryTable.TABLE_NAME, selection, args);
-		}
-		finally {
-			db.close();
+		final int deleted = db.delete(HistoryTable.TABLE_NAME, selection, args);
+		if (deleted > 0)
 			getContext().getContentResolver().notifyChange(URI_HISTORIES, null);
-		}
+		return deleted;
 	}
 
 	public void deleteHistory(History history){
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		HistoryTable.delete(db, history);
+		if (HistoryTable.delete(db, history))
+			getContext().getContentResolver().notifyChange(URI_HISTORIES, null);
 	}
 
 	public void lockHistory(History history){
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		HistoryTable.lock(db, history);
+		if (HistoryTable.updateLockStatus(db, history))
+			getContext().getContentResolver().notifyChange(URI_HISTORIES, null);
 	}
 
 	public interface DataBinder {

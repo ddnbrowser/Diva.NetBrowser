@@ -106,9 +106,11 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		if (savedInstanceState == null)
 			args = getArguments();
 		if (args != null) {
-			m_sortOrder = args.getString(KEY_ORDER, m_sortOrder);
+			if (args.containsKey(KEY_ORDER))
+				m_sortOrder = args.getString(KEY_ORDER);
 			m_isReverseOrder = args.getBoolean(KEY_REVERSE, m_isReverseOrder);
-			m_music_title = args.getString(KEY_MUSIC, m_music_title);
+			if (args.containsKey(KEY_MUSIC))
+				m_music_title = args.getString(KEY_MUSIC);
 			m_rank = args.getInt(KEY_RANK, m_rank);
 			m_date = args.getLong(KEY_DATE, m_date);
 		}
@@ -237,11 +239,11 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		String selection = null;
 		String[] selectionArgs = null;
-		String sortOrder = HistoryTable.PLAY_DATE + " DESC";
+		String sortOrder = null;
 		if (args != null) {
-			selection = args.getString("selection", selection);
+			selection = args.getString("selection");
 			selectionArgs = args.getStringArray("selectionArgs");
-			sortOrder = args.getString("sortOrder", sortOrder);
+			sortOrder = args.getString("sortOrder");
 		}
 		return new CursorLoader(getActivity(),
 				HistoryStore.URI_HISTORIES,

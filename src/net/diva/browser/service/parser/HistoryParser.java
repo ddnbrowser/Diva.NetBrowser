@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 import net.diva.browser.model.History;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.util.DdNUtil;
+import net.diva.browser.util.MatchHelper;
 /**
  *
  * @author silvia
@@ -50,13 +51,13 @@ public class HistoryParser {
 	private static final Pattern HIST_MUSIC = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/0\">(.+)</a>");
 	private static final Pattern HIST_RANK = Pattern.compile("\\s*(.+?)　★");
 	private static final Pattern HIST_CLEAR_STATUS = Pattern.compile("\\[CLEAR RANK\\]</font><br>(.+?)<br>");
-	private static final Pattern HIST_ACHIEVEMENT = Pattern.compile("\\[達成率\\]</font><br>(.+?)％<br>");
+	private static final Pattern HIST_ACHIEVEMENT = Pattern.compile("\\[達成率\\]</font><br>(\\d+)\\.(\\d)(\\d)?％<br>");
 	private static final Pattern HIST_SCORE = Pattern.compile("\\[SCORE\\]</font><br>(.+?)<br>");
-	private static final Pattern HIST_COOL = Pattern.compile("COOL：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(.+?)%</TD>");
-	private static final Pattern HIST_FINE = Pattern.compile("FINE：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(.+?)%</TD>");
-	private static final Pattern HIST_SAFE = Pattern.compile("SAFE：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(.+?)%</TD>");
-	private static final Pattern HIST_SAD = Pattern.compile("SAD：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(.+?)%</TD>");
-	private static final Pattern HIST_WORST = Pattern.compile("WORST/WRONG：</TD>\\s*</TR>\\s*<TR>\\s*<TD align=\"left\"></TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(.+?)%</TD>");
+	private static final Pattern HIST_COOL = Pattern.compile("COOL：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(\\d+)\\.(\\d)(\\d)?%</TD>");
+	private static final Pattern HIST_FINE = Pattern.compile("FINE：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(\\d+)\\.(\\d)(\\d)?%</TD>");
+	private static final Pattern HIST_SAFE = Pattern.compile("SAFE：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(\\d+)\\.(\\d)(\\d)?%</TD>");
+	private static final Pattern HIST_SAD = Pattern.compile("SAD：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(\\d+)\\.(\\d)(\\d)?%</TD>");
+	private static final Pattern HIST_WORST = Pattern.compile("WORST/WRONG：</TD>\\s*</TR>\\s*<TR>\\s*<TD align=\"left\"></TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(\\d+)\\.(\\d)(\\d)?%</TD>");
 	private static final Pattern HIST_COMBO = Pattern.compile("COMBO：</TD>\\s*<TD align=\"right\">(.+?)</TD>");
 	private static final Pattern HIST_CHALLENGE_TIME = Pattern.compile("CHALLENGE TIME：</TD>\\s*</TR>\\s*<TR>\\s*<TD align=\"right\" colspan=\"4\">(.+?)</TD>");
 	private static final Pattern HIST_HOLD = Pattern.compile("同時押し/ホールド：</TD>\\s*</TR>\\s*<TR>\\s*<TD align=\"right\" colspan=\"4\">(.+?)</TD>");
@@ -68,79 +69,60 @@ public class HistoryParser {
 
 	public static History parseHistoryDetail(InputStream content) throws ParseException {
 		History history = new History();
-
 		try{
 			String body = Parser.read(content);
-			history.play_date = DATE_FORMAT.parse(getMatchText(HIST_DATE, body)[0]).getTime();
-			history.play_place = getMatchText(HIST_PLACE, body)[0];
-			history.music_title = getMatchText(HIST_MUSIC, body)[1];
-			history.rank = DdNUtil.getDifficultyCord((getMatchText(HIST_RANK, body)[0]));
-			history.clear_status = DdNUtil.getClearStatusCord((getMatchText(HIST_CLEAR_STATUS, body)[0]));
-			history.achievement = (int)(Double.valueOf(getMatchText(HIST_ACHIEVEMENT, body)[0]) * 100);
-			history.score = Integer.valueOf(getMatchText(HIST_SCORE, body)[0]);
-			{
-				String[] cool = getMatchText(HIST_COOL, body);
-				history.cool = Integer.valueOf(cool[0]);
+			MatchHelper m = new MatchHelper(body);
+			history.play_date = DATE_FORMAT.parse(m.findString(HIST_DATE, 1)).getTime();
+			history.play_place = m.findString(HIST_PLACE, 1);
+			history.music_title = m.findString(HIST_MUSIC, 2);
+			history.rank = DdNUtil.getDifficultyCord((m.findString(HIST_RANK, 1)));
+			history.clear_status = DdNUtil.getClearStatusCord((m.findString(HIST_CLEAR_STATUS, 1)));
+			history.achievement = m.find(HIST_ACHIEVEMENT) ? getFixedPointValue(m, 1) : 0;
+			history.score = m.findInteger(HIST_SCORE, 1, 0);
+			if (m.find(HIST_COOL)) {
+				history.cool = Integer.parseInt(m.group(1));
+				history.cool_rate = getFixedPointValue(m, 2);
 			}
-			{
-				String[] fine = getMatchText(HIST_FINE, body);
-				history.fine = Integer.valueOf(fine[0]);
+			if (m.find(HIST_FINE)) {
+				history.fine = Integer.parseInt(m.group(1));
+				history.fine_rate = getFixedPointValue(m, 2);
 			}
-			{
-				String[] safe = getMatchText(HIST_SAFE, body);
-				history.safe = Integer.valueOf(safe[0]);
+			if (m.find(HIST_SAFE)) {
+				history.safe = Integer.parseInt(m.group(1));
+				history.safe_rate = getFixedPointValue(m, 2);
 			}
-			{
-				String[] sad = getMatchText(HIST_SAD, body);
-				history.sad = Integer.valueOf(sad[0]);
+			if (m.find(HIST_SAD)) {
+				history.sad = Integer.parseInt(m.group(1));
+				history.sad_rate = getFixedPointValue(m, 2);
 			}
-			{
-				String[] worst = getMatchText(HIST_WORST, body);
-				history.worst = Integer.valueOf(worst[0]);
+			if (m.find(HIST_WORST)) {
+				history.worst = Integer.parseInt(m.group(1));
+				history.worst_rate = getFixedPointValue(m, 2);
 			}
-			history.combo = Integer.valueOf(getMatchText(HIST_COMBO, body)[0]);
-			history.challange_time = Integer.valueOf(getMatchText(HIST_CHALLENGE_TIME, body)[0]);
-			history.hold = Integer.valueOf(getMatchText(HIST_HOLD, body)[0]);
-			{
-				String[] trial = getMatchText(HIST_TRIAL, body);
-				if(trial != null){
-					history.trial = DdNUtil.getTrialsCord((trial[0]));
-					history.trial_result = DdNUtil.getTrialResultsCord((trial[1]));
-				}
+			history.combo = m.findInteger(HIST_COMBO, 1, 0);
+			history.challange_time = m.findInteger(HIST_CHALLENGE_TIME, 1, 0);
+			history.hold = m.findInteger(HIST_HOLD, 1, 0);
+			if (m.find(HIST_TRIAL)) {
+				history.trial = DdNUtil.getTrialsCord(m.group(1));
+				history.trial_result = DdNUtil.getTrialResultsCord(m.group(2));
 			}
-			history.module1 = getMatchText(HIST_MODULE1, body)[1];
-			{
-				String[] mod2 = getMatchText(HIST_MODULE2, body);
-				if(mod2 != null)
-					history.module2 = mod2[1];
-			}
-			{
-				String[] se = getMatchText(HIST_SE, body);
-				if(se != null)
-					history.button_se = se[0];
-			}
-			{
-				String[] skin = getMatchText(HIST_SKIN, body);
-				if(skin != null)
-					history.skin = skin[0];
-			}
-		} catch(Exception e){
+			history.module1 = m.findString(HIST_MODULE1, 2);
+			history.module2 = m.findString(HIST_MODULE2, 2);
+			history.button_se = m.findString(HIST_SE, 1);
+			history.skin = m.findString(HIST_SKIN, 1);
+		}
+		catch(Exception e){
 			throw new ParseException(e);
 		}
 
 		return history;
 	}
 
-	private static String[] getMatchText(Pattern p, String source) {
-		Matcher m = p.matcher(source);
-		if(!m.find()){
-			return null;
-		}
-
-		String[] texts = new String[m.groupCount()];
-		for(int i = 1; i <= m.groupCount(); i++){
-			texts[i-1] = m.group(i);
-		}
-		return texts;
+	private static int getFixedPointValue(MatchHelper m, int baseIndex) {
+		String figure = m.group(baseIndex + 2);
+		int value = figure == null ? 0 : Integer.parseInt(figure);
+		value += Integer.parseInt(m.group(baseIndex + 1)) * 10;
+		value += Integer.parseInt(m.group(baseIndex)) * 100;
+		return value;
 	}
 }

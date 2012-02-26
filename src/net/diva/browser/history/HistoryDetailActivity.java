@@ -374,16 +374,15 @@ public class HistoryDetailActivity extends Activity {
 			}
 			if(title3 != null)
 				title3.setText(res.getString(R.string.hist_title3));
-			final int total = h.totalNotes();
-			cool.setText(formatNotes(h.cool, total));
+			cool.setText(formatNotes(h.cool, h.cool_rate));
 			cool.setTypeface(Typeface.MONOSPACE);
-			fine.setText(formatNotes(h.fine, total));
+			fine.setText(formatNotes(h.fine, h.fine_rate));
 			fine.setTypeface(Typeface.MONOSPACE);
-			safe.setText(formatNotes(h.safe, total));
+			safe.setText(formatNotes(h.safe, h.safe_rate));
 			safe.setTypeface(Typeface.MONOSPACE);
-			sad.setText(formatNotes(h.sad, total));
+			sad.setText(formatNotes(h.sad, h.sad_rate));
 			sad.setTypeface(Typeface.MONOSPACE);
-			worst.setText(formatNotes(h.worst, total));
+			worst.setText(formatNotes(h.worst, h.worst_rate));
 			worst.setTypeface(Typeface.MONOSPACE);
 			combo.setText(String.valueOf(h.combo));
 			challenge_time.setText(String.format("%d pts", h.challange_time));
@@ -392,8 +391,7 @@ public class HistoryDetailActivity extends Activity {
 			delete.setEnabled(!h.isLocked());
 		}
 
-		private String formatNotes(int notes, int total) {
-			int rate = (notes*100000 / total + 5) / 10;
+		private String formatNotes(int notes, int rate) {
 			return String.format("%3s/%3s.%02d%%", notes, rate/100, rate%100);
 		}
 	}

@@ -20,10 +20,15 @@ public class HistoryTable implements BaseColumns {
 	public static final String ACHIEVEMENT = "achievement";
 	public static final String SCORE = "score";
 	public static final String COOL = "cool";
+	public static final String COOL_RATE = "cool_rate";
 	public static final String FINE = "fine";
+	public static final String FINE_RATE = "fine_rate";
 	public static final String SAFE = "safe";
+	public static final String SAFE_RATE = "safe_rate";
 	public static final String SAD = "sad";
+	public static final String SAD_RATE = "sad_rate";
 	public static final String WORST = "worst";
+	public static final String WORST_RATE = "worst_rate";
 	public static final String COMBO = "combo";
 	public static final String CHALLANGE_TIME = "challange_time";
 	public static final String HOLD = "hold";
@@ -53,10 +58,15 @@ public class HistoryTable implements BaseColumns {
 		.append(ACHIEVEMENT).append(" integer,")
 		.append(SCORE).append(" integer,")
 		.append(COOL).append(" integer,")
+		.append(COOL_RATE).append(" integer,")
 		.append(FINE).append(" integer,")
+		.append(FINE_RATE).append(" integer,")
 		.append(SAFE).append(" integer,")
+		.append(SAFE_RATE).append(" integer,")
 		.append(SAD).append(" integer,")
+		.append(SAD_RATE).append(" integer,")
 		.append(WORST).append(" integer,")
+		.append(WORST_RATE).append(" integer,")
 		.append(COMBO).append(" integer,")
 		.append(CHALLANGE_TIME).append(" integer,")
 		.append(HOLD).append(" integer,")
@@ -72,7 +82,7 @@ public class HistoryTable implements BaseColumns {
 	}
 
 	static long insert(SQLiteDatabase db, History history) {
-		ContentValues values = new ContentValues(22);
+		ContentValues values = new ContentValues(27);
 		values.put(MUSIC_TITLE, history.music_title);
 		values.put(RANK, history.rank);
 		values.put(PLAY_DATE, history.play_date);
@@ -81,10 +91,15 @@ public class HistoryTable implements BaseColumns {
 		values.put(ACHIEVEMENT, history.achievement);
 		values.put(SCORE, history.score);
 		values.put(COOL, history.cool);
+		values.put(COOL_RATE, history.cool_rate);
 		values.put(FINE, history.fine);
+		values.put(FINE_RATE, history.fine_rate);
 		values.put(SAFE, history.safe);
+		values.put(SAFE_RATE, history.safe_rate);
 		values.put(SAD, history.sad);
+		values.put(SAD_RATE, history.sad_rate);
 		values.put(WORST, history.worst);
+		values.put(WORST_RATE, history.worst_rate);
 		values.put(COMBO, history.combo);
 		values.put(CHALLANGE_TIME, history.challange_time);
 		values.put(HOLD, history.hold);

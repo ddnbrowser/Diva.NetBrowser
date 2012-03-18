@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.db.HistoryStore;
 import net.diva.browser.db.HistoryTable;
@@ -120,6 +121,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		ListView listView = getListView();
 		listView.setFocusable(true);
 		listView.setTextFilterEnabled(true);
+		listView.setFastScrollEnabled(DdN.Settings.enableFastScroll);
 		registerForContextMenu(listView);
 
 		m_adapter = new HistoryAdapter(getActivity());

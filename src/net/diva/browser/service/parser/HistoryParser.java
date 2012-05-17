@@ -17,26 +17,34 @@ import net.diva.browser.util.MatchHelper;
  */
 public class HistoryParser {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm");
-	private final static Pattern RE_HISTORY = Pattern.compile(
-			"<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/0/0\">.+<br></a>\\s*"
-			+"\\[.+\\] .+<br>\\s*達成率：.+%<br>SCORE：.+<br>\\s*"
-			+"┗<a href=\"/divanet/personal/playHistoryDetail/(.+?)/"
-			);
+	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
+	private final static Pattern RE_DETAIL = Pattern.compile("<a href=\"/divanet/personal/playHistoryDetail/(.+?)/");
+
 	public static String parsePlayHistory(InputStream content, List<String> newHistorys, long[] params)
 			throws ParseException {
 		String body = Parser.read(content);
 		Matcher m = RE_HISTORY.matcher(body);
 
+		int end = -1;
 		try {
 			while (m.find()) {
 				long playTime = DATE_FORMAT.parse(m.group(1)).getTime();
-				if (playTime <= params[0])
-					return null;
+				if (playTime <= params[0]) {
+					end = m.start();
+					break;
+				}
 				if (playTime > params[1])
 					params[1] = playTime;
-				final String historyId = m.group(3);
-				newHistorys.add(historyId);
 			}
+
+			m = m.usePattern(RE_DETAIL);
+			if (end >= 0)
+				m.region(0, end);
+			while (m.find())
+				newHistorys.add(m.group(1));
+
+			if (end >= 0)
+				return null;
 		}
 		catch (Exception e) {
 			throw new ParseException(e);

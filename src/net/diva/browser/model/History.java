@@ -37,4 +37,8 @@ public class History {
 	public boolean isLocked(){
 		return lock == 1;
 	}
+
+	public void setLocked(boolean on) {
+		lock = on ? 1 : 0;
+	}
 }

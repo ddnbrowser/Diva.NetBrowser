@@ -188,9 +188,6 @@
     <string name="hist_combo_txt">COMBO :</string>
     <string name="hist_challenge_time_txt">CHALLENGE TIME :</string>
     <string name="hist_hold_txt">同時/HOLD :</string>
-    <string name="hist_delete_btn">履歴削除</string>
-    <string name="hist_capture_menu">履歴を共有</string>
-    <string name="hist_delete_msg">表示中のプレイ履歴を削除しますか？</string>
     <string name="hist_menu_update">履歴取得</string>
     <string name="hist_menu_delete">履歴削除</string>
     <string name="hist_menu_awake">全て表示</string>
@@ -200,8 +197,9 @@
     <string name="hist_menu_data_manage">データ入出力</string>
     <string name="history_export">エクスポート</string>
     <string name="history_import">インポート</string>
-    <string name="hist_confirm_delete_dialog">プレイ履歴削除確認</string>
-    <string name="hist_confirm_delete_message">表示されているプレイ履歴のうちロックされていないものを全て削除します。よろしいですか?\n対象曲：%1$s\n難易度：%2$s\n対象日：%3$s</string>
+    <string name="confirm_delete_history_title">プレイ履歴削除確認</string>
+    <string name="confirm_delete_history">表示中のプレイ履歴を削除します。よろしいですか?</string>
+    <string name="confirm_delete_histories">表示されているプレイ履歴のうちロックされていないものを全て削除します。よろしいですか?\n対象曲：%1$s\n難易度：%2$s\n対象日：%3$s</string>
     <string name="hist_confirm_export_dialog">履歴エクスポート確認</string>
     <string name="hist_confirm_export_msg">保存されている履歴を全てSDカードへエクスポートします。よろしいですか?</string>
     <string name="histories_exporting">プレイ履歴をエクスポートしています...</string>
@@ -218,4 +216,8 @@
     <string name="get_histories_failed">履歴の取得に失敗しました</string>
     <string name="permission_label_write_history">プレイ履歴の更新</string>
     <string name="permisstion_desc_write_history">プレイ履歴の更新を許可します</string>
+    <string name="item_lock">ロック</string>
+    <string name="item_unlock">ロック解除</string>
+    <string name="item_share">共有</string>
+    <string name="item_delete_history">履歴削除</string>
 </resources>

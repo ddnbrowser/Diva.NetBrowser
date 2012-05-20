@@ -431,29 +431,5 @@
             android:text="166480"
             />
     </LinearLayout>
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dip"
-        android:layout_marginRight="6dip"
-        android:layout_marginLeft="6dip"
-        android:orientation="horizontal" >
-        <Button
-            android:id="@+id/lock_button"
-            android:layout_width="80dip"
-            android:layout_height="40dip"
-            android:layout_weight="1"
-            android:onClick="lock" />
-
-        <Button
-            android:text="@string/hist_delete_btn"
-            android:id="@+id/delete_button"
-            android:layout_width="80dip"
-            android:layout_height="40dip"
-            android:layout_weight="1"
-            android:onClick="delete"
-            />
-
-    </LinearLayout>
 </LinearLayout>
 </ScrollView>

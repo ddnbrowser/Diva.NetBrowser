@@ -271,13 +271,13 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 	private void deleteHistories() {
 		final CharSequence all = getText(R.string.all);
-		final String message = getString(R.string.hist_confirm_delete_message,
+		final String message = getString(R.string.confirm_delete_histories,
 				(m_music_title == null ? all : m_music_title),
 				(m_rank == -1 ? all : DdNUtil.getDifficultyName(m_rank)),
 				(m_date == -1 ? all : android.text.format.DateFormat.format("yyyy/MM/dd", m_date)));
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(getString(R.string.hist_confirm_delete_dialog));
+		builder.setTitle(getString(R.string.confirm_delete_history_title));
 		builder.setMessage(message);
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {

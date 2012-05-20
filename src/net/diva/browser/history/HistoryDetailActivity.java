@@ -39,7 +39,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 /**
@@ -94,10 +93,28 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		final boolean locked = m_history.isLocked();
+		menu.findItem(R.id.item_lock).setVisible(!locked);
+		menu.findItem(R.id.item_unlock).setVisible(locked);
+		menu.findItem(R.id.item_delete).setEnabled(!locked);
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-		case R.id.history_capture:
+		case R.id.item_lock:
+			lock(true);
+			break;
+		case R.id.item_unlock:
+			lock(false);
+			break;
+		case R.id.item_share:
 			shareOtherApp(screenCapture());
+			break;
+		case R.id.item_delete:
+			deleteHistory();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -257,15 +274,14 @@ public class HistoryDetailActivity extends Activity {
 		return sb.toString();
 	}
 
-	public void delete(View view){
+	public void deleteHistory(){
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle("プレイ履歴削除確認");
-		builder.setMessage(R.string.hist_delete_msg);
+		builder.setTitle(R.string.confirm_delete_history_title);
+		builder.setMessage(R.string.confirm_delete_history);
 		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				delete();
+				m_store.deleteHistory(m_history);
 				dialog.dismiss();
-				setResult(RESULT_OK);
 				finish();
 			}
 		});
@@ -273,17 +289,10 @@ public class HistoryDetailActivity extends Activity {
 		builder.show();
 	}
 
-	public void lock(View view){
-		m_history.lock = m_history.lock == 0 ? 1 : 0;
-		h.lock.setText(m_history.isLocked() ? "ロック解除" : "ロック");
-		h.delete.setEnabled(!m_history.isLocked());
+	public void lock(boolean on){
+		m_history.setLocked(on);
 		m_store.lockHistory(m_history);
 	}
-
-	private void delete(){
-		m_store.deleteHistory(m_history);
-	}
-
 
 	private static class Holder{
 		private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm");
@@ -310,8 +319,6 @@ public class HistoryDetailActivity extends Activity {
 		TextView combo;
 		TextView challenge_time;
 		TextView hold;
-		Button delete;
-		Button lock;
 
 		private Holder(Activity act, View view) {
 			m_act = act;
@@ -340,8 +347,6 @@ public class HistoryDetailActivity extends Activity {
 			combo = (TextView)view.findViewById(R.id.combo);
 			challenge_time = (TextView)view.findViewById(R.id.challenge_time);
 			hold = (TextView)view.findViewById(R.id.hold);
-			lock = (Button)view.findViewById(R.id.lock_button);
-			delete = (Button)view.findViewById(R.id.delete_button);
 		}
 
 		private void attach(History h, MusicInfo m){
@@ -387,8 +392,6 @@ public class HistoryDetailActivity extends Activity {
 			combo.setText(String.valueOf(h.combo));
 			challenge_time.setText(String.format("%d pts", h.challange_time));
 			hold.setText(String.format("%d pts", h.hold));
-			lock.setText(h.isLocked() ? "ロック解除" : "ロック");
-			delete.setEnabled(!h.isLocked());
 		}
 
 		private String formatNotes(int notes, int rate) {

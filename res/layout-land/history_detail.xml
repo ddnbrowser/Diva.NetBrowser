@@ -350,29 +350,6 @@
                 </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="100dip"
-            android:layout_marginRight="100dip"
-            android:layout_marginTop="3dip"
-            android:orientation="horizontal" >
-            <Button
-                android:id="@+id/lock_button"
-                android:layout_width="100dip"
-                android:layout_height="40dip"
-                android:layout_weight="1"
-                android:onClick="lock" />
-
-            <Button
-                android:id="@+id/delete_button"
-                android:layout_width="100dip"
-                android:layout_height="40dip"
-                android:layout_weight="1"
-                android:onClick="delete"
-                android:text="@string/hist_delete_btn" />
-        </LinearLayout>
     </LinearLayout>
 
 </ScrollView>

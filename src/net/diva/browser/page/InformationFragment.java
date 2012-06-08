@@ -1,5 +1,11 @@
 package net.diva.browser.page;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,8 +17,27 @@ import net.diva.browser.service.ServiceClient;
 import net.diva.browser.ticket.DecorPrizeActivity;
 import net.diva.browser.ticket.SkinPrizeActivity;
 import net.diva.browser.util.ProgressTask;
+
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -103,6 +128,11 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 		case R.id.item_exchange_title:
 			startActivity(new Intent(getActivity(), DecorPrizeActivity.class));
 			break;
+// silvia add start
+		case R.id.location_search:
+			locationSearch();
+			break;
+// silvia add end
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -132,6 +162,89 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 		m_ticket.text2 = String.format("%d 枚", record.ticket);
 
 		m_adapter.notifyDataSetChanged();
+	}
+
+	private void locationSearch(){
+		LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+		String provider = null;
+		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+			provider = LocationManager.GPS_PROVIDER;
+		} else {
+			Criteria criteria = new Criteria();
+	        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+	        criteria.setPowerRequirement(Criteria.POWER_LOW);
+	        criteria.setSpeedRequired(false);
+	        criteria.setAltitudeRequired(false);
+	        criteria.setBearingRequired(false);
+	        criteria.setCostAllowed(false);
+			provider = lm.getBestProvider(criteria, true);
+		}
+		Location loc = lm.getLastKnownLocation(provider);
+		final URI uri = URI.create(String.format("http://eario.jp/diva/location.cgi?lat=" + loc.getLatitude() + "&lng=" + loc.getLongitude()));
+		try{
+			String json = read(uri);
+			final JSONArray data = new JSONArray(json);
+
+			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+			builder.setTitle("店舗検索結果");
+			String[] items = new String[data.length()];
+			for(int i = 0;i < data.length(); i++){
+				items[i] = data.getJSONObject(i).getString("name");
+			}
+			builder.setItems(items,
+					new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					try{
+						showMap(data.getJSONObject(which));
+					}catch(Exception e){
+					}
+					dialog.dismiss();
+				}
+			});
+			builder.show();
+		}catch(Exception e){
+		}
+	}
+
+	private void showMap(JSONObject loc) throws JSONException, UnsupportedEncodingException {
+		String lat = loc.getString("lat");
+		String lng = loc.getString("lng");
+		String address = loc.getString("address");
+		Uri uri = Uri.parse(String.format("geo:%s,%s?q=%s", lat, lng, URLEncoder.encode(address, "utf8")));
+		Intent i = new Intent(Intent.ACTION_VIEW,uri);
+		startActivity(i);
+	}
+
+	private String read(URI uri) throws IOException {
+		HttpClient client = new DefaultHttpClient();
+		HttpResponse response = client.execute(new HttpGet(uri));
+		final int status = response.getStatusLine().getStatusCode();
+		if (status != HttpStatus.SC_OK)
+			throw new IOException(String.format("Invalid Server Response: %d", status));
+
+		String charset = findCharset(response.getFirstHeader("Content-Type"));
+
+		InputStream in = null;
+		try {
+			in = response.getEntity().getContent();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			for (int read; (read = in.read(buffer)) != -1;)
+				out.write(buffer, 0, read);
+			return out.toString(charset);
+		}
+		finally {
+			if (in != null)
+				in.close();
+		}
+	}
+	private String findCharset(Header header) {
+		for (HeaderElement e: header.getElements()) {
+			NameValuePair pair = e.getParameterByName("charset");
+			if (pair != null)
+				return pair.getValue();
+		}
+		return "UTF-8";
 	}
 
 	private static class InformationAdapter extends BaseAdapter {

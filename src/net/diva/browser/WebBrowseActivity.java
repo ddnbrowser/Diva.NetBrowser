@@ -1,5 +1,6 @@
 package net.diva.browser;
 
+import net.diva.browser.compatibility.Compatibility;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 import android.app.Activity;
@@ -13,6 +14,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -57,6 +60,34 @@ public class WebBrowseActivity extends Activity {
 			displayPage(url, cookies);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.webbrowse_options, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		menu.findItem(R.id.item_back).setEnabled(m_view.canGoBack());
+		menu.findItem(R.id.item_forward).setEnabled(m_view.canGoForward());
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.item_back:
+			m_view.goBack();
+			break;
+		case R.id.item_forward:
+			m_view.goForward();
+			break;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+		return true;
+	}
+
 	private void displayPage(String url, String cookies) {
 		CookieManager manager = CookieManager.getInstance();
 		manager.setAcceptCookie(true);
@@ -80,6 +111,7 @@ public class WebBrowseActivity extends Activity {
 			super.onPageFinished(view, url);
 			m_service.access();
 			setProgressBarIndeterminateVisibility(false);
+			Compatibility.invalidateOptionsMenu(WebBrowseActivity.this);
 		}
 
 		@Override

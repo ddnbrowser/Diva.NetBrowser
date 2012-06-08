@@ -12,4 +12,5 @@
             <item android:id="@+id/item_exchange_title" android:title="@string/exchange_title"/>
         </menu>
     </item>
+    <item android:id="@+id/location_search" android:title="@string/location_search" android:icon="@android:drawable/ic_menu_mylocation"></item>
 </menu>

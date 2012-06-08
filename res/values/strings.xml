@@ -158,6 +158,8 @@
     <string name="exchanging">交換しています...</string>
     <string name="exchange_failure">交換に失敗しました</string>
     <string name="found_unknown_musics">未登録の楽曲が見つかりました。\n続けて新曲チェックを実行しますか?</string>
+    <string name="item_back">戻る</string>
+    <string name="item_forward">進む</string>
     <string name="category_history">プレイ履歴</string>
     <string name="download_history">プレイ履歴の自動取得</string>
     <string name="summary_download_history">有効にするとプレイ履歴を定期的に取得します</string>
@@ -205,4 +207,5 @@
     <string name="hist_confirm_export_msg">保存されている履歴を全てSDカードへエクスポートします。よろしいですか？\n※量によっては時間がかかったりアプリが落ちたりするかもしれません</string>
     <string name="all_music">全曲</string>
     <string name="all_difficulty">全難易度</string>
+    <string name="location_search">店舗検索</string>
 </resources>

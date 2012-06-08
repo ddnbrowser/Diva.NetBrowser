@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
-      android:versionCode="320" android:versionName="3.20">
+      android:versionCode="332" android:versionName="3.32">
     <application
         android:label="@string/app_name"
         android:icon="@drawable/icon"
@@ -21,7 +21,11 @@
         </activity>
         <activity android:name=".MyListEditActivity"></activity>
         <activity android:name=".MusicDetailActivity" android:theme="@style/Theme.DdN.Translucent.NoTitleBar"></activity>
-        <activity android:name=".WebBrowseActivity" android:configChanges="keyboardHidden|orientation"></activity>
+        <activity
+            android:name=".WebBrowseActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:uiOptions="splitActionBarWhenNarrow"
+            />
         <activity android:name=".CommonConfigActivity"></activity>
         <activity android:name=".SettingsActivity"></activity>
         <activity android:name=".settings.TitleListActivity"></activity>
@@ -33,6 +37,7 @@
         <activity android:name=".ticket.DecorPrizeActivity"></activity>
         <activity android:name=".ticket.SkinPrizeActivity"></activity>
         <activity android:name=".history.HistoryDetailActivity"></activity>
+        <activity android:name=".SampleMapActivity"></activity>
         <receiver android:name=".DdNBrowserReceiver">
             <intent-filter>
                 <action android:name="net.diva.browser.action.DOWNLOAD_RANKING"></action>
@@ -41,6 +46,7 @@
         </receiver>
         <service android:name=".DownloadRankingService"></service>
         <service android:name=".history.DownloadHistoryService"></service>
+        <uses-library android:name="com.google.android.maps"/>
     </application>
 
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
@@ -48,4 +54,5 @@
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
 </manifest>

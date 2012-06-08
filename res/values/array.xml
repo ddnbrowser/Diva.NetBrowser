@@ -4,6 +4,7 @@
 <item>NO CLEAR</item>
 <item>C-TRIAL</item>
 <item>G-TRIAL</item>
+<item>E-TRIAL</item>
 <item>COMPLETE</item>
 </string-array>
 <integer-array name="rank_points">

@@ -55,8 +55,8 @@ public class MusicParser {
 			throw new ParseException();
 		m.region(start, m.start());
 
-		score.clear_status = 4 - findLiteral(m, "clear3.jpg", "clear2.jpg", "clear1.jpg", "-");
-		score.trial_status = findLiteral(m, "C-TRIAL", "G-TRIAL", "COMPLETE");
+		score.clear_status = 5 - findLiteral(m, "clear4.jpg", "clear3.jpg", "clear2.jpg", "clear1.jpg", "-");
+		score.trial_status = findLiteral(m, "C-TRIAL", "G-TRIAL", "E-TRIAL", "COMPLETE");
 		m = m.usePattern(RE_ACHIVEMENT);
 		if (m.find()) {
 			score.achievement = m.group(3) == null ? 0 : Integer.valueOf(m.group(3));

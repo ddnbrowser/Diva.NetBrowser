@@ -61,6 +61,7 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 				resources.getDrawable(R.drawable.clear1),
 				resources.getDrawable(R.drawable.clear2),
 				resources.getDrawable(R.drawable.clear3),
+				resources.getDrawable(R.drawable.clear4),
 		};
 
 		m_difficulty = 0;

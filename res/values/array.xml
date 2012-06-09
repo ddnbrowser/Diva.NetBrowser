@@ -58,6 +58,7 @@
     <item>クリア状況</item>
     <item>トライアル状況</item>
     <item>理論値との差分</item>
+    <item>ランキング順位</item>
 </string-array>
 <string-array name="sort_order_values">
     <item>by_original</item>
@@ -69,5 +70,6 @@
     <item>by_clear_status</item>
     <item>by_trial_status</item>
     <item>by_difference_to_saturation</item>
+    <item>by_ranking</item>
 </string-array>
 </resources>

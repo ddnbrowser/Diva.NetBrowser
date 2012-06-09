@@ -11,6 +11,7 @@ public enum SortOrder {
 	by_difference_to_saturation,
 	by_original,
 	by_publish_order,
+	by_ranking,
 	;
 
 	public static SortOrder fromOrdinal(int ordinal) {

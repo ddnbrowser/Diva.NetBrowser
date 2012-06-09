@@ -246,6 +246,8 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 			break;
 		case by_publish_order:
 			return byPublishOrder(reverse);
+		case by_ranking:
+			return byRanking(reverse);
 		}
 		if (reverse)
 			cmp = new ReverseComparator<MusicInfo>(cmp);
@@ -353,6 +355,25 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 				if (result != 0)
 					return result;
 				return lhs.reading.compareTo(rhs.reading);
+			}
+		};
+	}
+
+	private Comparator<MusicInfo> byRanking(final boolean reverse) {
+		return new Comparator<MusicInfo>() {
+			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				ScoreRecord lScore = lhs.records[m_difficulty];
+				ScoreRecord rScore = rhs.records[m_difficulty];
+				int result = lScore.ranking - rScore.ranking;
+				if (result == 0)
+					return lhs.reading.compareTo(rhs.reading);
+
+				if (lScore.ranking == 0)
+					return 1;
+				if (rScore.ranking == 0)
+					return -1;
+
+				return reverse ? -result : result;
 			}
 		};
 	}

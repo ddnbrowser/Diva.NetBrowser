@@ -58,7 +58,7 @@ public class HistoryParser {
 	private static final Pattern HIST_PLACE = Pattern.compile("\\[場所\\] </font>(.+?)<br>");
 	private static final Pattern HIST_MUSIC = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/0\">(.+)</a>");
 	private static final Pattern HIST_RANK = Pattern.compile("\\s*(.+?)　★");
-	private static final Pattern HIST_CLEAR_STATUS = Pattern.compile("\\[CLEAR RANK\\]</font><br>(.+?)<br>");
+	private static final Pattern HIST_CLEAR_STATUS = Pattern.compile("\\[CLEAR RANK\\]</font><br>(.+?)\\s*?<br>");
 	private static final Pattern HIST_ACHIEVEMENT = Pattern.compile("\\[達成率\\]</font><br>(\\d+)\\.(\\d)(\\d)?％<br>");
 	private static final Pattern HIST_SCORE = Pattern.compile("\\[SCORE\\]</font><br>(.+?)<br>");
 	private static final Pattern HIST_COOL = Pattern.compile("COOL：</TD>\\s*<TD align=\"right\">(.+?)</TD>\\s*<TD>/</TD>\\s*<TD align=\"right\">(\\d+)\\.(\\d)(\\d)?%</TD>");

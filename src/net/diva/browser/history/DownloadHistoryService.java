@@ -9,7 +9,6 @@ import net.diva.browser.DdNBrowserReceiver;
 import net.diva.browser.MainActivity;
 import net.diva.browser.R;
 import net.diva.browser.db.HistoryStore;
-import net.diva.browser.model.History;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.service.ServiceClient;
@@ -108,14 +107,7 @@ public class DownloadHistoryService extends Service {
 
 			HistoryStore store = HistoryStore.getInstance(getApplicationContext());
 			for (int i = 0; i < count; ++i) {
-				History h = null;
-				try {
-					h = service.getHistoryDetail(newHistories.get(i));
-					store.insert(h);
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-				}
+				store.insert(service.getHistoryDetail(newHistories.get(i)));
 
 				if (listener != null)
 					listener.onProgress(i, count);

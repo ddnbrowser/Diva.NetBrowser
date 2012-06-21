@@ -585,17 +585,7 @@ public class ServiceClient {
 		return params[1];
 	}
 
-	public History getHistoryDetail(String historyId) throws NoLoginException {
-		History history = null;
-		try {
-			history = HistoryParser.parseHistoryDetail(getFrom("/divanet/personal/playHistoryDetail/%s/0", historyId));
-		}
-		catch (ParseException e) {
-			throw new NoLoginException(e);
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-		return history;
+	public History getHistoryDetail(String historyId) throws ParseException, IOException {
+		return HistoryParser.parseHistoryDetail(getFrom("/divanet/personal/playHistoryDetail/%s/0", historyId));
 	}
 }

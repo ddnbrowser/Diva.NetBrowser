@@ -86,40 +86,53 @@ public class HistoryParser {
 			history.rank = DdNUtil.getDifficultyCord((m.findString(HIST_RANK, 1)));
 			history.clear_status = DdNUtil.getClearStatusCord((m.findString(HIST_CLEAR_STATUS, 1)));
 			history.achievement = m.find(HIST_ACHIEVEMENT) ? getFixedPointValue(m, 1) : 0;
-			history.score = m.findInteger(HIST_SCORE, 1, 0);
-			if (m.find(HIST_COOL)) {
+			history.score = m.findInteger(HIST_SCORE, 1);
+			if (!m.find(HIST_COOL))
+				throw new ParseException();
+			else {
 				history.cool = Integer.parseInt(m.group(1));
 				history.cool_rate = getFixedPointValue(m, 2);
 			}
-			if (m.find(HIST_FINE)) {
+			if (!m.find(HIST_FINE))
+				throw new ParseException();
+			else {
 				history.fine = Integer.parseInt(m.group(1));
 				history.fine_rate = getFixedPointValue(m, 2);
 			}
-			if (m.find(HIST_SAFE)) {
+			if (!m.find(HIST_SAFE))
+				throw new ParseException();
+			else {
 				history.safe = Integer.parseInt(m.group(1));
 				history.safe_rate = getFixedPointValue(m, 2);
 			}
-			if (m.find(HIST_SAD)) {
+			if (!m.find(HIST_SAD))
+				throw new ParseException();
+			else {
 				history.sad = Integer.parseInt(m.group(1));
 				history.sad_rate = getFixedPointValue(m, 2);
 			}
-			if (m.find(HIST_WORST)) {
+			if (!m.find(HIST_WORST))
+				throw new ParseException();
+			else {
 				history.worst = Integer.parseInt(m.group(1));
 				history.worst_rate = getFixedPointValue(m, 2);
 			}
-			history.combo = m.findInteger(HIST_COMBO, 1, 0);
-			history.challange_time = m.findInteger(HIST_CHALLENGE_TIME, 1, 0);
-			history.hold = m.findInteger(HIST_HOLD, 1, 0);
+			history.combo = m.findInteger(HIST_COMBO, 1);
+			history.challange_time = m.findInteger(HIST_CHALLENGE_TIME, 1);
+			history.hold = m.findInteger(HIST_HOLD, 1);
 			if (m.find(HIST_TRIAL)) {
 				history.trial = DdNUtil.getTrialsCord(m.group(1));
 				history.trial_result = DdNUtil.getTrialResultsCord(m.group(2));
 			}
-			history.module1 = m.findString(HIST_MODULE1, 2);
-			history.module2 = m.findString(HIST_MODULE2, 2);
-			history.button_se = m.findString(HIST_SE, 1);
-			history.skin = m.findString(HIST_SKIN, 1);
+			history.module1 = m.findString(HIST_MODULE1, 2, null);
+			history.module2 = m.findString(HIST_MODULE2, 2, null);
+			history.button_se = m.findString(HIST_SE, 1, null);
+			history.skin = m.findString(HIST_SKIN, 1, null);
 		}
-		catch(Exception e){
+		catch (ParseException e) {
+			throw e;
+		}
+		catch (Exception e) {
 			throw new ParseException(e);
 		}
 

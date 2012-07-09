@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
-      android:versionCode="332" android:versionName="3.32">
+      android:versionCode="334" android:versionName="3.34">
     <application
         android:label="@string/app_name"
         android:icon="@drawable/icon"
@@ -37,7 +37,7 @@
         <activity android:name=".ticket.DecorPrizeActivity"></activity>
         <activity android:name=".ticket.SkinPrizeActivity"></activity>
         <activity android:name=".history.HistoryDetailActivity"></activity>
-        <activity android:name=".SampleMapActivity"></activity>
+        <activity android:name=".DdNMapActivity" android:label="@string/app_name" />
         <receiver android:name=".DdNBrowserReceiver">
             <intent-filter>
                 <action android:name="net.diva.browser.action.DOWNLOAD_RANKING"></action>
@@ -50,6 +50,7 @@
     </application>
 
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
+    <uses-library android:name="com.google.android.maps" />
 
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>

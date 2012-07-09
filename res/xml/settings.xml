@@ -65,6 +65,11 @@
 			android:summary="@string/summary_notify_history_download"
 			android:dependency="download_history"
 			/>
+		<CheckBoxPreference
+			android:key="history_location_display"
+			android:title="@string/history_location_display"
+			android:summary="@string/summary_history_location_display"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/category_information">
 		<Preference

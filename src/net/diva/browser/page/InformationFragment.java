@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
+import net.diva.browser.DdNMapActivity;
 import net.diva.browser.R;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
@@ -37,7 +37,6 @@ import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -165,6 +164,7 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 	}
 
 	private void locationSearch(){
+
 		LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 		String provider = null;
 		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -180,6 +180,7 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 			provider = lm.getBestProvider(criteria, true);
 		}
 		Location loc = lm.getLastKnownLocation(provider);
+
 		final URI uri = URI.create(String.format("http://eario.jp/diva/location.cgi?lat=" + loc.getLatitude() + "&lng=" + loc.getLongitude()));
 		try{
 			String json = read(uri);
@@ -189,10 +190,10 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 			builder.setTitle("店舗検索結果");
 			String[] items = new String[data.length()];
 			for(int i = 0;i < data.length(); i++){
-				items[i] = data.getJSONObject(i).getString("name");
+				JSONObject obj = data.getJSONObject(i);
+				items[i] = "【" + obj.getString("unitCount") + "】" + obj.getString("name");
 			}
-			builder.setItems(items,
-					new DialogInterface.OnClickListener() {
+			builder.setItems(items, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 					try{
 						showMap(data.getJSONObject(which));
@@ -209,9 +210,9 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 	private void showMap(JSONObject loc) throws JSONException, UnsupportedEncodingException {
 		String lat = loc.getString("lat");
 		String lng = loc.getString("lng");
-		String address = loc.getString("address");
-		Uri uri = Uri.parse(String.format("geo:%s,%s?q=%s", lat, lng, URLEncoder.encode(address, "utf8")));
-		Intent i = new Intent(Intent.ACTION_VIEW,uri);
+		Intent i = new Intent(getActivity(), DdNMapActivity.class);
+		i.putExtra("lat", Double.valueOf(lat));
+		i.putExtra("lng", Double.valueOf(lng));
 		startActivity(i);
 	}
 

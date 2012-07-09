@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 
 
 public class MusicInfo {
-	private static final int[] STATUS_POINTS = new int[] { 0, 1, 4, 6 };
+	private static final int[] STATUS_POINTS = new int[] { 0, 1, 4, 4, 6 };
 	private static final int[] DIFFICULTY_POINTS = new int[] { 1, 2, 5, 7 };
 
 	public String id;

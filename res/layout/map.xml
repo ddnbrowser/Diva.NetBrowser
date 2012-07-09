@@ -11,27 +11,11 @@
         android:layout_weight="1" >
 
         <com.google.android.maps.MapView
-            android:id="@+id/map"
+            android:id="@+id/map_view"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:apiKey="0-eOpJlB962t1ull4UVWUGiH49-rhBT8JTjo7vA"
+            android:apiKey="0-eOpJlB962sFJMH--pGBej_0vfApvg7IWxT8SA"
             android:clickable="true" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5px"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/label"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:editable="true"
-            android:lines="1"
-            android:textColor="#ffffff"
-            android:textSize="12sp" />
     </LinearLayout>
 
 </LinearLayout>

@@ -300,7 +300,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		if(!dir.exists())
 			dir.mkdirs();
 
-		String outputCsv = outStragePath + "/DdNB_history_"+ DdNUtil.now() + "_exported.csv";
+		String outputCsv = outStragePath + "/DdNB_history_"+ DdNUtil.now() + "_exported_B.csv";
 		File csv = new File(outputCsv);
 		FileOutputStream fos = null;
 
@@ -340,7 +340,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		final File[] files = dir.listFiles(
 				new FilenameFilter() {
 					public boolean accept(File dir, String name) {
-						return name.matches("DdNB_history_\\d{10}_exported\\.csv$");
+						return name.matches("DdNB_history_\\d{10}_exported_B\\.csv$");
 					}
 				});
 

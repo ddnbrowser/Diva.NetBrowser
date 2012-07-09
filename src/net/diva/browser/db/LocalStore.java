@@ -31,7 +31,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 24;
+	private static final int VERSION = 25;
 
 	private static LocalStore m_instance;
 
@@ -1061,8 +1061,43 @@ public class LocalStore extends ContextWrapper {
 			case 23:
 				db.execSQL(String.format("DELETE FROM %s WHERE %s='%s'",
 						DecorTitleTable.TABLE_NAME, DecorTitleTable.ID, DecorTitle.OFF.id));
-			case 24:
 				db.execSQL(HistoryTable.create_statement());
+			case 24:
+				// パーフェクトのコード値を3から4へ
+				db.execSQL(String.format("UPDATE %s SET %s = 4 WHERE %s = %d",
+						HistoryTable.TABLE_NAME, HistoryTable.CLEAR_STATUS,
+						HistoryTable.CLEAR_STATUS, 3));
+				// エクセレントがNOT CLEAR状態になっているので達成率が超えている履歴に関しては
+				// エクセレントに変更。激唱の95%Over閉店とか閉店コマンドに関しては考慮しない。
+				// ロケテ期間はサポート外とする
+				// Extreme
+				db.execSQL(String.format("UPDATE %s SET %s = 3 WHERE %s > %d AND %s = %d AND %s = %d AND %s >= %d",
+						HistoryTable.TABLE_NAME, HistoryTable.CLEAR_STATUS,
+						HistoryTable.PLAY_DATE, 1341439200,
+						HistoryTable.CLEAR_STATUS, 0,
+						HistoryTable.RANK, 3,
+						HistoryTable.ACHIEVEMENT, 9500));
+				// Hard
+				db.execSQL(String.format("UPDATE %s SET %s = 3 WHERE %s > %d AND %s = %d AND %s = %d AND %s >= %d",
+						HistoryTable.TABLE_NAME, HistoryTable.CLEAR_STATUS,
+						HistoryTable.PLAY_DATE, 1341439200,
+						HistoryTable.CLEAR_STATUS, 0,
+						HistoryTable.RANK, 2,
+						HistoryTable.ACHIEVEMENT, 9000));
+				// Normal
+				db.execSQL(String.format("UPDATE %s SET %s = 3 WHERE %s > %d AND %s = %d AND %s = %d AND %s >= %d",
+						HistoryTable.TABLE_NAME, HistoryTable.CLEAR_STATUS,
+						HistoryTable.PLAY_DATE, 1341439200,
+						HistoryTable.CLEAR_STATUS, 0,
+						HistoryTable.RANK, 1,
+						HistoryTable.ACHIEVEMENT, 8500));
+				// Easy
+				db.execSQL(String.format("UPDATE %s SET %s = 3 WHERE %s > %d AND %s = %d AND %s = %d AND %s >= %d",
+						HistoryTable.TABLE_NAME, HistoryTable.CLEAR_STATUS,
+						HistoryTable.PLAY_DATE, 1341439200,
+						HistoryTable.CLEAR_STATUS, 0,
+						HistoryTable.RANK, 0,
+						HistoryTable.ACHIEVEMENT, 8000));
 			default:
 				break;
 			}

@@ -8,7 +8,7 @@ import android.graphics.drawable.Drawable;
 
 
 public class MusicInfo {
-	private static final int[] STATUS_POINTS = new int[] { 0, 1, 4, 4, 6 };
+	private static final double[] STATUS_POINTS = new double[] { 0, 1, 4, 4.5, 6 };
 	private static final int[] DIFFICULTY_POINTS = new int[] { 1, 2, 5, 7 };
 
 	public String id;
@@ -32,7 +32,7 @@ public class MusicInfo {
 	public ScoreRecord[] records;
 
 	public static int maxRankPoint() {
-		return STATUS_POINTS[STATUS_POINTS.length-1] * DIFFICULTY_POINTS[DIFFICULTY_POINTS.length-1];
+		return (int) STATUS_POINTS[STATUS_POINTS.length-1] * DIFFICULTY_POINTS[DIFFICULTY_POINTS.length-1];
 	}
 
 	public MusicInfo(String id_, String title_) {
@@ -50,7 +50,7 @@ public class MusicInfo {
 			ScoreRecord score = records[difficulty];
 			if (score == null)
 				continue;
-			int point = DIFFICULTY_POINTS[difficulty] * STATUS_POINTS[score.clear_status];
+			int point = (int) Math.ceil(DIFFICULTY_POINTS[difficulty] * STATUS_POINTS[score.clear_status]);
 			if (point > max)
 				max = point;
 		}

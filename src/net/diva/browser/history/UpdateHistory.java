@@ -34,8 +34,9 @@ public class UpdateHistory {
 
 	public boolean update(ServiceClient service) throws IOException, ParseException {
 		List<String> newHistorys = new ArrayList<String>();
-		long lastPlayed = m_preferences.getLong("last_played_use_history", 0);
-		lastPlayed = service.getHistory(newHistorys, lastPlayed);
+		long lastPlayedTime = m_preferences.getLong("last_played_use_history", 0);
+		long lastPlayedScore = m_preferences.getLong("last_played_use_history_score", 0);
+		long[] lastPlayed = service.getHistory(newHistorys, lastPlayedTime, lastPlayedScore);
 		boolean hasItem = newHistorys.size() > 0;
 
 		if(hasItem){
@@ -53,7 +54,8 @@ public class UpdateHistory {
 					task.myPublishProgress(1);
 			}
 
-			m_preferences.edit().putLong("last_played_use_history", lastPlayed).commit();
+			m_preferences.edit().putLong("last_played_use_history", lastPlayed[0]).commit();
+			m_preferences.edit().putLong("last_played_use_history_score", lastPlayed[1]).commit();
 		}
 		m_preferences.edit().putLong("history_last_download_time", System.currentTimeMillis()).commit();
 

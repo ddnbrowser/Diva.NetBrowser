@@ -85,18 +85,19 @@ public class HistoryTable implements BaseColumns {
 
 	static long insert(SQLiteDatabase db, History history) {
 
-		String exist = null;
+		boolean exist = false;
 		Cursor c = db.query(TABLE_NAME, new String[] {
 				PLAY_DATE,
+				SCORE
 		}, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date) }, null, null, PLAY_DATE);
 		try {
 			while (c.moveToNext())
-				exist = c.getString(0);
+				exist = history.play_date == c.getInt(0) && history.score == c.getInt(1);
 		}
 		finally {
 			c.close();
 		}
-		if(exist != null)
+		if(exist)
 			return 0;
 
 		ContentValues values = new ContentValues(27);

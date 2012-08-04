@@ -292,7 +292,7 @@ public class SkinPrizeActivity extends ListActivity {
 		@Override
 		protected void onResult(List<SkinInfo> result) {
 			if (result != null)
-				m_adapter.setSkins(result);
+				m_adapter.setSkins(m_skins = result);
 		}
 	}
 

@@ -36,6 +36,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
@@ -49,8 +50,9 @@ import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class InformationFragment extends ListFragment implements DdN.Observer {
+public class InformationFragment extends ListFragment implements DdN.Observer, LocationListener {
 	private InformationAdapter m_adapter;
+	private LocationManager m_lm;
 
 	private Item m_name = new Item(R.layout.info_item, R.id.text1, 0);
 	private Item m_title = new Item(R.layout.info_item, R.id.text1, 0);
@@ -163,24 +165,27 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 		m_adapter.notifyDataSetChanged();
 	}
 
+	// silvia add start
 	private void locationSearch(){
-
-		LocationManager lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+		m_lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 		String provider = null;
-		if (lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+		if (m_lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
 			provider = LocationManager.GPS_PROVIDER;
 		} else {
 			Criteria criteria = new Criteria();
-	        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-	        criteria.setPowerRequirement(Criteria.POWER_LOW);
-	        criteria.setSpeedRequired(false);
-	        criteria.setAltitudeRequired(false);
-	        criteria.setBearingRequired(false);
-	        criteria.setCostAllowed(false);
-			provider = lm.getBestProvider(criteria, true);
+			criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+			criteria.setPowerRequirement(Criteria.POWER_LOW);
+			criteria.setSpeedRequired(false);
+			criteria.setAltitudeRequired(false);
+			criteria.setBearingRequired(false);
+			criteria.setCostAllowed(false);
+			provider = m_lm.getBestProvider(criteria, true);
 		}
-		Location loc = lm.getLastKnownLocation(provider);
+		m_lm.requestSingleUpdate(provider, this, getActivity().getMainLooper());
+	}
 
+	@Override
+	public void onLocationChanged(Location loc) {
 		final URI uri = URI.create(String.format("http://eario.jp/diva/location.cgi?lat=" + loc.getLatitude() + "&lng=" + loc.getLongitude()));
 		try{
 			String json = read(uri);
@@ -193,7 +198,8 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 				JSONObject obj = data.getJSONObject(i);
 				items[i] = "【" + obj.getString("unitCount") + "】" + obj.getString("name");
 			}
-			builder.setItems(items, new DialogInterface.OnClickListener() {
+			builder.setItems(items,
+					new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
 					try{
 						showMap(data.getJSONObject(which));
@@ -205,6 +211,7 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 			builder.show();
 		}catch(Exception e){
 		}
+		m_lm.removeUpdates(this);
 	}
 
 	private void showMap(JSONObject loc) throws JSONException, UnsupportedEncodingException {
@@ -246,6 +253,18 @@ public class InformationFragment extends ListFragment implements DdN.Observer {
 				return pair.getValue();
 		}
 		return "UTF-8";
+	}
+
+	@Override
+	public void onProviderDisabled(String s) {
+	}
+
+	@Override
+	public void onProviderEnabled(String s) {
+	}
+
+	@Override
+	public void onStatusChanged(String s, int i, Bundle bundle) {
 	}
 
 	private static class InformationAdapter extends BaseAdapter {

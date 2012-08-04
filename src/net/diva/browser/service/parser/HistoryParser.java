@@ -19,31 +19,33 @@ import net.diva.browser.util.DdNUtil;
  */
 public class HistoryParser {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm");
-	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
-	private final static Pattern RE_DETAIL = Pattern.compile("<a href=\"/divanet/personal/playHistoryDetail/(.+?)/");
+	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\".*?\">\\[(.+)\\]</font>\\s*<br>\\s*<a href=\"/divanet/pv/info/\\w+/.*\\s*.*\\s*.*?SCORE：(\\d+)<br>\\s*┗<a href=\"/divanet/personal/playHistoryDetail/(.+?)/");
+	//private final static Pattern RE_DETAIL = Pattern.compile("(\\d+));
 
 	public static String parsePlayHistory(InputStream content, List<String> newHistorys, long[] params)
 			throws ParseException {
 		String body = Parser.read(content);
 		Matcher m = RE_HISTORY.matcher(body);
 
-		int end = -1;
 		try {
+
+			int end = -1;
 			while (m.find()) {
 				long playTime = DATE_FORMAT.parse(m.group(1)).getTime();
-				if (playTime <= params[0]) {
+				long score = Integer.valueOf(m.group(2));
+				String pageNum = m.group(3);
+
+				if (playTime < params[0]) {
 					end = m.start();
 					break;
 				}
-				if (playTime > params[1])
+				if (playTime > params[1]){
 					params[1] = playTime;
+					params[3] = score;
+				}
+				if(playTime != params[0] || score != params[2])
+					newHistorys.add(pageNum);
 			}
-
-			m = m.usePattern(RE_DETAIL);
-			if (end >= 0)
-				m.region(0, end);
-			while (m.find())
-				newHistorys.add(m.group(1));
 
 			if (end >= 0)
 				return null;
@@ -58,7 +60,7 @@ public class HistoryParser {
 
 	private static final Pattern HIST_DATE = Pattern.compile("\\[日時\\] </font>(.+?)<br>");
 	private static final Pattern HIST_PLACE = Pattern.compile("\\[場所\\] </font>(.+?)<br>");
-	private static final Pattern HIST_MUSIC_ID = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/0\">");
+	private static final Pattern HIST_MUSIC_ID = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/0\"");
 	private static final Pattern HIST_RANK = Pattern.compile("\\s*(.+?)　★");
 	private static final Pattern HIST_CLEAR_STATUS = Pattern.compile("\\[CLEAR RANK\\]</font><br>(.+?)\\s*?<br>");
 	private static final Pattern HIST_ACHIEVEMENT = Pattern.compile("\\[達成率\\]</font><br>(.+?)％<br>");

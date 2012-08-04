@@ -166,8 +166,8 @@
     <string name="notify_history_download">更新を通知</string>
     <string name="summary_notify_history_download">プレイ履歴を自動取得した時にステータスバーで通知します</string>
     <string name="summary_notify_history_get">プレイ履歴を自動取得した時にステータスバーで通知します</string>
-    <string name="history_location_display">店舗名表示可否</string>
-    <string name="summary_history_location_display">共有用の画像作成時に、店舗名を非表示にします</string>
+    <string name="history_location_display">店舗名非表示</string>
+    <string name="summary_history_location_display">有効にすると共有用の画像作成時に、店舗名を非表示にします</string>
     <string name="notification_history_get">プレイ履歴を自動取得しました</string>
     <string name="no_historys">保存されているプレイ履歴がありません</string>
     <string name="hist_tab_title">プレイ履歴</string>

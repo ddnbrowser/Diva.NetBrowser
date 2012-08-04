@@ -33,6 +33,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -42,6 +43,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.DisplayMetrics;
@@ -197,6 +199,12 @@ public class HistoryDetailActivity extends Activity {
 
 		View captureView = View.inflate(this, R.layout.history_detail, null);
 		new Holder(this, captureView).attach(m_history, m_music);
+
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		if(preference.getBoolean("history_location_display", false)){
+			TextView play_place = (TextView) captureView.findViewById(R.id.play_place);
+			play_place.setVisibility(View.INVISIBLE);
+		}
 
 		int measuredWidth = View.MeasureSpec.makeMeasureSpec(captureWidth, View.MeasureSpec.EXACTLY);
 		int measuredHeight = View.MeasureSpec.makeMeasureSpec(captureHeight, View.MeasureSpec.EXACTLY);

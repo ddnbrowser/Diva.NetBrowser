@@ -168,7 +168,7 @@ public class MusicParser {
 		return entry;
 	}
 
-	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
+	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font>\\s*<br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
 	private static final SimpleDateFormat HISTORY_DATE = new SimpleDateFormat("yy/MM/dd HH:mm");
 
 	public static String parsePlayHistory(InputStream content, List<String> ids, long[] params)

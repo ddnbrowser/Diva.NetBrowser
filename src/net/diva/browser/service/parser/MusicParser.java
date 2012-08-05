@@ -99,7 +99,7 @@ public class MusicParser {
 		return new String[] { voice1, voice2 };
 	}
 
-	static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\">(.+)</a>");
+	static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\".*?>(.+)</a>");
 
 	public static String parseRankingList(InputStream content, List<Ranking> list) throws ParseException {
 		String body = Parser.read(content);

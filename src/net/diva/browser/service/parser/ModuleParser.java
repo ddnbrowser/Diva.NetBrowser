@@ -20,7 +20,7 @@ public class ModuleParser {
 		return modules;
 	}
 
-	private static final Pattern RE_MODULE = Pattern.compile("<a href=\"/divanet/module/detail/(\\w+)/\\d+/\\d+\">(.+)</a>\\s*(\\(未購入\\))?");
+	private static final Pattern RE_MODULE = Pattern.compile("<a href=\"/divanet/module/detail/(\\w+)/\\d+/\\d+\">(.+)</a>\\s*<[^>]+>\\s*(\\(未購入\\))?");
 	private static final Pattern RE_MODULE_IMAGE = Pattern.compile("<img src=\"(/divanet/img/module/\\w+)\"");
 
 	public static String parseModuleList(InputStream content, List<Module> modules) {

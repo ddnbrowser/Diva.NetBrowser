@@ -99,7 +99,7 @@ public class MusicParser {
 		return new String[] { voice1, voice2 };
 	}
 
-	static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\">(.+)</a>");
+	static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\".*?>(.+)</a>");
 
 	public static String parseRankingList(InputStream content, List<Ranking> list) throws ParseException {
 		String body = Parser.read(content);
@@ -168,7 +168,7 @@ public class MusicParser {
 		return entry;
 	}
 
-	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
+	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font>\\s*<br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
 	private static final SimpleDateFormat HISTORY_DATE = new SimpleDateFormat("yy/MM/dd HH:mm");
 
 	public static String parsePlayHistory(InputStream content, List<String> ids, long[] params)

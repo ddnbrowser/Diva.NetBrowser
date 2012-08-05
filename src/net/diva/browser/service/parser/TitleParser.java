@@ -37,7 +37,7 @@ public class TitleParser {
 	private static final Pattern RE_DECOR = Pattern.compile("<a href=\"/divanet/title/updateDecor/(true|false)/(\\w+)\">(.+)</a>");
 	private static final Pattern RE_SHOP_GROUP = Pattern.compile("<a href=\"(/divanet/title/decorCommodity/\\d+/\\d+)\">(.+)</a>");
 	private static final Pattern RE_COMMODITY = Pattern.compile("<a href=\"/divanet/title/decorDetail/(\\w+)/\\d+/\\d+\">(.+)</a>");
-	private static final Pattern RE_RESULT = Pattern.compile("\\s*(.+)<br><br>\\s*.*メイン称号を設定しました<br>");
+	private static final Pattern RE_RESULT = Pattern.compile("\\s*(.+)<br>\\s*<img.*?><br>\\s*<br>\\s*メイン称号を設定しました<br>");
 
 	public static List<String> parseDecorDir(InputStream content, List<DecorTitle> titles) {
 		String body = Parser.read(content);

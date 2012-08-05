@@ -32,11 +32,11 @@ public final class Parser {
 		}
 	}
 
-	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\].*<br>\\s*(.+)<br>");
-	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\].*<br>\\s*(.+)\\s*(.+)<br>");
-	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\].*<br>\\s*(\\d+)VP<br>");
-	private static final Pattern RE_TICKET = Pattern.compile("\\[DIVAチケット\\].*<br>\\s*(\\d+)枚<br>");
-	private static final Pattern RE_NEWS = Pattern.compile("DIVA.NETニュース\\((.+)\\)</a><br>");
+	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\]</div>\\s*</div>\\s*(.+)\\s*</div>");
+	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\]</div>\\s*</div>\\s*(.+)\\s*(.+)<br>");
+	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\]</div>\\s*</div>\\s*(\\d+)VP<br>");
+	private static final Pattern RE_TICKET = Pattern.compile("\\[DIVAチケット\\]</div>\\s*</div>\\s*(\\d+)枚<br>");
+	private static final Pattern RE_NEWS = Pattern.compile("DIVA.NETニュース\\((.+)\\)</a>\\s*<br>");
 
 	public static class Result {
 		public PlayRecord record;
@@ -87,9 +87,9 @@ public final class Parser {
 		return null;
 	}
 
-	private static final Pattern RE_SETTING_MODULE = Pattern.compile("/divanet/module/selectPv/(\\w+)/\\d+\">(.*)</a>");
-	private static final Pattern RE_SETTING_SKIN = Pattern.compile("/divanet/skin/list/(\\w+)/\\d+/\\d+\">(.*)</a>");
-	private static final Pattern RE_SETTING_BUTTON = Pattern.compile("/divanet/buttonSE/list/(\\w+)/\\d+/\\d+\">(.*)</a>");
+	private static final Pattern RE_SETTING_MODULE = Pattern.compile("/divanet/module/selectPv/(\\w+)/\\d+\".*?>(.*)</a>");
+	private static final Pattern RE_SETTING_SKIN = Pattern.compile("/divanet/skin/list/(\\w+)/\\d+/\\d+\".*?>(.*)</a>");
+	private static final Pattern RE_SETTING_BUTTON = Pattern.compile("/divanet/buttonSE/list/(\\w+)/\\d+/\\d+\".*?>(.*)</a>");
 
 	public static String parseIndividualSettings(InputStream content, Map<String, IndividualSetting> settings) {
 		String body = read(content);

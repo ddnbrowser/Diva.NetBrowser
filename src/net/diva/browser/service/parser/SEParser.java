@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.diva.browser.service.parser;
 
@@ -13,7 +13,7 @@ import net.diva.browser.model.ButtonSE;
 
 public class SEParser {
 	private static final Pattern RE_BUTTONSE = Pattern.compile("<a href=\"/divanet/buttonSE/confirm/\\w+/(\\w+)/\\d+/\\d+\">(.+)</a>");
-	private static final Pattern RE_SAMPLE = Pattern.compile("<a href=\"(/divanet/sound/se/\\w+)\">(.+)</a>");
+	private static final Pattern RE_SAMPLE = Pattern.compile("<a href=\"(/divanet/sound/se/\\w+)\".*?>(.+)</a>");
 
 	public static String parse(InputStream content, List<ButtonSE> buttonSEs) {
 		String body = Parser.read(content);

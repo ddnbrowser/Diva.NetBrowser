@@ -104,7 +104,7 @@ public class TitleParser {
 		return m.find() ? m.group(1) : null;
 	}
 
-	private static final Pattern RE_PRIZE = Pattern.compile("<a href=\"/divanet/divaTicket/confirmExchangeTitle/(\\w+)\">(.+?)(\\(後\\))?</a><br>");
+	private static final Pattern RE_PRIZE = Pattern.compile("<a href=\"/divanet/divaTicket/confirmExchangeTitle/(\\w+)\">(.+?)(\\(後\\))?</a>");
 
 	public static void parseDecorPrize(InputStream content, List<DecorTitle> titles) {
 		String body = Parser.read(content);

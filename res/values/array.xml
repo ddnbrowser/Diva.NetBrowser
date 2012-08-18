@@ -80,6 +80,7 @@
     <item>NOT CLEAR</item>
     <item>STANDARD</item>
     <item>GREAT</item>
+    <item>EXCELLENT</item>
     <item>PERFECT</item>
 </string-array>
 <integer-array name="clear_status_ids">
@@ -87,6 +88,7 @@
     <item>1</item>
     <item>2</item>
     <item>3</item>
+    <item>4</item>
 </integer-array>
 <string-array name="difficulty_names">
     <item>EASY</item>
@@ -103,12 +105,14 @@
 <string-array name="trial_names">
     <item></item>
     <item>グレート</item>
+    <item>エクセレント</item>
     <item>パーフェクト</item>
 </string-array>
 <integer-array name="trial_ids">
     <item>1</item>
     <item>2</item>
     <item>3</item>
+    <item>4</item>
 </integer-array>
 <string-array name="trial_result_names">
     <item>失敗</item>

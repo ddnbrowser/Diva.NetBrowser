@@ -41,7 +41,7 @@ public class HistoryTable implements BaseColumns {
 	public static final String SKIN = "skin";
 	public static final String LOCK = "lock";
 
-	public static final String WHERE_IDENTITY = String.format("%s=?", PLAY_DATE);
+	public static final String WHERE_IDENTITY = String.format("%s=? and %s=?", PLAY_DATE, SCORE);
 	public static final String WHERE_BY_MUSIC = String.format("%s=? and %s=?", MUSIC_ID, RANK);
 	public static final String WHERE_BY_DELETE = String.format("%s<? and %s<>?", PLAY_DATE, LOCK);
 	public static final String WHERE_BY_MUSIC_DELETE = String.format("%s=? and %s=? and %s<? and %s<>?", MUSIC_ID, RANK, PLAY_DATE, LOCK);
@@ -147,13 +147,13 @@ public class HistoryTable implements BaseColumns {
 	}
 
 	static boolean delete(SQLiteDatabase db, History history) {
-		return db.delete(TABLE_NAME, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date) }) == 1;
+		return db.delete(TABLE_NAME, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date), String.valueOf(history.score) }) == 1;
 	}
 
 	static boolean lock(SQLiteDatabase db, History history){
 		ContentValues cv = new ContentValues(1);
 		cv.put(LOCK, history.lock);
-		return db.update(TABLE_NAME, cv, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date) }) == 1;
+		return db.update(TABLE_NAME, cv, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date), String.valueOf(history.score) }) == 1;
 	}
 
 }

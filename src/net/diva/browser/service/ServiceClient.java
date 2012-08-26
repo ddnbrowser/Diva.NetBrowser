@@ -28,6 +28,7 @@ import net.diva.browser.service.parser.MusicParser;
 import net.diva.browser.service.parser.MyListParser;
 import net.diva.browser.service.parser.Parser;
 import net.diva.browser.service.parser.RecordParser;
+import net.diva.browser.service.parser.ResultPictureParser;
 import net.diva.browser.service.parser.SEParser;
 import net.diva.browser.service.parser.ShopParser;
 import net.diva.browser.service.parser.SkinParser;
@@ -599,5 +600,46 @@ public class ServiceClient {
 			e.printStackTrace();
 		}
 		return history;
+	}
+
+	public String checkResultPicture(History history) throws IOException, ParseException {
+		String[] id = new String[]{null};
+
+		String path = "/divanet/personal/playHistory/0";
+		while (path != null){
+			path = HistoryParser.parsePlayHistoryForResultPicture(getFrom(path), history, id);
+		}
+
+		return id[0];
+	}
+
+	public String preBuyingResultPicture(String id, String[] values) throws IOException, ParseException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(4);
+		params.add(new BasicNameValuePair("size", values[0]));
+		params.add(new BasicNameValuePair("quality", values[1]));
+		if(values[2] != null)
+			params.add(new BasicNameValuePair("dispPlayerName", values[2]));
+		if(values[3] != null)
+			params.add(new BasicNameValuePair("dispPlaceName", values[3]));
+		HttpResponse response = postTo(String.format("/divanet/image/confirmResult/%d/0", Integer.valueOf(id)), new UrlEncodedFormEntity(params, "UTF-8"));
+		String token = ResultPictureParser.parseToken(response.getEntity().getContent());
+
+		return token;
+	}
+
+	public String buyResultPicture(String id, String token, String[] values) throws IOException, ParseException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(5);
+		params.add(new BasicNameValuePair("org.apache.struts.taglib.html.TOKEN", token));
+		params.add(new BasicNameValuePair("size", values[0]));
+		params.add(new BasicNameValuePair("quality", values[1]));
+		params.add(new BasicNameValuePair("dispPlayerName", String.valueOf(values[2] != null)));
+		params.add(new BasicNameValuePair("dispPlaceName", String.valueOf(values[3] != null)));
+		postTo(String.format("/divanet/image/buyResult/%d/0", Integer.valueOf(id)), new UrlEncodedFormEntity(params, "UTF-8"));
+
+		return String.format("/divanet/image/viewResult/%d", Integer.valueOf(id));
+	}
+
+	public HttpResponse downloadByPost(String relative) throws IOException {
+		return postTo(relative);
 	}
 }

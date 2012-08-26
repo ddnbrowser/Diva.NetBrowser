@@ -3,18 +3,24 @@ package net.diva.browser.history;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.History;
 import net.diva.browser.model.MusicInfo;
+import net.diva.browser.service.ServiceClient;
+import net.diva.browser.service.ServiceTask;
 import net.diva.browser.util.DdNUtil;
 
 import org.apache.http.Header;
@@ -28,6 +34,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -36,6 +43,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -47,12 +55,15 @@ import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 /**
@@ -114,6 +125,9 @@ public class HistoryDetailActivity extends Activity {
 			break;
 		case R.id.history_ranking:
 			ranking();
+			break;
+		case R.id.history_result_picture:
+			confirmResultPicture();
 			break;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -183,6 +197,101 @@ public class HistoryDetailActivity extends Activity {
 		Uri uri = cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
 		return uri;
+	}
+
+	private void confirmResultPicture(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.rp_download_confirm_title);
+		builder.setMessage(R.string.rp_download_confirm_msg);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				resultPicture();
+			}
+		});
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void resultPicture() {
+		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
+		final ServiceClient service = new ServiceClient(
+				preference.getString("access_code", null),
+				preference.getString("password", null)
+		);
+		String historyId = null;
+		try{
+			service.login();
+			historyId = service.checkResultPicture(m_history);
+		}catch(Exception e){
+			e.printStackTrace();
+			return;
+		}
+
+		if(historyId == null){
+			Toast.makeText(this, getString(R.string.rp_download_error), Toast.LENGTH_LONG).show();
+			return;
+		}
+
+		final String id = historyId;
+
+		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		final View view = inflater.inflate(R.layout.result_picture, null);
+		final RadioGroup image_size = (RadioGroup)view.findViewById(R.id.rp_image_size);
+		final RadioGroup image_quality = (RadioGroup)view.findViewById(R.id.rp_image_quality);
+		final CheckBox print_player = (CheckBox)view.findViewById(R.id.print_player);
+		final CheckBox print_location = (CheckBox)view.findViewById(R.id.print_location);
+
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.rp_picture_setting);
+		builder.setView(view);
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.setNegativeButton(R.string.ok, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+
+				String size = null;
+				switch(image_size.getCheckedRadioButtonId()){
+				case R.id.rp_size_big:
+					size = "0";
+					break;
+				case R.id.rp_size_medium:
+					size = "1";
+					break;
+				case R.id.rp_size_small:
+					size = "2";
+					break;
+				}
+
+				String quality = null;
+				switch(image_quality.getCheckedRadioButtonId()){
+				case R.id.rp_quality_high:
+					quality = "0";
+					break;
+				case R.id.rp_quality_medium:
+					quality = "1";
+					break;
+				case R.id.rp_quality_low:
+					quality = "2";
+					break;
+				}
+
+				String[] values = new String[]{
+						size,
+						quality,
+						(print_player.isChecked() ? "on" : null),
+						(print_location.isChecked() ? "on" : null)
+				};
+				try{
+					String token = service.preBuyingResultPicture(id, values);
+					String path = service.buyResultPicture(id, token, values);
+					new DownloadPictureTask(path, m_history.play_date, values).execute();
+
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+		});
+		builder.show();
 	}
 
 	private Bitmap createBitmap(){
@@ -309,6 +418,31 @@ public class HistoryDetailActivity extends Activity {
 		DdN.getLocalStore().lockHistory(m_history);
 	}
 
+	public void picture(View view){
+		String filePath = null;
+		if(isMountedExSD()){
+			filePath = Environment.getExternalStorageDirectory().getPath() + OUT_STRAGE_IMAGE_DIR + "/" + m_history.result_picture;
+		}else{
+			filePath = LOCAL_STRAGE_IMAGE_DIR + "/" + m_history.result_picture;
+		}
+
+		Cursor c = getContentResolver().query(
+				MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+				null,
+				MediaStore.Images.ImageColumns.DATA + " = ?",
+				new String[]{filePath},
+				null);
+		c.moveToFirst();
+		String contentname = "content://media/external/images/media/" + c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
+
+		Intent intent = new Intent();
+		intent.setType("image/*");
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.setData(Uri.parse(contentname));
+
+		startActivity(intent);
+	}
+
 	public void ranking(){
 		final URI uri = URI.create(String.format("http://eario.jp/diva/ranking.cgi?music_name=%s&rank=%s&score=%s", URLEncoder.encode(DdNUtil.getMusicTitle(m_history.music_id)), m_history.rank, m_history.score));
 		try{
@@ -353,6 +487,112 @@ public class HistoryDetailActivity extends Activity {
 		DdN.getLocalStore().deleteHistory(m_history);
 	}
 
+	private class DownloadPictureTask extends ServiceTask<Void, Integer, Boolean> {
+		private String fileName;
+		private String filePath;
+		private String m_path;
+
+		public DownloadPictureTask(String path, int dateInt, String[] values) {
+			super(HistoryDetailActivity.this, R.string.rp_download_result_picture);
+			m_path = path;
+
+			fileName = new SimpleDateFormat("yyMMdd_HHmm").format(new Date(dateInt * (long)1000));
+
+			if("0".equals(values[0])){
+				fileName += "_LS";
+			}else if("1".equals(values[0])){
+				fileName += "_MS";
+			}else if("2".equals(values[0])){
+				fileName += "_SS";
+			}
+
+			if("0".equals(values[1])){
+				fileName += "_HQ";
+			}else if("1".equals(values[1])){
+				fileName += "_MQ";
+			}else if("2".equals(values[1])){
+				fileName += "_LQ";
+			}
+
+			if("on".equals(values[2]))
+				fileName += "_P";
+
+			if("on".equals(values[3]))
+				fileName += "_S";
+
+			fileName += ".jpg";
+		}
+
+		@Override
+		protected void onPreExecute() {
+			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			super.onPreExecute();
+		}
+
+		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
+
+			if(isMountedExSD()){
+				String outStragePath = Environment.getExternalStorageDirectory().getPath() + OUT_STRAGE_IMAGE_DIR;
+				File imgDir = new File(outStragePath);
+				if(!imgDir.exists())
+					if(!imgDir.mkdirs())
+						android.util.Log.e("", "make dir failed.");
+
+				filePath = outStragePath + "/" + fileName;
+			}else{
+				filePath = LOCAL_STRAGE_IMAGE_DIR + "/" + fileName;
+			}
+
+			HttpResponse response = service.downloadByPost(m_path);
+
+			InputStream in = response.getEntity().getContent();
+			OutputStream out = new FileOutputStream(new File(filePath));
+
+			byte[] buffer = new byte[1024];
+			int size = 0;
+			m_progress.setMax((int) response.getEntity().getContentLength());
+			publishProgress(size, (int) response.getEntity().getContentLength());
+			for (int read; (read = in.read(buffer)) != -1;){
+				out.write(buffer, 0, read);
+				size += read;
+				publishProgress(size);
+			}
+
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onResult(Boolean result) {
+			if(!result)
+				return;
+
+			m_history.result_picture = fileName;
+			LocalStore store = DdN.getLocalStore();
+			store.setPicture(m_history);
+			h.attach(m_history, m_music);
+
+			ContentResolver cr = getContentResolver();
+			ContentValues values = new ContentValues();
+			values.put(Images.Media.TITLE, fileName);
+			values.put(Images.Media.DISPLAY_NAME, fileName);
+			values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
+			values.put(Images.Media.MIME_TYPE, "image/jpeg");
+			values.put(Images.Media.DATA, filePath);
+
+			cr.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			if (values.length > 1) {
+				m_progress.setIndeterminate(false);
+				m_progress.setMax(values[1]);
+			}
+			m_progress.incrementProgressBy(values[0]);
+		}
+
+	}
+
 
 	private static class Holder{
 
@@ -380,6 +620,7 @@ public class HistoryDetailActivity extends Activity {
 		TextView hold;
 		Button delete;
 		Button lock;
+		Button result_picture;
 
 		private Holder(Activity act, View view) {
 			m_act = act;
@@ -410,6 +651,7 @@ public class HistoryDetailActivity extends Activity {
 			hold = (TextView)view.findViewById(R.id.hold);
 			lock = (Button)view.findViewById(R.id.lock_button);
 			delete = (Button)view.findViewById(R.id.delete_button);
+			result_picture = (Button)view.findViewById(R.id.result_picture_button);
 		}
 
 		private void attach(History h, MusicInfo m){
@@ -451,6 +693,7 @@ public class HistoryDetailActivity extends Activity {
 			hold.setText(String.format("%d pts", h.hold));
 			lock.setText(h.isLocked() ? "ロック解除" : "ロック");
 			delete.setEnabled(!h.isLocked());
+			result_picture.setEnabled(h.result_picture != null);
 		}
 	}
 

@@ -440,15 +440,24 @@
         android:orientation="horizontal" >
         <Button
             android:id="@+id/lock_button"
-            android:layout_width="80dip"
+            android:layout_width="0dip"
             android:layout_height="40dip"
             android:layout_weight="1"
             android:onClick="lock" />
 
         <Button
+            android:text="@string/hist_result_picture"
+            android:id="@+id/result_picture_button"
+            android:layout_width="0dip"
+            android:layout_height="40dip"
+            android:layout_weight="1"
+            android:onClick="picture"
+            />
+
+        <Button
             android:text="@string/hist_delete_btn"
             android:id="@+id/delete_button"
-            android:layout_width="80dip"
+            android:layout_width="0dip"
             android:layout_height="40dip"
             android:layout_weight="1"
             android:onClick="delete"

@@ -40,6 +40,7 @@ public class HistoryTable implements BaseColumns {
 	public static final String SE = "se";
 	public static final String SKIN = "skin";
 	public static final String LOCK = "lock";
+	public static final String RESULT_PICTURE = "result_picture";
 
 	public static final String WHERE_IDENTITY = String.format("%s=? and %s=?", PLAY_DATE, SCORE);
 	public static final String WHERE_BY_MUSIC = String.format("%s=? and %s=?", MUSIC_ID, RANK);
@@ -78,9 +79,15 @@ public class HistoryTable implements BaseColumns {
 		.append(MODULE2).append(" text,")
 		.append(SE).append(" text,")
 		.append(SKIN).append(" text,")
-		.append(LOCK).append(" integer")
+		.append(LOCK).append(" integer,")
+		.append(RESULT_PICTURE).append(" text")
 		.append(")");
 		return builder.toString();
+	}
+
+	static void addResutPictureColumns(SQLiteDatabase db){
+		String format = "ALTER TABLE %s ADD %s %s";
+		db.execSQL(String.format(format, TABLE_NAME, RESULT_PICTURE, "text"));
 	}
 
 	static long insert(SQLiteDatabase db, History history) {
@@ -128,6 +135,7 @@ public class HistoryTable implements BaseColumns {
 		values.put(SE, history.se_id);
 		values.put(SKIN, history.skin_id);
 		values.put(LOCK, history.lock);
+		values.put(RESULT_PICTURE, history.result_picture);
 
 		return db.insert(TABLE_NAME, null, values);
 	}
@@ -153,6 +161,12 @@ public class HistoryTable implements BaseColumns {
 	static boolean lock(SQLiteDatabase db, History history){
 		ContentValues cv = new ContentValues(1);
 		cv.put(LOCK, history.lock);
+		return db.update(TABLE_NAME, cv, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date), String.valueOf(history.score) }) == 1;
+	}
+
+	static boolean setPicture(SQLiteDatabase db, History history){
+		ContentValues cv = new ContentValues(1);
+		cv.put(RESULT_PICTURE, history.result_picture);
 		return db.update(TABLE_NAME, cv, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date), String.valueOf(history.score) }) == 1;
 	}
 

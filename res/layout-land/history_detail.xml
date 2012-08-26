@@ -366,6 +366,14 @@
                 android:onClick="lock" />
 
             <Button
+                android:id="@+id/result_picture_button"
+                android:layout_width="100dip"
+                android:layout_height="40dip"
+                android:layout_weight="1"
+                android:onClick="picture"
+                android:text="@string/hist_result_picture" />
+
+            <Button
                 android:id="@+id/delete_button"
                 android:layout_width="100dip"
                 android:layout_height="40dip"

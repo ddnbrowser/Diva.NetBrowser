@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical" >
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rp_image_size" />
+
+    <RadioGroup
+        android:id="@+id/rp_image_size"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/rp_size_big"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/rp_size_big" />
+
+        <RadioButton
+            android:id="@+id/rp_size_medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rp_size_medium" />
+
+        <RadioButton
+            android:id="@+id/rp_size_small"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rp_size_small" />
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rp_image_quality" />
+
+    <RadioGroup
+        android:id="@+id/rp_image_quality"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/rp_quality_high"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rp_quality_high" />
+
+        <RadioButton
+            android:id="@+id/rp_quality_medium"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/rp_quality_medium" />
+
+        <RadioButton
+            android:id="@+id/rp_quality_low"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/rp_quality_low" />
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rp_print_option" />
+
+    <CheckBox
+        android:id="@+id/print_player"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rp_print_player" />
+
+    <CheckBox
+        android:id="@+id/print_location"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rp_print_location" />
+
+</LinearLayout>

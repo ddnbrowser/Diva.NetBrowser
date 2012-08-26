@@ -2,6 +2,7 @@ package net.diva.browser.service.parser;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +50,30 @@ public class HistoryParser {
 
 			if (end >= 0)
 				return null;
+		}
+		catch (Exception e) {
+			throw new ParseException(e);
+		}
+
+		m = m.usePattern(Parser.RE_NEXT);
+		return m.find() ? m.group(1) : null;
+	}
+
+	public static String parsePlayHistoryForResultPicture(InputStream content, History history, String[] id) throws ParseException {
+		String body = Parser.read(content);
+
+		String dateStr = DATE_FORMAT.format(new Date(history.play_date * (long)1000));
+		String score = String.valueOf(history.score);
+
+		Matcher m = RE_HISTORY.matcher(body);
+
+		try {
+			while (m.find()) {
+				if(dateStr.equals(m.group(1)) && score.equals(m.group(2))){
+					id[0] = m.group(3);
+					return null;
+				}
+			}
 		}
 		catch (Exception e) {
 			throw new ParseException(e);

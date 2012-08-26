@@ -31,7 +31,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 25;
+	private static final int VERSION = 26;
 
 	private static LocalStore m_instance;
 
@@ -754,6 +754,7 @@ public class LocalStore extends ContextWrapper {
 				HistoryTable.SE,
 				HistoryTable.SKIN,
 				HistoryTable.LOCK,
+				HistoryTable.RESULT_PICTURE,
 		}, where, dateList.toArray(new String[0]), null, null, orderBy);
 		try {
 			while (c.moveToNext()){
@@ -785,6 +786,7 @@ public class LocalStore extends ContextWrapper {
 				h.se_id = c.getString(24);
 				h.skin_id = c.getString(25);
 				h.lock = c.getInt(26);
+				h.result_picture = c.getString(27);
 
 				records.add(h);
 			}
@@ -948,6 +950,7 @@ public class LocalStore extends ContextWrapper {
 				HistoryTable.SE,
 				HistoryTable.SKIN,
 				HistoryTable.LOCK,
+				HistoryTable.RESULT_PICTURE,
 		}, null, null, null, null, null);
 
 		while (c.moveToNext()){
@@ -978,12 +981,18 @@ public class LocalStore extends ContextWrapper {
 			sb.append(c.getString(23)).append(",");
 			sb.append(c.getString(24)).append(",");
 			sb.append(c.getString(25)).append(",");
-			sb.append(c.getInt(26)).append("\r\n");
+			sb.append(c.getString(26)).append(",");
+			sb.append(c.getString(27)).append("\r\n");
 
 			list.add(sb.toString().getBytes());
 		}
 
 		return list;
+	}
+
+	public void setPicture(History history){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		HistoryTable.setPicture(db, history);
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {
@@ -1098,6 +1107,8 @@ public class LocalStore extends ContextWrapper {
 						HistoryTable.CLEAR_STATUS, 0,
 						HistoryTable.RANK, 0,
 						HistoryTable.ACHIEVEMENT, 8000));
+			case 25:
+				HistoryTable.addResutPictureColumns(db);
 			default:
 				break;
 			}

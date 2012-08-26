@@ -401,17 +401,19 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				h.se_id = data[24];
 				h.skin_id = data[25];
 				h.lock = Integer.valueOf(data[26]);
+				if(data.length >= 28)
+					h.result_picture = data[27];
 				DdN.getLocalStore().insert(h);
 			}
 
 		}catch(Exception e){
-			//mouyada-
+			e.printStackTrace();
 		}finally{
 			try{
 				if(br !=null)
 					br.close();
 			}catch(Exception e){
-				// mouyada-
+				e.printStackTrace();
 			}
 		}
 	}

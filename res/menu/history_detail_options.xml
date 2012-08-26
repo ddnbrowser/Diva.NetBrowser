@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu
   xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/history_ranking" android:title="@string/hist_ranking_menu" android:icon="@android:drawable/ic_menu_myplaces"></item>
-    <item android:id="@+id/history_capture" android:title="@string/hist_capture_menu" android:icon="@android:drawable/ic_menu_share"></item>
+    <item android:id="@+id/history_ranking" android:title="@string/hist_ranking_menu" android:icon="@android:drawable/ic_menu_myplaces" />
+    <item android:id="@+id/history_capture" android:title="@string/hist_capture_menu" android:icon="@android:drawable/ic_menu_share" />
+    <item android:id="@+id/history_result_picture" android:title="@string/hist_result_picture" android:icon="@android:drawable/ic_menu_gallery" />
 </menu>

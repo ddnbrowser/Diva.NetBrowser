@@ -42,6 +42,7 @@ public class History implements Serializable {
 	public String se_id;
 	public String skin_id;
 	public int lock;
+	public String result_picture;
 
 	public void setPlayDate(String play_date){
 		Long date = 0L;

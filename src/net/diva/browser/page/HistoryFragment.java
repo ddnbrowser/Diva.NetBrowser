@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,11 +23,16 @@ import net.diva.browser.db.HistoryTable;
 import net.diva.browser.history.HistoryDetailActivity;
 import net.diva.browser.history.UpdateHistoryTask;
 import net.diva.browser.model.History;
+import net.diva.browser.service.ServiceClient;
+import net.diva.browser.service.ServiceTask;
 import net.diva.browser.util.DdNUtil;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -59,6 +66,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 	private static int m_rank;
 	private static int m_date;
 	private static boolean m_lock;
+	private static boolean m_result_picture;
 	private static String sort;
 	private static boolean isReverseOrder;
 	static { initOrder(); }
@@ -121,6 +129,9 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 			break;
 		case R.id.history_sort:
 			selectSortOrder();
+			break;
+		case R.id.history_search:
+			selectOrder();
 			break;
 		case R.id.history_delete_all:
 			delete(true);
@@ -272,61 +283,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 	}
 
 	private void export(){
-		Resources res = getResources();
-		String confirmMsg = res.getString(R.string.hist_confirm_export_msg);
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(res.getString(R.string.hist_confirm_export_dialog));
-		builder.setMessage(confirmMsg);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				if(exportCsv()){
-					Toast.makeText(getActivity(), "エクスポート成功", Toast.LENGTH_LONG).show();
-				}else{
-					Toast.makeText(getActivity(), "エクスポート失敗", Toast.LENGTH_LONG).show();
-				}
-			}
-		});
-		builder.setNegativeButton(R.string.cancel, null);
-		builder.show();
-	}
-
-	private boolean exportCsv(){
-		if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
-			return false;
-
-		String outStragePath = Environment.getExternalStorageDirectory().getPath() + "/net.diva.browser";
-		File dir = new File(outStragePath);
-		if(!dir.exists())
-			dir.mkdirs();
-
-		String outputCsv = outStragePath + "/DdNB_history_"+ DdNUtil.now() + "_exported_B.csv";
-		File csv = new File(outputCsv);
-		FileOutputStream fos = null;
-
-		try {
-			if(!csv.exists())
-				if(!csv.createNewFile())
-					return false;
-
-			List<byte[]> data = DdN.getLocalStore().csvExport();
-
-			fos = new FileOutputStream(csv);
-			for(byte[] b : data)
-				fos.write(b);
-
-		} catch(Exception e) {
-			return false;
-		} finally {
-			if(fos != null){
-				try{
-					fos.close();
-				}catch(IOException e){
-				}
-			}
-		}
-
-		return true;
+		new CsvExportTask().execute();
 	}
 
 	private void csvImport(){
@@ -358,64 +315,40 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		builder.setItems(items,
 				new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				importCsv(files[which]);
 				dialog.dismiss();
+				new CsvImportTask(files[which]).execute();
 			}
 		});
 		builder.show();
 	}
 
-	private void importCsv(File csv){
-		BufferedReader br = null;
-		try{
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(csv)));
-
-			String line;
-			while((line = br.readLine()) != null) {
-				String[] data = line.split(",", -1);
-				History h = new History();
-				h.music_id = data[0];
-				h.rank = Integer.valueOf(data[1]);
-				h.play_date = Integer.valueOf(data[2]);
-				h.play_place = data[3];
-				h.clear_status = Integer.valueOf(data[4]);
-				h.achievement = Integer.valueOf(data[5]);
-				h.score = Integer.valueOf(data[6]);
-				h.cool = Integer.valueOf(data[7]);
-				h.cool_per = Integer.valueOf(data[8]);
-				h.fine = Integer.valueOf(data[9]);
-				h.fine_per = Integer.valueOf(data[10]);
-				h.safe = Integer.valueOf(data[11]);
-				h.safe_per = Integer.valueOf(data[12]);
-				h.sad = Integer.valueOf(data[13]);
-				h.sad_per = Integer.valueOf(data[14]);
-				h.worst = Integer.valueOf(data[15]);
-				h.worst_per = Integer.valueOf(data[16]);
-				h.combo = Integer.valueOf(data[17]);
-				h.challange_time = Integer.valueOf(data[18]);
-				h.hold = Integer.valueOf(data[19]);
-				h.trial = Integer.valueOf(data[20]);
-				h.trial_result = Integer.valueOf(data[21]);
-				h.module1_id = data[22];
-				h.module2_id = data[23];
-				h.se_id = data[24];
-				h.skin_id = data[25];
-				h.lock = Integer.valueOf(data[26]);
-				if(data.length >= 28)
-					h.result_picture = data[27];
-				DdN.getLocalStore().insert(h);
+	private void selectOrder() {
+		Context context = getActivity();
+		final String[] searchNames = context.getResources().getStringArray(R.array.hist_search_names);
+		final boolean[] checked = new boolean[searchNames.length];
+		checked[0] = m_lock;
+		checked[1] = m_result_picture;
+		final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setTitle(R.string.item_search);
+		builder.setMultiChoiceItems(searchNames, checked,
+			new OnMultiChoiceClickListener() {
+				public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+					checked[which] = isChecked ;
+				}
 			}
-
-		}catch(Exception e){
-			e.printStackTrace();
-		}finally{
-			try{
-				if(br !=null)
-					br.close();
-			}catch(Exception e){
-				e.printStackTrace();
+		);
+		builder.setPositiveButton(R.string.ok,
+			new OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					m_lock = checked[0];
+					m_result_picture = checked[1];
+					refresh();
+					dialog.dismiss();
+				}
 			}
-		}
+		);
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.create().show();
 	}
 
 	private void selectSortOrder() {
@@ -446,6 +379,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		m_rank = -1;
 		m_date = -1;
 		m_lock = false;
+		m_result_picture = false;
 		sort = HistoryTable.PLAY_DATE;
 		isReverseOrder = true;
 	}
@@ -495,6 +429,11 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 			params.add(String.valueOf(1));
 		}
 
+		if(m_result_picture){
+			wl.add(HistoryTable.RESULT_PICTURE + " is not null" + and + HistoryTable.RESULT_PICTURE + " <> ? ");
+			params.add("");
+		}
+
 		StringBuffer sb = new StringBuffer();
 
 		for(int i = 0; i < wl.size(); i++){
@@ -504,7 +443,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		}
 		where = sb.toString();
 
-		if("lock".equals(sort)){
+		if(m_lock || m_result_picture){
 			orderBy = sort + (isReverseOrder ? " DESC" : "") + ", play_date DESC";
 		}else{
 			orderBy = sort + (isReverseOrder ? " DESC" : "");
@@ -571,6 +510,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 			TextView music_title;
 			TextView score;
 			ImageView lock;
+			ImageView result_picture;
 			TextView achievement;
 
 			private Holder(View view) {
@@ -579,6 +519,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				clear_status = (TextView)view.findViewById(R.id.clear_status);
 				music_title = (TextView)view.findViewById(R.id.music_title);
 				lock = (ImageView)view.findViewById(R.id.lock);
+				result_picture = (ImageView)view.findViewById(R.id.result_picture);
 				score = (TextView)view.findViewById(R.id.score);
 				achievement = (TextView)view.findViewById(R.id.achievement);
 			}
@@ -590,6 +531,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				clear_status.setText(m_context.getResources().getStringArray(R.array.clear_status_names)[history.clear_status]);
 				music_title.setText(DdNUtil.getMusicTitle(history.music_id));
 				lock.setVisibility(history.isLocked() ? View.VISIBLE : View.INVISIBLE);
+				result_picture.setVisibility((history.result_picture != null && !"".equals(history.result_picture) && !"null".equals(history.result_picture)) ? View.VISIBLE : View.INVISIBLE);
 				score.setText(String.format("%dpts", history.score));
 				achievement.setText(String.format("%d.%02d%%", history.achievement/100, history.achievement%100));
 			}
@@ -614,5 +556,163 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 
 			return view;
 		}
+	}
+
+	private class CsvExportTask extends ServiceTask<Void, Integer, Boolean> {
+
+		public CsvExportTask() {
+			super(getActivity(), R.string.hist_export_dialog);
+		}
+
+		@Override
+		protected void onPreExecute() {
+			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			super.onPreExecute();
+		}
+
+		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
+
+			if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
+				return false;
+
+			String outStragePath = Environment.getExternalStorageDirectory().getPath() + "/net.diva.browser";
+			File dir = new File(outStragePath);
+			if(!dir.exists())
+				dir.mkdirs();
+
+			String outputCsv = outStragePath + "/DdNB_history_"+ DdNUtil.now() + "_exported_B.csv";
+			File csv = new File(outputCsv);
+			FileOutputStream fos = null;
+
+			try{
+				if(!csv.exists())
+					if(!csv.createNewFile())
+						return false;
+
+				List<byte[]> data = DdN.getLocalStore().csvExport();
+		        m_progress.setMax(data.size());
+		        publishProgress(0, data.size());
+
+				fos = new FileOutputStream(csv);
+				for(byte[] b : data){
+					fos.write(b);
+					publishProgress(1);
+				}
+
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				if(fos != null){
+					try{
+						fos.close();
+					}catch(IOException e){
+					}
+				}
+			}
+
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			if (values.length > 1) {
+				m_progress.setIndeterminate(false);
+				m_progress.setMax(values[1]);
+			}
+			m_progress.incrementProgressBy(values[0]);
+		}
+
+	}
+
+	private class CsvImportTask extends ServiceTask<Void, Integer, Boolean> {
+
+		private File m_csv;
+
+		public CsvImportTask(File csv) {
+			super(getActivity(), R.string.hist_import_dialog);
+			m_csv = csv;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			m_progress.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			super.onPreExecute();
+		}
+
+		protected Boolean doTask(ServiceClient service, Void... params)
+				throws Exception {
+
+			BufferedReader br = null;
+			try {
+				LineNumberReader fin = new LineNumberReader(new FileReader(m_csv));
+
+				while (null != fin.readLine()) { ; }
+				m_progress.setMax(fin.getLineNumber());
+				publishProgress(0, fin.getLineNumber());
+				fin.close();
+
+				br = new BufferedReader(new InputStreamReader(new FileInputStream(m_csv)));
+				String line;
+				while((line = br.readLine()) != null) {
+					String[] data = line.split(",", -1);
+					History h = new History();
+					h.music_id = data[0];
+					h.rank = Integer.valueOf(data[1]);
+					h.play_date = Integer.valueOf(data[2]);
+					h.play_place = data[3];
+					h.clear_status = Integer.valueOf(data[4]);
+					h.achievement = Integer.valueOf(data[5]);
+					h.score = Integer.valueOf(data[6]);
+					h.cool = Integer.valueOf(data[7]);
+					h.cool_per = Integer.valueOf(data[8]);
+					h.fine = Integer.valueOf(data[9]);
+					h.fine_per = Integer.valueOf(data[10]);
+					h.safe = Integer.valueOf(data[11]);
+					h.safe_per = Integer.valueOf(data[12]);
+					h.sad = Integer.valueOf(data[13]);
+					h.sad_per = Integer.valueOf(data[14]);
+					h.worst = Integer.valueOf(data[15]);
+					h.worst_per = Integer.valueOf(data[16]);
+					h.combo = Integer.valueOf(data[17]);
+					h.challange_time = Integer.valueOf(data[18]);
+					h.hold = Integer.valueOf(data[19]);
+					h.trial = Integer.valueOf(data[20]);
+					h.trial_result = Integer.valueOf(data[21]);
+					h.module1_id = data[22];
+					h.module2_id = data[23];
+					h.se_id = data[24];
+					h.skin_id = data[25];
+					h.lock = Integer.valueOf(data[26]);
+					if(data.length >= 28)
+						h.result_picture = "null".equals(data[27]) ? "" : data[27];
+
+					DdN.getLocalStore().insert(h);
+					publishProgress(1);
+				}
+
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				try{
+					if(br !=null)
+						br.close();
+				}catch(Exception e){
+					e.printStackTrace();
+				}
+			}
+
+
+			return Boolean.TRUE;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			if (values.length > 1) {
+				m_progress.setIndeterminate(false);
+				m_progress.setMax(values[1]);
+			}
+			m_progress.incrementProgressBy(values[0]);
+		}
+
 	}
 }

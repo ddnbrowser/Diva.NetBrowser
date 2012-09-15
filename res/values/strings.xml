@@ -206,8 +206,8 @@
     <string name="hist_menu_export">データ入出力</string>
     <string name="hist_menu_import">履歴インポート</string>
     <string name="hist_confirm_delete_dialog">プレイ履歴削除確認</string>
-    <string name="hist_confirm_export_dialog">履歴エクスポート確認</string>
-    <string name="hist_confirm_export_msg">保存されている履歴を全てSDカードへエクスポートします。よろしいですか？\n※量によっては時間がかかったりアプリが落ちたりするかもしれません</string>
+    <string name="hist_import_dialog">インポートしています...</string>
+    <string name="hist_export_dialog">エクスポートしています...</string>
     <string name="rp_picture_setting">購入画像設定</string>
     <string name="rp_image_size">画像サイズ</string>
     <string name="rp_image_quality">画質</string>
@@ -224,6 +224,10 @@
     <string name="rp_download_confirm_msg">30VPかかります。よろしいですか？</string>
     <string name="rp_download_result_picture">ダウンロードしています...</string>
     <string name="rp_download_error">DIVA.NET上に履歴データが残っていません</string>
+    <string name="rp_choose_share_title">共有画像選択</string>
+    <string name="rp_choose_share_message">共有する画像を選択して下さい</string>
+    <string name="rp_choose_rp">リザピク</string>
+    <string name="rp_choose_create">通常</string>
     <string name="all_music">全曲</string>
     <string name="all_difficulty">全難易度</string>
     <string name="location_search">店舗検索</string>

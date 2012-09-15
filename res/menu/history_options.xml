@@ -11,6 +11,11 @@
         android:title="@string/item_sort"
         />
     <item
+        android:id="@+id/history_search"
+        android:icon="@drawable/ic_menu_search"
+        android:title="@string/item_search"
+        />
+    <item
         android:id="@+id/history_delete"
         android:icon="@android:drawable/ic_menu_delete"
         android:title="@string/hist_menu_delete"

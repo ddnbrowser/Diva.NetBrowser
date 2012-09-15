@@ -124,13 +124,15 @@
     <item>スコア</item>
     <item>達成率</item>
     <item>日付</item>
-    <item>ロック有無</item>
 </string-array>
 <string-array name="hist_sort_order_values">
     <item>score</item>
     <item>achievement</item>
     <item>play_date</item>
-    <item>lock</item>
+</string-array>
+<string-array name="hist_search_names">
+    <item>ロック</item>
+    <item>リザピク</item>
 </string-array>
 <integer-array name="capture_size">
     <item>900</item>

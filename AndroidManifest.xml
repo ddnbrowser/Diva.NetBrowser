@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
-      android:versionCode="337" android:versionName="3.37">
+      android:versionCode="338" android:versionName="3.38">
     <application
         android:label="@string/app_name"
         android:icon="@drawable/icon"

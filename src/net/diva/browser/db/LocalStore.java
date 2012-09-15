@@ -31,7 +31,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 26;
+	private static final int VERSION = 27;
 
 	private static LocalStore m_instance;
 
@@ -128,7 +128,7 @@ public class LocalStore extends ContextWrapper {
 				ScoreTable.ACHIEVEMENT,
 				ScoreTable.RANKING,
 				ScoreTable.SATURATION,
-		}, null, null, null, null, null);
+		}, ScoreTable.RIVAL_CODE + " is null", null, null, null, null);
 		try {
 			while (cs.moveToNext()) {
 				ScoreRecord score = new ScoreRecord();
@@ -214,13 +214,13 @@ public class LocalStore extends ContextWrapper {
 			for (MusicInfo music: musics) {
 				if (MusicTable.update(db, music)) {
 					for (int i = 0; i < music.records.length; ++i)
-						ScoreTable.update(db, music.id, i, music.records[i]);
+						ScoreTable.update(db, music.id, i, null, music.records[i]);
 				}
 				else {
 					music.reading = getReading(music.title);
 					MusicTable.insert(db, music);
 					for (int i = 0; i < music.records.length; ++i)
-						ScoreTable.insert(db, music.id, i, music.records[i]);
+						ScoreTable.insert(db, music.id, i, null, music.records[i]);
 				}
 			}
 			db.setTransactionSuccessful();
@@ -241,13 +241,17 @@ public class LocalStore extends ContextWrapper {
 		editor.commit();
 	}
 
-	public void update(MusicInfo music) {
+	public void update(MusicInfo music){
+		update(music, null);
+	}
+
+	public void update(MusicInfo music, String rival_code) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
 			MusicTable.update(db, music);
 			for (int i = 0; i < music.records.length; ++i)
-				ScoreTable.update(db, music.id, i, music.records[i]);
+				ScoreTable.update(db, music.id, i, rival_code, music.records[i]);
 			db.setTransactionSuccessful();
 		}
 		finally {
@@ -1109,6 +1113,8 @@ public class LocalStore extends ContextWrapper {
 						HistoryTable.ACHIEVEMENT, 8000));
 			case 25:
 				HistoryTable.addResutPictureColumns(db);
+			case 26:
+				ScoreTable.addRivalCodeColumns(db);
 			default:
 				break;
 			}

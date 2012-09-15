@@ -126,6 +126,7 @@ public class MusicParser {
 					entry.id = id;
 					entry.title = title;
 					entry.rank = rank;
+					entry.rival_code = null;
 					list.add(entry);
 				}
 			}

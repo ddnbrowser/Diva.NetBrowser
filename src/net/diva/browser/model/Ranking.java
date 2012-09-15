@@ -7,4 +7,5 @@ public class Ranking {
 	public int ranking;
 	public int score;
 	public long date;
+	public String rival_code;
 }

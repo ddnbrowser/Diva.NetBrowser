@@ -32,10 +32,10 @@ public final class Parser {
 		}
 	}
 
-	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\]</div>\\s*</div>\\s*(.+)\\s*</div>");
-	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\]</div>\\s*</div>\\s*(.+)\\s*(.+)<br>");
-	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\]</div>\\s*</div>\\s*(\\d+)VP<br>");
-	private static final Pattern RE_TICKET = Pattern.compile("\\[DIVAチケット\\]</div>\\s*</div>\\s*(\\d+)枚<br>");
+	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\].*?<span id=\"menuName\">(.+?)</span>", Pattern.DOTALL);
+	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\].*?<span id=\"menuLevel\">(.+?)</span>.*?<span id=\"menuTitle\">(.+?)</span>", Pattern.DOTALL);
+	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\].*?<span id=\"menuVp\">(\\d+)</span>VP<br>", Pattern.DOTALL);
+	private static final Pattern RE_TICKET = Pattern.compile("\\[DIVAチケット\\].*?<span id=\"menuTicket\">(\\d+)</span>枚", Pattern.DOTALL);
 	private static final Pattern RE_NEWS = Pattern.compile("DIVA.NETニュース\\((.+)\\)</a>\\s*<br>");
 
 	public static class Result {
@@ -53,7 +53,7 @@ public final class Parser {
 		record.player_name = m.group(1);
 		m = m.usePattern(RE_LEVEL);
 		if (m.find()) {
-			record.level = m.group(1);
+			record.level = "LV." + m.group(1);
 			record.title = m.group(2);
 		}
 		m = m.usePattern(RE_VP);

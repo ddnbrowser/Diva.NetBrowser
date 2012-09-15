@@ -80,8 +80,11 @@ public class HistoryTable implements BaseColumns {
 		.append(SE).append(" text,")
 		.append(SKIN).append(" text,")
 		.append(LOCK).append(" integer,")
-		.append(RESULT_PICTURE).append(" text")
-		.append(")");
+		.append(RESULT_PICTURE).append(" text,")
+		.append("UNIQUE(")
+		.append(PLAY_DATE).append(", ")
+		.append(SCORE)
+		.append("))");
 		return builder.toString();
 	}
 
@@ -90,22 +93,91 @@ public class HistoryTable implements BaseColumns {
 		db.execSQL(String.format(format, TABLE_NAME, RESULT_PICTURE, "text"));
 	}
 
-	static long insert(SQLiteDatabase db, History history) {
+	static void addUniqueKey(SQLiteDatabase db) {
+		db.execSQL(create_statement().replace(TABLE_NAME, TABLE_NAME + "_tmp"));
 
-		boolean exist = false;
-		Cursor c = db.query(TABLE_NAME, new String[] {
-				PLAY_DATE,
-				SCORE
-		}, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date) }, null, null, PLAY_DATE);
-		try {
-			while (c.moveToNext())
-				exist = history.play_date == c.getInt(0) && history.score == c.getInt(1);
+		tmpInster(db, LOCK + "=1 and " + RESULT_PICTURE + " is not null and " + RESULT_PICTURE + " <> ''");
+		tmpInster(db, RESULT_PICTURE + " is not null and " + RESULT_PICTURE + " <> ''");
+		tmpInster(db, LOCK + "=1");
+		tmpInster(db, null);
+
+		db.execSQL("drop table " + TABLE_NAME);
+		db.execSQL(create_statement());
+
+		db.execSQL("insert into " + TABLE_NAME + " select * from " + TABLE_NAME + "_tmp");
+		db.execSQL("drop table " + TABLE_NAME + "_tmp");
+	}
+
+	static void tmpInster(SQLiteDatabase db, String where){
+		Cursor c = db.query(HistoryTable.TABLE_NAME, new String[] {
+				HistoryTable.MUSIC_ID,
+				HistoryTable.RANK,
+				HistoryTable.PLAY_DATE,
+				HistoryTable.PLAY_PLACE,
+				HistoryTable.CLEAR_STATUS,
+				HistoryTable.ACHIEVEMENT,
+				HistoryTable.SCORE,
+				HistoryTable.COOL,
+				HistoryTable.COOL_PER,
+				HistoryTable.FINE,
+				HistoryTable.FINE_PER,
+				HistoryTable.SAFE,
+				HistoryTable.SAFE_PER,
+				HistoryTable.SAD,
+				HistoryTable.SAD_PER,
+				HistoryTable.WORST,
+				HistoryTable.WORST_PER,
+				HistoryTable.COMBO,
+				HistoryTable.CHALLANGE_TIME,
+				HistoryTable.HOLD,
+				HistoryTable.TRIAL,
+				HistoryTable.TRIAL_RESULT,
+				HistoryTable.MODULE1,
+				HistoryTable.MODULE2,
+				HistoryTable.SE,
+				HistoryTable.SKIN,
+				HistoryTable.LOCK,
+				HistoryTable.RESULT_PICTURE,
+		}, where, null, null, null, null);
+
+		while (c.moveToNext()){
+			ContentValues values = new ContentValues(27);
+			values.put(MUSIC_ID, c.getString(0));
+			values.put(RANK, c.getInt(1));
+			values.put(PLAY_DATE, c.getInt(2));
+			values.put(PLAY_PLACE, c.getString(3));
+			values.put(CLEAR_STATUS, c.getInt(4));
+			values.put(ACHIEVEMENT, c.getInt(5));
+			values.put(SCORE, c.getInt(6));
+			values.put(COOL, c.getInt(7));
+			values.put(COOL_PER, c.getInt(8));
+			values.put(FINE, c.getInt(9));
+			values.put(FINE_PER, c.getInt(10));
+			values.put(SAFE, c.getInt(11));
+			values.put(SAFE_PER, c.getInt(12));
+			values.put(SAD, c.getInt(13));
+			values.put(SAD_PER, c.getInt(14));
+			values.put(WORST, c.getInt(15));
+			values.put(WORST_PER, c.getInt(16));
+			values.put(COMBO, c.getInt(17));
+			values.put(CHALLANGE_TIME, c.getInt(18));
+			values.put(HOLD, c.getInt(19));
+			values.put(TRIAL, c.getInt(20));
+			values.put(TRIAL_RESULT, c.getInt(21));
+			values.put(MODULE1, c.getString(22));
+			values.put(MODULE2, c.getString(23));
+			values.put(SE, c.getString(24));
+			values.put(SKIN, c.getString(25));
+			values.put(LOCK, c.getInt(26));
+			values.put(RESULT_PICTURE, c.getString(27));
+
+			db.insert(TABLE_NAME + "_tmp", null, values);
 		}
-		finally {
-			c.close();
-		}
-		if(exist)
-			return 0;
+
+		c.close();
+	}
+
+	static long insert(SQLiteDatabase db, History history) {
 
 		ContentValues values = new ContentValues(27);
 		values.put(MUSIC_ID, history.music_id);

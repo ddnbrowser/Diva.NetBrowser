@@ -1115,6 +1115,7 @@ public class LocalStore extends ContextWrapper {
 				HistoryTable.addResutPictureColumns(db);
 			case 26:
 				ScoreTable.addRivalCodeColumns(db);
+				HistoryTable.addUniqueKey(db);
 			default:
 				break;
 			}

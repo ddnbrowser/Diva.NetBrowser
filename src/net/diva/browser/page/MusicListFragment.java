@@ -307,7 +307,12 @@ public abstract class MusicListFragment extends ListFragment
 		LayoutInflater inflater = LayoutInflater.from(getActivity());
 		View view = inflater.inflate(R.layout.input_reading, null);
 		final EditText edit = (EditText)view.findViewById(R.id.reading);
-		edit.setText(music.reading);
+		final boolean isReadingEmpty = "".equals(music.reading);
+		if(isReadingEmpty){
+			edit.setText(LocalStore.instance(getActivity()).getReading(music.title));
+		}else{
+			edit.setText(music.reading);
+		}
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.input_reading);
@@ -322,7 +327,8 @@ public abstract class MusicListFragment extends ListFragment
 				DdN.notifyPlayRecordChanged();
 			}
 		});
-		builder.setNegativeButton(R.string.cancel, null);
+		if(!isReadingEmpty)
+			builder.setNegativeButton(R.string.cancel, null);
 		builder.show();
 	}
 

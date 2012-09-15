@@ -121,7 +121,7 @@ public class HistoryDetailActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.history_capture:
-			shareOtherApp(screenCapture());
+			shareHistory();
 			break;
 		case R.id.history_ranking:
 			ranking();
@@ -135,7 +135,28 @@ public class HistoryDetailActivity extends Activity {
 		return true;
 	}
 
-	private void shareOtherApp(Uri uri){
+	private void shareHistory(){
+		if(m_history.result_picture != null){
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setTitle(R.string.rp_choose_share_title);
+			builder.setMessage(R.string.rp_choose_share_message);
+			builder.setPositiveButton(R.string.rp_choose_create, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					shareImage(screenCapture());
+				}
+			});
+			builder.setNegativeButton(R.string.rp_choose_rp, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					shareImage(getResultPicture());
+				}
+			});
+			builder.show();
+		}
+	}
+
+	private void shareImage(Uri uri){
 		Intent send = new  Intent(Intent.ACTION_SEND);
 		send.setType("image/jpg");
 		send.putExtra(Intent.EXTRA_STREAM, uri);
@@ -419,6 +440,15 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	public void picture(View view){
+		Intent intent = new Intent();
+		intent.setType("image/*");
+		intent.setAction(Intent.ACTION_VIEW);
+		intent.setData(getResultPicture());
+
+		startActivity(intent);
+	}
+
+	private Uri getResultPicture(){
 		String filePath = null;
 		if(isMountedExSD()){
 			filePath = Environment.getExternalStorageDirectory().getPath() + OUT_STRAGE_IMAGE_DIR + "/" + m_history.result_picture;
@@ -435,12 +465,7 @@ public class HistoryDetailActivity extends Activity {
 		c.moveToFirst();
 		String contentname = "content://media/external/images/media/" + c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
 
-		Intent intent = new Intent();
-		intent.setType("image/*");
-		intent.setAction(Intent.ACTION_VIEW);
-		intent.setData(Uri.parse(contentname));
-
-		startActivity(intent);
+		return Uri.parse(contentname);
 	}
 
 	public void ranking(){
@@ -693,7 +718,7 @@ public class HistoryDetailActivity extends Activity {
 			hold.setText(String.format("%d pts", h.hold));
 			lock.setText(h.isLocked() ? "ロック解除" : "ロック");
 			delete.setEnabled(!h.isLocked());
-			result_picture.setEnabled(h.result_picture != null);
+			result_picture.setEnabled(h.result_picture != null && !"".equals(h.result_picture) && !"null".equals(h.result_picture));
 		}
 	}
 

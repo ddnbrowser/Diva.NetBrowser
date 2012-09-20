@@ -136,7 +136,7 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	private void shareHistory(){
-		if(m_history.result_picture != null){
+		if(m_history.result_picture != null && !"".equals(m_history.result_picture) && !"null".equals(m_history.result_picture)){
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setTitle(R.string.rp_choose_share_title);
 			builder.setMessage(R.string.rp_choose_share_message);
@@ -153,6 +153,8 @@ public class HistoryDetailActivity extends Activity {
 				}
 			});
 			builder.show();
+		}else{
+			shareImage(screenCapture());
 		}
 	}
 

@@ -24,6 +24,7 @@ final class ScoreTable implements BaseColumns {
 
 	public static final String RIVAL_CODE = "rival_code";
 
+	private static final String WHERE_IDENTITY_MYSCORE = String.format("%s=? AND %s=? AND %s is null", MUSIC_ID, RANK, RIVAL_CODE);
 	private static final String WHERE_IDENTITY = String.format("%s=? AND %s=? AND %s=?", MUSIC_ID, RANK, RIVAL_CODE);
 
 	private ScoreTable() {}
@@ -100,8 +101,12 @@ final class ScoreTable implements BaseColumns {
 		values.put(TRIAL_STATUS, score.trial_status);
 		values.put(HIGH_SCORE, score.high_score);
 		values.put(ACHIEVEMENT, score.achievement);
-		return db.update(NAME, values, WHERE_IDENTITY,
-				new String[] { music_id, String.valueOf(rank) }) == 1;
+
+		if(rival_code == null){
+			return db.update(NAME, values, WHERE_IDENTITY_MYSCORE, new String[] { music_id, String.valueOf(rank) }) == 1;
+		}else{
+			return db.update(NAME, values, WHERE_IDENTITY, new String[] { music_id, String.valueOf(rank), rival_code }) == 1;
+		}
 	}
 
 	static boolean updateSaturation(SQLiteDatabase db, String music_id, int rank, ScoreRecord score) {
@@ -109,7 +114,7 @@ final class ScoreTable implements BaseColumns {
 			return false;
 		ContentValues values = new ContentValues(1);
 		values.put(SATURATION, score.saturation);
-		return db.update(NAME, values, WHERE_IDENTITY,
+		return db.update(NAME, values, WHERE_IDENTITY_MYSCORE,
 				new String[] { music_id, String.valueOf(rank) }) >= 1;
 	}
 
@@ -122,7 +127,11 @@ final class ScoreTable implements BaseColumns {
 		values.putNull(RANKING);
 		values.putNull(RANKIN_DATE);
 		values.putNull(RANKIN_SCORE);
-		db.update(NAME, values, String.format(RIVAL_CODE + "=%s", rival_code), null);
+		if(rival_code == null){
+			db.update(NAME, values, RIVAL_CODE + " is null ", null);
+		}else{
+			db.update(NAME, values, String.format(RIVAL_CODE + "=%s", rival_code), null);
+		}
 	}
 
 	static boolean update(SQLiteDatabase db, Ranking entry) {
@@ -130,7 +139,10 @@ final class ScoreTable implements BaseColumns {
 		values.put(RANKING, entry.ranking);
 		values.put(RANKIN_DATE, entry.date);
 		values.put(RANKIN_SCORE, entry.score);
-		return db.update(NAME, values, WHERE_IDENTITY,
-				new String[] { entry.id, String.valueOf(entry.rank), entry.rival_code }) == 1;
+		if(entry.rival_code == null){
+			return db.update(NAME, values, WHERE_IDENTITY_MYSCORE, new String[] { entry.id, String.valueOf(entry.rank) }) == 1;
+		}else{
+			return db.update(NAME, values, WHERE_IDENTITY, new String[] { entry.id, String.valueOf(entry.rank), entry.rival_code }) == 1;
+		}
 	}
 }

@@ -20,7 +20,7 @@ import android.net.Uri;
 
 public class HistoryStore extends ContentProvider {
 	private static final String DATABASE_NAME = "history.db";
-	private static final int VERSION = 1;
+	private static final int VERSION = 2;
 
 	private static HistoryStore s_instance;
 
@@ -191,6 +191,12 @@ public class HistoryStore extends ContentProvider {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			switch (oldVersion) {
+			case 1:
+				HistoryTable.upgradeToVerB(db);
+			default:
+				break;
+			}
 		}
 	}
 

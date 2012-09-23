@@ -17,7 +17,7 @@ import net.diva.browser.util.MatchHelper;
  */
 public class HistoryParser {
 	private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yy/MM/dd HH:mm");
-	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font><br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
+	private final static Pattern RE_HISTORY = Pattern.compile("<font color=\"#00FFFF\">\\[(.+)\\]</font>\\s*<br>\\s*<a href=\"/divanet/pv/info/(\\w+)/");
 	private final static Pattern RE_DETAIL = Pattern.compile("<a href=\"/divanet/personal/playHistoryDetail/(.+?)/");
 
 	public static String parsePlayHistory(InputStream content, List<String> newHistorys, long[] params)

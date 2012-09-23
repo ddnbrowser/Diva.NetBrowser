@@ -32,10 +32,15 @@ public final class Parser {
 		}
 	}
 
+	private static final Pattern RE_SPAN_TAG = Pattern.compile("<span id=\".+\">(.+)</span>");
+	private static String removeSpan(String text) {
+		return RE_SPAN_TAG.matcher(text).replaceAll("$1");
+	}
+
 	private static final Pattern RE_PLAYER = Pattern.compile("\\[プレイヤー名\\]</div>\\s*</div>\\s*(.+)\\s*</div>");
 	private static final Pattern RE_LEVEL = Pattern.compile("\\[LEVEL/称号\\]</div>\\s*</div>\\s*(.+)\\s*(.+)<br>");
-	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\]</div>\\s*</div>\\s*(\\d+)VP<br>");
-	private static final Pattern RE_TICKET = Pattern.compile("\\[DIVAチケット\\]</div>\\s*</div>\\s*(\\d+)枚<br>");
+	private static final Pattern RE_VP = Pattern.compile("\\[VOCALOID POINT\\]</div>\\s*</div>\\s*(.+)VP<br>");
+	private static final Pattern RE_TICKET = Pattern.compile("\\[DIVAチケット\\]</div>\\s*</div>\\s*(.+)枚<br>");
 	private static final Pattern RE_NEWS = Pattern.compile("DIVA.NETニュース\\((.+)\\)</a>\\s*<br>");
 
 	public static class Result {
@@ -50,18 +55,18 @@ public final class Parser {
 		Matcher m = RE_PLAYER.matcher(body);
 		if (!m.find())
 			throw new ParseException();
-		record.player_name = m.group(1);
+		record.player_name = removeSpan(m.group(1));
 		m = m.usePattern(RE_LEVEL);
 		if (m.find()) {
-			record.level = m.group(1);
-			record.title = m.group(2);
+			record.level = removeSpan(m.group(1));
+			record.title = removeSpan(m.group(2));
 		}
 		m = m.usePattern(RE_VP);
 		if (m.find())
-			record.vocaloid_point = Integer.valueOf(m.group(1));
+			record.vocaloid_point = Integer.valueOf(removeSpan(m.group(1)));
 		m = m.usePattern(RE_TICKET);
 		if (m.find())
-			record.ticket = Integer.valueOf(m.group(1));
+			record.ticket = Integer.valueOf(removeSpan(m.group(1)));
 		m = m.usePattern(RE_NEWS);
 		if (m.find())
 			result.newsTimestamp = m.group(1);

@@ -30,7 +30,8 @@ public class MyListParser {
 
 	public static String parseActivateResult(InputStream content)  {
 		String body = Parser.read(content);
-		if (body.contains("筐体で使用するマイリストとして設定しました"))
+		// 筐体で使用するマイリスト[ABC]として設定しました
+		if (body.contains("として設定しました"))
 			return null;
 		if (body.contains("このマイリストは設定済です"))
 			return null;

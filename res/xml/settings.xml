@@ -9,6 +9,10 @@
 			android:entryValues="@array/tab_tags"
 			android:entries="@array/tab_names"
 			/>
+		<PreferenceScreen android:summary="タブの順番を変更します"
+            android:title="タブの並べ替え"
+            android:key="tab_sort">
+        </PreferenceScreen>
 		<ListPreference
 			android:key="music_layout"
 			android:title="@string/music_layout"

@@ -26,6 +26,13 @@
     <item>レコード</item>
     <item>プレイ履歴</item>
 </string-array>
+<string-array name="tab_sort_name">
+    <item>プレイヤー情報</item>
+    <item>全曲リスト</item>
+    <item>マイリスト</item>
+    <item>レコード</item>
+    <item>プレイ履歴</item>
+</string-array>
 <array name="tab_icons">
     <item>@drawable/ic_tab_user</item>
     <item>@drawable/ic_tab_all</item>

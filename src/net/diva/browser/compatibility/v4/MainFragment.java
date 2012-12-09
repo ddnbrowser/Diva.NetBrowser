@@ -1,7 +1,9 @@
 package net.diva.browser.compatibility.v4;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.diva.browser.DdN;
 import net.diva.browser.MainActivity;
@@ -69,7 +71,7 @@ public class MainFragment extends Fragment
 
 		m_adapter = new TabsAdapter(getActivity(), host, (ViewPager)view.findViewById(R.id.pager),
 				widget, view.findViewById(R.id.tabbase));
-		addTabs(host, widget, m_adapter);
+		addTabs(host, widget, m_adapter, preferences);
 
 		final int width = getResources().getDimensionPixelSize(R.dimen.tab_width);
 		for (int i = 0; i < widget.getTabCount(); ++i)
@@ -136,7 +138,7 @@ public class MainFragment extends Fragment
 		m_adapter.updateTitle();
 	}
 
-	private void addTabs(TabHost host, TabWidget widget, TabsAdapter adapter) {
+	private void addTabs(TabHost host, TabWidget widget, TabsAdapter adapter, SharedPreferences preferences) {
 		final Resources resources = getResources();
 
 		String[] tags = resources.getStringArray(R.array.tab_tags);
@@ -144,17 +146,30 @@ public class MainFragment extends Fragment
 		TypedArray icons = resources.obtainTypedArray(R.array.tab_icons);
 		String[] classes = resources.getStringArray(R.array.tab_classes);
 
+		Map<String, Integer> tagNumbering = new HashMap<String, Integer>();
+		for(int i = 0; i < tags.length; i++)
+			tagNumbering.put(tags[i], i);
+
+		String strTags = "";
+		for(String tag : tags)
+			strTags += tag + ",";
+		strTags = strTags.substring(0, strTags.length() - 1);
+
+		String customTabList = preferences.getString("customTabList", strTags);
+		tags = customTabList.split(",");
+
 		for (int i = 0; i < tags.length; ++i) {
 			final String tag = tags[i];
+			final int tagNumber = tagNumbering.get(tag);
 			if ("mylist".equals(tag)) {
-				addMyListTabs(host, widget, adapter, classes[i]);
+				addMyListTabs(host, widget, adapter, classes[tagNumber]);
 				continue;
 			}
 			Bundle args = new Bundle();
 			args.putString("tag", tag);
 			TabHost.TabSpec tab = host.newTabSpec(tag);
-			tab.setIndicator(names[i], icons.getDrawable(i));
-			adapter.addTab(tab, classes[i], args);
+			tab.setIndicator(names[tagNumber], icons.getDrawable(tagNumber));
+			adapter.addTab(tab, classes[tagNumber], args);
 		}
 		icons.recycle();
 	}

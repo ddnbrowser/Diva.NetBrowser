@@ -6,18 +6,23 @@ import java.util.List;
 
 import net.diva.browser.common.UpdateSaturaionPoints;
 import net.diva.browser.model.MyList;
+import net.diva.browser.settings.TabSortActivity;
 import net.diva.browser.util.TimePreference;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class SettingsActivity extends PreferenceActivity {
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -26,6 +31,15 @@ public class SettingsActivity extends PreferenceActivity {
 		addMyLists((ListPreference)findPreference("default_tab"));
 		new RankInCheckTimeChangeListener(findPreference("ranking_check_time"));
 		setVersion(findPreference("version_number"));
+
+		PreferenceScreen ps = (PreferenceScreen) findPreference("tab_sort");
+		ps.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				startActivity(new Intent(SettingsActivity.this, TabSortActivity.class));
+				return true;
+			}
+		});
 	}
 
 	@Override

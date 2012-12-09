@@ -241,6 +241,10 @@
     <string name="rival_remove_title">登録プレイヤー削除</string>
     <string name="rival_remove_error_msg">プレイヤーの削除に失敗しました。</string>
     <string name="tab_sort_complete">完了</string>
+    <string name="map_search">検索</string>
+    <string name="map_list">リスト</string>
+    <string name="item_review">リスト再表示</string>
+    <string name="item_research">現在地検索</string>
     <string name="all_music">全曲</string>
     <string name="all_difficulty">全難易度</string>
     <string name="location_search">店舗検索</string>

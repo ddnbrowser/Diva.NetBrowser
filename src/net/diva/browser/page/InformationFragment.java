@@ -1,10 +1,5 @@
 package net.diva.browser.page;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,27 +12,8 @@ import net.diva.browser.service.ServiceClient;
 import net.diva.browser.ticket.DecorPrizeActivity;
 import net.diva.browser.ticket.SkinPrizeActivity;
 import net.diva.browser.util.ProgressTask;
-
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.Criteria;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.LayoutInflater;
@@ -50,9 +26,8 @@ import android.widget.BaseAdapter;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class InformationFragment extends ListFragment implements DdN.Observer, LocationListener {
+public class InformationFragment extends ListFragment implements DdN.Observer {
 	private InformationAdapter m_adapter;
-	private LocationManager m_lm;
 
 	private Item m_name = new Item(R.layout.info_item, R.id.text1, 0);
 	private Item m_title = new Item(R.layout.info_item, R.id.text1, 0);
@@ -129,11 +104,9 @@ public class InformationFragment extends ListFragment implements DdN.Observer, L
 		case R.id.item_exchange_title:
 			startActivity(new Intent(getActivity(), DecorPrizeActivity.class));
 			break;
-// silvia add start
 		case R.id.location_search:
-			locationSearch();
+			startActivity(new Intent(getActivity(), DdNMapActivity.class));
 			break;
-// silvia add end
 		default:
 			return super.onOptionsItemSelected(item);
 		}
@@ -144,7 +117,7 @@ public class InformationFragment extends ListFragment implements DdN.Observer, L
 		// do nothing.
 	}
 
-	public void onUpdate(PlayRecord record, boolean noMusic) {
+	public void onUpdate(final PlayRecord record, final boolean noMusic) {
 		long total = record.experience();
 		int experience = (int)(total % DdN.EXPERIENCE_UNIT);
 		int nextLevel = DdN.EXPERIENCE_UNIT - experience;
@@ -163,108 +136,6 @@ public class InformationFragment extends ListFragment implements DdN.Observer, L
 		m_ticket.text2 = String.format("%d 枚", record.ticket);
 
 		m_adapter.notifyDataSetChanged();
-	}
-
-	// silvia add start
-	private void locationSearch(){
-		m_lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-		String provider = null;
-		if (m_lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-			provider = LocationManager.GPS_PROVIDER;
-		} else {
-			Criteria criteria = new Criteria();
-			criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-			criteria.setPowerRequirement(Criteria.POWER_LOW);
-			criteria.setSpeedRequired(false);
-			criteria.setAltitudeRequired(false);
-			criteria.setBearingRequired(false);
-			criteria.setCostAllowed(false);
-			provider = m_lm.getBestProvider(criteria, true);
-		}
-		m_lm.requestSingleUpdate(provider, this, getActivity().getMainLooper());
-	}
-
-	@Override
-	public void onLocationChanged(Location loc) {
-		final URI uri = URI.create(String.format("http://eario.jp/diva/location.cgi?lat=" + loc.getLatitude() + "&lng=" + loc.getLongitude()));
-		try{
-			String json = read(uri);
-			final JSONArray data = new JSONArray(json);
-
-			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setTitle("店舗検索結果");
-			String[] items = new String[data.length()];
-			for(int i = 0;i < data.length(); i++){
-				JSONObject obj = data.getJSONObject(i);
-				items[i] = "【" + obj.getString("unitCount") + "】" + obj.getString("name");
-			}
-			builder.setItems(items,
-					new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-					try{
-						showMap(data.getJSONObject(which));
-					}catch(Exception e){
-					}
-					dialog.dismiss();
-				}
-			});
-			builder.show();
-		}catch(Exception e){
-		}
-		m_lm.removeUpdates(this);
-	}
-
-	private void showMap(JSONObject loc) throws JSONException, UnsupportedEncodingException {
-		String lat = loc.getString("lat");
-		String lng = loc.getString("lng");
-		Intent i = new Intent(getActivity(), DdNMapActivity.class);
-		i.putExtra("lat", Double.valueOf(lat));
-		i.putExtra("lng", Double.valueOf(lng));
-		startActivity(i);
-	}
-
-	private String read(URI uri) throws IOException {
-		HttpClient client = new DefaultHttpClient();
-		HttpResponse response = client.execute(new HttpGet(uri));
-		final int status = response.getStatusLine().getStatusCode();
-		if (status != HttpStatus.SC_OK)
-			throw new IOException(String.format("Invalid Server Response: %d", status));
-
-		String charset = findCharset(response.getFirstHeader("Content-Type"));
-
-		InputStream in = null;
-		try {
-			in = response.getEntity().getContent();
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			for (int read; (read = in.read(buffer)) != -1;)
-				out.write(buffer, 0, read);
-			return out.toString(charset);
-		}
-		finally {
-			if (in != null)
-				in.close();
-		}
-	}
-	private String findCharset(Header header) {
-		for (HeaderElement e: header.getElements()) {
-			NameValuePair pair = e.getParameterByName("charset");
-			if (pair != null)
-				return pair.getValue();
-		}
-		return "UTF-8";
-	}
-
-	@Override
-	public void onProviderDisabled(String s) {
-	}
-
-	@Override
-	public void onProviderEnabled(String s) {
-	}
-
-	@Override
-	public void onStatusChanged(String s, int i, Bundle bundle) {
 	}
 
 	private static class InformationAdapter extends BaseAdapter {

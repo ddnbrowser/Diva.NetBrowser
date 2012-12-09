@@ -23,9 +23,9 @@ public class Compatibility {
 
 	static final VersionImpl IMPL;
 	static {
-		if (android.os.Build.VERSION.SDK_INT >= 11)
-			IMPL = new HoneycombVersionImpl();
-		else
+		//if (android.os.Build.VERSION.SDK_INT >= 11)
+		//	IMPL = new HoneycombVersionImpl();
+		//else
 			IMPL = new BaseVersionImpl();
 	}
 

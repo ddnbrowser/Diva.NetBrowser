@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
-      android:versionCode="339" android:versionName="3.39">
+      android:versionCode="392" android:versionName="3.92">
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="15"/>
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
     <application
         android:label="@string/app_name"
         android:icon="@drawable/icon"
@@ -13,32 +18,34 @@
                   android:screenOrientation="user"
                   android:configChanges="keyboardHidden|orientation"
                   android:uiOptions="splitActionBarWhenNarrow"
+                  android:theme="@android:style/Theme.Black"
                   >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MyListEditActivity"></activity>
+        <activity android:name=".MyListEditActivity" android:theme="@android:style/Theme.Black"></activity>
         <activity android:name=".MusicDetailActivity" android:theme="@style/Theme.DdN.Translucent.NoTitleBar"></activity>
         <activity
             android:name=".WebBrowseActivity"
             android:configChanges="keyboardHidden|orientation"
             android:uiOptions="splitActionBarWhenNarrow"
             />
-        <activity android:name=".CommonConfigActivity"></activity>
-        <activity android:name=".SettingsActivity"></activity>
-        <activity android:name=".settings.TitleListActivity"></activity>
-        <activity android:name=".settings.DecorTitlesActivity"></activity>
-        <activity android:name=".settings.ModuleListActivity"></activity>
-        <activity android:name=".settings.SkinListActivity"></activity>
-        <activity android:name=".settings.SEListActivity"></activity>
-        <activity android:name=".settings.ShopActivity"></activity>
-        <activity android:name=".ticket.DecorPrizeActivity"></activity>
-        <activity android:name=".ticket.SkinPrizeActivity"></activity>
-        <activity android:name=".history.HistoryDetailActivity"></activity>
-        <activity android:name=".DdNMapActivity" android:label="@string/app_name" />
-        <receiver android:name=".DdNBrowserReceiver">
+        <activity android:name=".CommonConfigActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".SettingsActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".settings.TitleListActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".settings.DecorTitlesActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".settings.ModuleListActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".settings.SkinListActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".settings.SEListActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".settings.ShopActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".settings.TabSortActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".ticket.DecorPrizeActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".ticket.SkinPrizeActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".history.HistoryDetailActivity" android:theme="@android:style/Theme.Black"></activity>
+        <activity android:name=".DdNMapActivity" android:theme="@android:style/Theme.Black" android:label="@string/app_name" />
+        <receiver android:name=".DdNBrowserReceiver" android:exported="false">
             <intent-filter>
                 <action android:name="net.diva.browser.action.DOWNLOAD_RANKING"></action>
                 <action android:name="net.diva.browser.action.DOWNLOAD_HISTORY"></action>
@@ -48,12 +55,4 @@
         <service android:name=".history.DownloadHistoryService"></service>
         <uses-library android:name="com.google.android.maps"/>
     </application>
-
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
-    <uses-library android:name="com.google.android.maps" />
-
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"></uses-permission>
 </manifest>

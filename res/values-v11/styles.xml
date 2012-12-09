@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <style name="Theme.DdN" parent="android:Theme.Holo" />
-    <style name="Button.Difficulty" parent="android:Widget.Holo.Button">
-        <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
-    </style>
-</resources>

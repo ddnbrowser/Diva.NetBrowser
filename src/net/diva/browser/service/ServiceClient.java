@@ -615,7 +615,7 @@ public class ServiceClient {
 		return id[0];
 	}
 
-	public String preBuyingResultPicture(String id, String[] values) throws IOException, ParseException {
+	public String buyResultPicture(String id, String[] values) throws IOException, ParseException {
 		List<NameValuePair> params = new ArrayList<NameValuePair>(4);
 		params.add(new BasicNameValuePair("size", values[0]));
 		params.add(new BasicNameValuePair("quality", values[1]));
@@ -626,11 +626,10 @@ public class ServiceClient {
 		HttpResponse response = postTo(String.format("/divanet/image/confirmResult/%d/0", Integer.valueOf(id)), new UrlEncodedFormEntity(params, "UTF-8"));
 		String token = ResultPictureParser.parseToken(response.getEntity().getContent());
 
-		return token;
-	}
+		if(token == null)
+			return null;
 
-	public String buyResultPicture(String id, String token, String[] values) throws IOException, ParseException {
-		List<NameValuePair> params = new ArrayList<NameValuePair>(5);
+		params = new ArrayList<NameValuePair>(5);
 		params.add(new BasicNameValuePair("org.apache.struts.taglib.html.TOKEN", token));
 		params.add(new BasicNameValuePair("size", values[0]));
 		params.add(new BasicNameValuePair("quality", values[1]));

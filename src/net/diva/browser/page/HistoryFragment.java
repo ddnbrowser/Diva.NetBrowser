@@ -23,9 +23,8 @@ import net.diva.browser.db.HistoryTable;
 import net.diva.browser.history.HistoryDetailActivity;
 import net.diva.browser.history.UpdateHistoryTask;
 import net.diva.browser.model.History;
-import net.diva.browser.service.ServiceClient;
-import net.diva.browser.service.ServiceTask;
 import net.diva.browser.util.DdNUtil;
+import net.diva.browser.util.ProgressTask;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -558,7 +557,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		}
 	}
 
-	private class CsvExportTask extends ServiceTask<Void, Integer, Boolean> {
+	private class CsvExportTask extends ProgressTask<Void, Integer, Boolean> {
 
 		public CsvExportTask() {
 			super(getActivity(), R.string.hist_export_dialog);
@@ -570,7 +569,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 			super.onPreExecute();
 		}
 
-		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
+		protected Boolean doInBackground(Void... params) {
 
 			if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
 				return false;
@@ -624,7 +623,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 
 	}
 
-	private class CsvImportTask extends ServiceTask<Void, Integer, Boolean> {
+	private class CsvImportTask extends ProgressTask<Void, Integer, Boolean> {
 
 		private File m_csv;
 
@@ -639,8 +638,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 			super.onPreExecute();
 		}
 
-		protected Boolean doTask(ServiceClient service, Void... params)
-				throws Exception {
+		protected Boolean doInBackground(Void... params){
 
 			BufferedReader br = null;
 			try {

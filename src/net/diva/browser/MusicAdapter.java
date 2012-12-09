@@ -270,6 +270,9 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 		case by_original:
 			cmp = byOriginal();
 			break;
+		case by_rank_in:
+			cmp = byRankIn();
+			break;
 		case by_difference_to_rival_score:
 			cmp = byDifferenceToRivalScore();
 			break;
@@ -282,6 +285,25 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 		if (reverse)
 			cmp = new ReverseComparator<MusicInfo>(cmp);
 		return cmp;
+	}
+
+	private Comparator<MusicInfo> byRankIn() {
+		return new Comparator<MusicInfo>() {
+			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				int lRanking = lhs.records[m_difficulty].ranking;
+				int rRanking = rhs.records[m_difficulty].ranking;
+				if(lRanking == -1)
+					lRanking = 301;
+				if(rRanking == -1)
+					rRanking = 301;
+
+				int result = lRanking - rRanking;
+				if(result != 0)
+					return result;
+
+				return lhs.reading.compareTo(rhs.reading);
+			}
+		};
 	}
 
 	private Comparator<MusicInfo> byDifferenceToRivalScore() {

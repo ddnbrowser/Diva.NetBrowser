@@ -32,6 +32,8 @@ public class MainActivity extends FragmentActivity {
 		DdN.Account account = DdN.Account.load(preferences);
 		if (account == null)
 			DdN.Account.input(this, new DownloadPlayRecord(this));
+		else
+			toolSetting();
 	}
 
 	@Override
@@ -76,12 +78,7 @@ public class MainActivity extends FragmentActivity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		switch (requestCode) {
 		case TOOL_SETTINGS:
-			DdN.Settings.update(this);
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-			if (preferences.getBoolean("download_rankin", false))
-				DownloadRankingService.reserve(this);
-			else
-				DownloadRankingService.cancel(this);
+			toolSetting();
 			break;
 		default:
 			break;
@@ -95,5 +92,16 @@ public class MainActivity extends FragmentActivity {
 			return m_content.onSearchRequested();
 
 		return super.onSearchRequested();
+	}
+
+	private void toolSetting(){
+		DdN.Settings.update(this);
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		if (preferences.getBoolean("download_rankin", false))
+			DownloadRankingService.reserve(this);
+		else
+			DownloadRankingService.cancel(this);
+
+
 	}
 }

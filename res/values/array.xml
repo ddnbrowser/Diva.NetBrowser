@@ -45,12 +45,14 @@
     <item>3行表示 (差分)</item>
     <item>4行表示</item>
     <item>4行表示 (理論値)</item>
+    <item>4行表示 (ライバル)</item>
 </string-array>
 <string-array name="music_layout_types">
     <item>music_item</item>
     <item>music_item3s</item>
     <item>music_item4</item>
     <item>music_item4s</item>
+    <item>music_item4r</item>
 </string-array>
 <string-array name="sort_order_names">
     <item>登録順</item>
@@ -62,6 +64,9 @@
     <item>クリア状況</item>
     <item>トライアル状況</item>
     <item>理論値との差分</item>
+    <item>ランクイン順位</item>
+    <item>ライバルスコア差分</item>
+    <item>ライバル達成率差分</item>
 </string-array>
 <string-array name="sort_order_values">
     <item>by_original</item>
@@ -73,6 +78,9 @@
     <item>by_clear_status</item>
     <item>by_trial_status</item>
     <item>by_difference_to_saturation</item>
+    <item>by_rank_in</item>
+    <item>by_difference_to_rival_score</item>
+    <item>by_difference_to_rival_satu</item>
 </string-array>
 <string-array name="clear_status_names">
     <item>NOT CLEAR</item>

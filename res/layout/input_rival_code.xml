@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="fill_parent"
+  android:layout_height="fill_parent" android:padding="10dip">
+	<TextView android:id="@+id/caption"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+		android:text="[ライバルコード]"
+		android:textColor="#00FFFF"
+		/>
+	<EditText android:id="@+id/rival_code"
+		android:layout_width="fill_parent"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/caption"
+		android:maxLines="1"
+		android:inputType="textWebEditText"
+		/>
+</RelativeLayout>

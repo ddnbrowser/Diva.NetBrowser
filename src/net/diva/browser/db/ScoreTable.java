@@ -1,8 +1,10 @@
 package net.diva.browser.db;
 
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.RivalInfo;
 import net.diva.browser.model.ScoreRecord;
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
@@ -23,6 +25,7 @@ final class ScoreTable implements BaseColumns {
 	public static final String RANKIN_SCORE = "rankin_score";
 
 	public static final String RIVAL_CODE = "rival_code";
+	public static final String RIVAL_NAME = "rival_name";
 
 	private static final String WHERE_IDENTITY_MYSCORE = String.format("%s=? AND %s=? AND %s is null", MUSIC_ID, RANK, RIVAL_CODE);
 	private static final String WHERE_IDENTITY = String.format("%s=? AND %s=? AND %s=?", MUSIC_ID, RANK, RIVAL_CODE);
@@ -45,12 +48,17 @@ final class ScoreTable implements BaseColumns {
 		.append(RANKIN_DATE).append(" integer,")
 		.append(RANKIN_SCORE).append(" integer,")
 		.append(RIVAL_CODE).append(" text,")
+		.append(RIVAL_NAME).append(" text,")
 		.append("UNIQUE(")
 		.append(MUSIC_ID).append(", ")
 		.append(RANK).append(" ,")
 		.append(RIVAL_CODE)
 		.append("))");
 		return builder.toString();
+	}
+
+	static void addRivalNameColumns(SQLiteDatabase db){
+		db.execSQL(String.format("ALTER TABLE %s ADD %s TEXT", NAME, RIVAL_NAME));
 	}
 
 	static void addRivalCodeColumns(SQLiteDatabase db){
@@ -77,13 +85,14 @@ final class ScoreTable implements BaseColumns {
 		db.execSQL(String.format("ALTER TABLE %s ADD %s INTEGER", NAME, SATURATION));
 	}
 
-	static long insert(SQLiteDatabase db, String music_id, int rank, String rival_code, ScoreRecord score) {
+	static long insert(SQLiteDatabase db, String music_id, int rank, RivalInfo rival, ScoreRecord score) {
 		if (score == null)
 			return -1;
-		ContentValues values = new ContentValues(7);
+		ContentValues values = new ContentValues(9);
 		values.put(MUSIC_ID, music_id);
 		values.put(RANK, rank);
-		values.put(RIVAL_CODE, rival_code);
+		values.put(RIVAL_CODE, rival == null ? null : rival.rival_code);
+		values.put(RIVAL_NAME, rival == null ? null : rival.rival_name);
 		values.put(DIFFICULTY, score.difficulty);
 		values.put(CLEAR_STATUS, score.clear_status);
 		values.put(TRIAL_STATUS, score.trial_status);
@@ -92,20 +101,21 @@ final class ScoreTable implements BaseColumns {
 		return db.insert(NAME, null, values);
 	}
 
-	static boolean update(SQLiteDatabase db, String music_id, int rank, String rival_code, ScoreRecord score) {
+	static boolean update(SQLiteDatabase db, String music_id, int rank, RivalInfo rival, ScoreRecord score) {
 		if (score == null)
 			return false;
-		ContentValues values = new ContentValues(5);
+		ContentValues values = new ContentValues(6);
 		values.put(DIFFICULTY, score.difficulty);
+		values.put(RIVAL_NAME, rival == null ? null : rival.rival_name);
 		values.put(CLEAR_STATUS, score.clear_status);
 		values.put(TRIAL_STATUS, score.trial_status);
 		values.put(HIGH_SCORE, score.high_score);
 		values.put(ACHIEVEMENT, score.achievement);
 
-		if(rival_code == null){
+		if(rival == null){
 			return db.update(NAME, values, WHERE_IDENTITY_MYSCORE, new String[] { music_id, String.valueOf(rank) }) == 1;
 		}else{
-			return db.update(NAME, values, WHERE_IDENTITY, new String[] { music_id, String.valueOf(rank), rival_code }) == 1;
+			return db.update(NAME, values, WHERE_IDENTITY, new String[] { music_id, String.valueOf(rank), rival.rival_code }) == 1;
 		}
 	}
 
@@ -130,7 +140,7 @@ final class ScoreTable implements BaseColumns {
 		if(rival_code == null){
 			db.update(NAME, values, RIVAL_CODE + " is null ", null);
 		}else{
-			db.update(NAME, values, String.format(RIVAL_CODE + "=%s", rival_code), null);
+			db.update(NAME, values, RIVAL_CODE + "=?", new String[] {rival_code});
 		}
 	}
 
@@ -144,5 +154,10 @@ final class ScoreTable implements BaseColumns {
 		}else{
 			return db.update(NAME, values, WHERE_IDENTITY, new String[] { entry.id, String.valueOf(entry.rank), entry.rival_code }) == 1;
 		}
+	}
+
+	static boolean existRival(SQLiteDatabase db, RivalInfo rival){
+		Cursor c = db.query(NAME, new String[]{RIVAL_CODE}, String.format(RIVAL_CODE + "=?"), new String[] {rival.rival_code}, null, null, null);
+		return c.getCount() > 0;
 	}
 }

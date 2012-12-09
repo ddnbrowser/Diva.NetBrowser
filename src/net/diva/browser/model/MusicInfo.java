@@ -30,6 +30,7 @@ public class MusicInfo {
 	private Drawable image;
 
 	public ScoreRecord[] records;
+	public ScoreRecord[] rival_records;
 
 	public static int maxRankPoint() {
 		return (int) STATUS_POINTS[STATUS_POINTS.length-1] * DIFFICULTY_POINTS[DIFFICULTY_POINTS.length-1];
@@ -42,6 +43,7 @@ public class MusicInfo {
 		voice1 = -1;
 		voice2 = -1;
 		records = new ScoreRecord[4];
+		rival_records = new ScoreRecord[4];
 	}
 
 	public int rankPoint() {

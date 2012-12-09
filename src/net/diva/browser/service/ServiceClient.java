@@ -20,6 +20,7 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.RivalInfo;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
 import net.diva.browser.service.parser.HistoryParser;
@@ -29,6 +30,7 @@ import net.diva.browser.service.parser.MyListParser;
 import net.diva.browser.service.parser.Parser;
 import net.diva.browser.service.parser.RecordParser;
 import net.diva.browser.service.parser.ResultPictureParser;
+import net.diva.browser.service.parser.RivalParser;
 import net.diva.browser.service.parser.SEParser;
 import net.diva.browser.service.parser.ShopParser;
 import net.diva.browser.service.parser.SkinParser;
@@ -637,6 +639,72 @@ public class ServiceClient {
 		postTo(String.format("/divanet/image/buyResult/%d/0", Integer.valueOf(id)), new UrlEncodedFormEntity(params, "UTF-8"));
 
 		return String.format("/divanet/image/viewResult/%d", Integer.valueOf(id));
+	}
+
+	public List<RivalInfo> getAllRivalInfo() throws IOException, ParseException {
+		return RivalParser.getRivalTokens(getFrom("/divanet/rival/deleteList"));
+	}
+
+	public List<RivalInfo> getSyncableRivalScore() throws IOException, ParseException {
+		List<RivalInfo> all = getAllRivalInfo();
+		List<RivalInfo> rivalList = new ArrayList<RivalInfo>();
+		for(RivalInfo rival : all){
+			if(rival.rival_code == null && rival.rival_token != null)
+				rival = getRivalInfoByToken(rival.rival_token);
+			if(rival.rival_code != null)
+				rivalList.add(getRivalScore(rival));
+		}
+		return rivalList;
+	}
+
+	public RivalInfo getRivalScore(String rivalCode) throws IOException, ParseException {
+		return getRivalScore(getRivalInfo(rivalCode));
+	}
+
+	public RivalInfo getRivalScore(RivalInfo rival) throws IOException, ParseException {
+		for(int j = 0; j < 4; j++){
+			String path = String.format("/divanet/statistics/selectByDifficultyOther/%s/%d/0", rival.rival_token, j);
+			while(path != null){
+				path = RivalParser.parseRivalScore(getFrom(path), rival, j);
+			}
+		}
+		return rival;
+	}
+
+	public RivalInfo getRivalInfo(String rivalCode) throws IOException, ParseException {
+		return RivalParser.getRivalInfo(getRivalDataPageStream(rivalCode));
+	}
+
+	public RivalInfo getRivalInfoByToken(String rivalToken) throws IOException, ParseException {
+		RivalInfo rival = RivalParser.getRivalInfo(getFrom("/divanet/rival/detailOtherOpenData/%s/", rivalToken));
+		return rival;
+	}
+
+	public InputStream getRivalDataPageStream(String rivalCode) throws IOException {
+		if(rivalCode == null)
+			throw new NullPointerException("ライバルコードがnull");
+
+		String path = "/divanet/rival/searchRivalCode";
+		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+		params.add(new BasicNameValuePair("rivalCode", rivalCode));
+		HttpResponse response = postTo(path, new UrlEncodedFormEntity(params, "UTF-8"));
+		return response.getEntity().getContent();
+	}
+
+	public boolean setRival(String rivalCode) throws IOException, ParseException {
+		RivalInfo rival = getRivalInfo(rivalCode);
+		if(!RivalParser.setRivalResult(getFrom(String.format("/divanet/rival/setRival/%s", rival.rival_token)))){
+			return RivalParser.setRivalResult(getFrom(String.format("/divanet/rival/registRival/%s", rival.rival_token)));
+		}
+		return true;
+	}
+
+	public boolean rivalRemove(String rivalToken) throws IOException, ParseException {
+		String path = "/divanet/rival/deleteplayerexec";
+		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+		params.add(new BasicNameValuePair("deletePlayer", rivalToken));
+		HttpResponse response = postTo(path, new UrlEncodedFormEntity(params, "UTF-8"));
+		return RivalParser.removeRivalResult(response.getEntity().getContent());
 	}
 
 	public HttpResponse downloadByPost(String relative) throws IOException {

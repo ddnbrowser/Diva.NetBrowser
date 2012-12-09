@@ -35,6 +35,21 @@ public class AllMusicFragment extends MusicListFragment {
 		menu.findItem(R.id.item_update_bulk).setVisible(selection).setEnabled(update);
 		menu.findItem(R.id.item_enable_selection).setVisible(!selection);
 		menu.findItem(R.id.item_cancel_selection).setVisible(selection);
+		menu.findItem(R.id.item_rival_update).setVisible(!selection).setEnabled(DdN.isAllowUpdateRivalData(m_preferences));
+		menu.findItem(R.id.item_rival_sync).setVisible(!selection).setEnabled(DdN.isAllowSyncRivalData(m_preferences));
+	}
+
+	@Override
+	public CharSequence getTitle() {
+		String layout = m_preferences.getString("music_layout", null);
+		if("music_item4r".equals(layout)){
+			StringBuilder sb = new StringBuilder();
+			String name = m_preferences.getString("rival_name", "");
+			sb.append("vs ").append(name);
+			return sb.toString();
+		}
+
+		return super.getTitle();
 	}
 
 	protected List<MusicInfo> getMusics() {

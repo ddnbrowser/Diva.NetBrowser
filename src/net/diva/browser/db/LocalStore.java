@@ -16,6 +16,7 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.RivalInfo;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
@@ -31,7 +32,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 27;
+	private static final int VERSION = 28;
 
 	private static LocalStore m_instance;
 
@@ -129,7 +130,7 @@ public class LocalStore extends ContextWrapper {
 				ScoreTable.RANKING,
 				ScoreTable.SATURATION,
 		}, ScoreTable.RIVAL_CODE + " is null", null, null, null, null);
-		try {
+				try {
 			while (cs.moveToNext()) {
 				ScoreRecord score = new ScoreRecord();
 				score.difficulty = cs.getInt(2);
@@ -149,7 +150,52 @@ public class LocalStore extends ContextWrapper {
 			cs.close();
 		}
 
+		loadRivalScore(musics);
+
 		return musics;
+	}
+
+	public void loadRivalScore(List<MusicInfo> musics) {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		String rivalCode = preferences.getString("rival_code", null);
+		if(rivalCode == null)
+			return;
+
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+
+		Map<String, MusicInfo> id2music = new HashMap<String, MusicInfo>();
+		for(MusicInfo music : musics){
+			id2music.put(music.id, music);
+		}
+
+		Cursor cr = db.query(ScoreTable.NAME, new String[] {
+				ScoreTable.MUSIC_ID,
+				ScoreTable.RANK,
+				ScoreTable.DIFFICULTY,
+				ScoreTable.CLEAR_STATUS,
+				ScoreTable.TRIAL_STATUS,
+				ScoreTable.HIGH_SCORE,
+				ScoreTable.ACHIEVEMENT,
+				ScoreTable.RANKING,
+		}, ScoreTable.RIVAL_CODE + "=?", new String[]{rivalCode}, null, null, null);
+				try {
+			while (cr.moveToNext()) {
+				ScoreRecord score = new ScoreRecord();
+				score.difficulty = cr.getInt(2);
+				score.clear_status = cr.getInt(3);
+				score.trial_status = cr.getInt(4);
+				score.high_score = cr.getInt(5);
+				score.achievement = cr.getInt(6);
+				score.ranking = cr.isNull(7) ? -1 : cr.getInt(7);
+
+				MusicInfo music = id2music.get(cr.getString(0));
+				if (music != null)
+					music.rival_records[cr.getInt(1)] = score;
+			}
+		}
+		finally {
+			cr.close();
+		}
 	}
 
 	public List<ModuleGroup> loadModules() {
@@ -241,22 +287,31 @@ public class LocalStore extends ContextWrapper {
 		editor.commit();
 	}
 
-	public void update(MusicInfo music){
-		update(music, null);
-	}
-
-	public void update(MusicInfo music, String rival_code) {
+	public void update(MusicInfo music) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
 			MusicTable.update(db, music);
 			for (int i = 0; i < music.records.length; ++i)
-				ScoreTable.update(db, music.id, i, rival_code, music.records[i]);
+				ScoreTable.update(db, music.id, i, null, music.records[i]);
 			db.setTransactionSuccessful();
-		}
-		finally {
+		} finally {
 			db.endTransaction();
 			db.close();
+		}
+	}
+
+	public void update(RivalInfo rival) {
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		boolean exist = ScoreTable.existRival(db, rival);
+		for (MusicInfo music : rival.musics) {
+			for (int i = 0; i < music.rival_records.length; ++i) {
+				if (exist) {
+					ScoreTable.update(db, music.id, i, rival, music.rival_records[i]);
+				} else {
+					ScoreTable.insert(db, music.id, i, rival, music.rival_records[i]);
+				}
+			}
 		}
 	}
 
@@ -994,6 +1049,30 @@ public class LocalStore extends ContextWrapper {
 		return list;
 	}
 
+	public List<RivalInfo> getRivalList(){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+
+		Cursor c = db.query(
+				ScoreTable.NAME,
+				new String[]{
+						ScoreTable.RIVAL_CODE,
+						ScoreTable.RIVAL_NAME,
+				},
+				ScoreTable.RIVAL_CODE + " is not null ",
+				null,
+				ScoreTable.RIVAL_CODE, null, null
+				);
+		List<RivalInfo> rivalList = new ArrayList<RivalInfo>();
+		while(c.moveToNext()){
+			RivalInfo rival = new RivalInfo();
+			rival.rival_code = c.getString(0);
+			rival.rival_name = c.getString(1);
+			rivalList.add(rival);
+		}
+
+		return rivalList;
+	}
+
 	public void setPicture(History history){
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		HistoryTable.setPicture(db, history);
@@ -1116,6 +1195,8 @@ public class LocalStore extends ContextWrapper {
 			case 26:
 				ScoreTable.addRivalCodeColumns(db);
 				HistoryTable.addUniqueKey(db);
+			case 27:
+				ScoreTable.addRivalNameColumns(db);
 			default:
 				break;
 			}

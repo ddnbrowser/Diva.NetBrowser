@@ -139,6 +139,22 @@ public class DdN extends Application {
 		return preferences.getLong("allow_update_time", 0) < System.currentTimeMillis();
 	}
 
+	public static void setUpdateRivalTime(SharedPreferences.Editor editor) {
+		editor.putLong("allow_rival_update_time", System.currentTimeMillis() + (15 * 60 * 1000));
+	}
+
+	public static boolean isAllowUpdateRivalData(SharedPreferences preferences) {
+		return preferences.getLong("allow_rival_update_time", 0) < System.currentTimeMillis();
+	}
+
+	public static void setUpdateSyncRivalTime(SharedPreferences.Editor editor) {
+		editor.putLong("allow_rival_sync_time", System.currentTimeMillis() + (3 * 60 * 60 * 1000));
+	}
+
+	public static boolean isAllowSyncRivalData(SharedPreferences preferences) {
+		return preferences.getLong("allow_rival_sync_time", 0) < System.currentTimeMillis();
+	}
+
 	public static void setNewsTimestamp(String timestamp) {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(s_instance);
 		String old = prefs.getString("news_timestamp", "");

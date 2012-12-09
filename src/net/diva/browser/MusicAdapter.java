@@ -122,9 +122,13 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 		View button;
 		TextView ranking;
 		TextView high_score;
+		TextView rival_score;
+		TextView diff_rival_score;
 		TextView achivement;
+		TextView rival_achivement;
 		TextView saturation;
 		TextView difference;
+		TextView diff_rival_achivement;
 
 		Holder(View view) {
 			cover = (ImageView)view.findViewById(R.id.cover_art);
@@ -137,12 +141,16 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 			button = view.findViewById(R.id.button);
 			ranking = (TextView)view.findViewById(R.id.ranking);
 			high_score = (TextView)view.findViewById(R.id.high_score);
+			rival_score = (TextView)view.findViewById(R.id.rival_high_score);
+			diff_rival_score = (TextView)view.findViewById(R.id.difference_to_rival_score);
 			achivement = (TextView)view.findViewById(R.id.achivement);
+			rival_achivement = (TextView)view.findViewById(R.id.rival_achivement);
+			diff_rival_achivement = (TextView)view.findViewById(R.id.difference_to_rival_achivement);
 			saturation = (TextView)view.findViewById(R.id.saturation);
 			difference = (TextView)view.findViewById(R.id.difference_to_saturation);
 		}
 
-		void attach(MusicInfo music, ScoreRecord score) {
+		void attach(MusicInfo music, ScoreRecord score, ScoreRecord rival_score) {
 			cover.setImageDrawable(music.getCoverArt(m_context));
 			title.setText(music.title);
 			difficulty.setText(String.format("★%d", score.difficulty));
@@ -155,7 +163,7 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 			if (button != null)
 				button.setVisibility(music.button != null ? View.VISIBLE : View.INVISIBLE);
 			ranking.setText(score.isRankIn() ? String.format("%d位", score.ranking) : "");
-			high_score.setText(String.format("%dpts", score.high_score));
+			high_score.setText(String.format("%d%s", score.high_score, rival_achivement != null ? "p" : "pts"));
 			if (achivement != null)
 				achivement.setText(String.format("%d.%02d%%", score.achievement/100, score.achievement%100));
 			if (saturation != null) {
@@ -175,6 +183,24 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 					difference.setText(String.format("(%s%d.%02d%%)", minus ? "-" : "", diff/100, diff%100));
 				}
 			}
+
+			if(rival_achivement != null){
+				if(rival_score == null)
+					rival_score = new ScoreRecord();
+				this.rival_score.setText("/" + rival_score.high_score + "p");
+				int diffScore = score.high_score - rival_score.high_score;
+				boolean minus = diffScore < 0;
+				if(minus)
+					diffScore = Math.abs(diffScore);
+				diff_rival_score.setText(String.format("(%s%dp)", minus ? "-" : "", diffScore));
+
+				rival_achivement.setText(String.format("/%d.%02d%%", rival_score.achievement/100, rival_score.achievement%100));
+				int diffAchiv = score.achievement - rival_score.achievement;
+				minus = diffAchiv < 0;
+				if(minus)
+					diffAchiv = Math.abs(diffAchiv);
+				diff_rival_achivement.setText(String.format("(%s%d.%02d%%)", minus ? "-" : "", diffAchiv/100, diffAchiv%100));
+			}
 		}
 	}
 
@@ -192,7 +218,7 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 
 		MusicInfo music = getItem(position);
 		if (music != null)
-			holder.attach(music, music.records[m_difficulty]);
+			holder.attach(music, music.records[m_difficulty], music.rival_records[m_difficulty]);
 
 		return view;
 	}
@@ -244,12 +270,54 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 		case by_original:
 			cmp = byOriginal();
 			break;
+		case by_difference_to_rival_score:
+			cmp = byDifferenceToRivalScore();
+			break;
+		case by_difference_to_rival_satu:
+			cmp = byDifferenceToRivalSatu();
+			break;
 		case by_publish_order:
 			return byPublishOrder(reverse);
 		}
 		if (reverse)
 			cmp = new ReverseComparator<MusicInfo>(cmp);
 		return cmp;
+	}
+
+	private Comparator<MusicInfo> byDifferenceToRivalScore() {
+		return new Comparator<MusicInfo>() {
+			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				ScoreRecord lScore = lhs.records[m_difficulty];
+				ScoreRecord lRivalScore = lhs.rival_records[m_difficulty];
+				ScoreRecord rScore = rhs.records[m_difficulty];
+				ScoreRecord rRivalScore = rhs.rival_records[m_difficulty];
+				if(lRivalScore == null || rRivalScore == null)
+					return 0;
+				int result = (lScore.high_score-lRivalScore.high_score) - (rScore.high_score-rRivalScore.high_score);
+				if (result != 0)
+					return result;
+
+				return lhs.reading.compareTo(rhs.reading);
+			}
+		};
+	}
+
+	private Comparator<MusicInfo> byDifferenceToRivalSatu() {
+		return new Comparator<MusicInfo>() {
+			public int compare(MusicInfo lhs, MusicInfo rhs) {
+				ScoreRecord lScore = lhs.records[m_difficulty];
+				ScoreRecord lRivalScore = lhs.rival_records[m_difficulty];
+				ScoreRecord rScore = rhs.records[m_difficulty];
+				ScoreRecord rRivalScore = rhs.rival_records[m_difficulty];
+				if(lRivalScore == null || rRivalScore == null)
+					return 0;
+				int result = (lScore.achievement-lRivalScore.achievement) - (rScore.achievement-rRivalScore.achievement);
+				if (result != 0)
+					return result;
+
+				return lhs.reading.compareTo(rhs.reading);
+			}
+		};
 	}
 
 	private Comparator<MusicInfo> byName() {

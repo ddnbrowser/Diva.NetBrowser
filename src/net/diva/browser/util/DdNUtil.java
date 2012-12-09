@@ -1,5 +1,9 @@
 package net.diva.browser.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,6 +12,15 @@ import java.util.Map;
 import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.model.MusicInfo;
+
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
 import android.content.res.Resources;
 /**
  *
@@ -92,6 +105,14 @@ public class DdNUtil {
 		return "";
 	}
 
+	public static String getMusicId(String title){
+		for(MusicInfo m : DdN.getPlayRecord().musics){
+			if(m.title.equals(title))
+				return m.id;
+		}
+		return "";
+	}
+
 	private static int getCord(Map<String, Integer> target, String name){
 		if(target.containsKey(name))
 			return target.get(name);
@@ -109,4 +130,34 @@ public class DdNUtil {
 		return "";
 	}
 
+	public static String read(URI uri) throws IOException {
+		HttpClient client = new DefaultHttpClient();
+		HttpResponse response = client.execute(new HttpGet(uri));
+		final int status = response.getStatusLine().getStatusCode();
+		if (status != HttpStatus.SC_OK)
+			throw new IOException(String.format("Invalid Server Response: %d", status));
+
+		String charset = null;
+		for (HeaderElement e: response.getFirstHeader("Content-Type").getElements()) {
+			NameValuePair pair = e.getParameterByName("charset");
+			if (pair != null)
+				charset = pair.getValue();
+		}
+		if(charset == null)
+			charset = "UTF-8";
+
+		InputStream in = null;
+		try {
+			in = response.getEntity().getContent();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] buffer = new byte[1024];
+			for (int read; (read = in.read(buffer)) != -1;)
+				out.write(buffer, 0, read);
+			return out.toString(charset);
+		}
+		finally {
+			if (in != null)
+				in.close();
+		}
+	}
 }

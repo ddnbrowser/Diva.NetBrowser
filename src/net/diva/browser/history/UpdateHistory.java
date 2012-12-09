@@ -5,7 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.History;
+import net.diva.browser.model.MusicInfo;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.service.ServiceClient;
 import android.content.Context;
@@ -34,9 +36,10 @@ public class UpdateHistory {
 
 	public boolean update(ServiceClient service) throws IOException, ParseException {
 		List<String> newHistorys = new ArrayList<String>();
+		List<String> ids = new ArrayList<String>();
 		long lastPlayedTime = m_preferences.getLong("last_played_use_history", 0);
 		long lastPlayedScore = m_preferences.getLong("last_played_use_history_score", 0);
-		long[] lastPlayed = service.getHistory(newHistorys, lastPlayedTime, lastPlayedScore);
+		long[] lastPlayed = service.getHistory(newHistorys, ids, lastPlayedTime, lastPlayedScore);
 		boolean hasItem = newHistorys.size() > 0;
 
 		if(hasItem){
@@ -52,6 +55,15 @@ public class UpdateHistory {
 				DdN.getLocalStore().insert(h);
 				if(manual)
 					task.myPublishProgress(1);
+			}
+
+			for(String musicId: ids){
+				MusicInfo m = DdN.getPlayRecord().getMusic(musicId);
+				try{
+					service.update(m);
+					LocalStore.instance(m_context).update(m);
+				}catch(Exception e){
+				}
 			}
 
 			m_preferences.edit().putLong("last_played_use_history", lastPlayed[0]).commit();

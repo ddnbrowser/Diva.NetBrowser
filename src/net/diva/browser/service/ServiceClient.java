@@ -579,11 +579,11 @@ public class ServiceClient {
 		postTo(String.format("/divanet/myList/deleteMyList/%d", id));
 	}
 
-	public long[] getHistory(List<String> newHistorys, long since, long score) throws IOException, ParseException {
+	public long[] getHistory(List<String> newHistorys, List<String> ids, long since, long score) throws IOException, ParseException {
 		final long[] params = new long[] { since, since, score, score };
 		String path = "/divanet/personal/playHistory/0";
 		while (path != null)
-			path = HistoryParser.parsePlayHistory(getFrom(path), newHistorys, params);
+			path = HistoryParser.parsePlayHistory(getFrom(path), newHistorys, ids, params);
 
 		long[] ret = new long[]{params[1], params[3]};
 

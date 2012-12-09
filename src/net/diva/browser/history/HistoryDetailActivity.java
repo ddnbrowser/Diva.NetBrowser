@@ -4,7 +4,6 @@ package net.diva.browser.history;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -23,14 +22,7 @@ import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.util.DdNUtil;
 
-import org.apache.http.Header;
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -49,6 +41,7 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -237,27 +230,26 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	private void resultPicture() {
-		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		final ServiceClient service = new ServiceClient(
-				preference.getString("access_code", null),
-				preference.getString("password", null)
-		);
-		String historyId = null;
-		try{
-			service.login();
-			historyId = service.checkResultPicture(m_history);
-		}catch(Exception e){
-			e.printStackTrace();
-			return;
-		}
+		(new ServiceTask<Void, Void, String>(this, R.string.message_downloading){
+			@Override
+			protected String doTask(ServiceClient service, Void... params) throws Exception {
+				try{
+					return service.checkResultPicture(m_history);
+				}catch(Exception e){
+				}
+				return null;
+			}
 
-		if(historyId == null){
-			Toast.makeText(this, getString(R.string.rp_download_error), Toast.LENGTH_LONG).show();
-			return;
-		}
+			protected void onResult(String historyId) {
+				if(historyId == null)
+					Toast.makeText(HistoryDetailActivity.this, R.string.rp_download_error, Toast.LENGTH_LONG).show();
+				else
+					resultPicture(historyId);
+			}
+		}).execute();
+	}
 
-		final String id = historyId;
-
+	private void resultPicture(final String historyId){
 		LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 		final View view = inflater.inflate(R.layout.result_picture, null);
 		final RadioGroup image_size = (RadioGroup)view.findViewById(R.id.rp_image_size);
@@ -298,20 +290,29 @@ public class HistoryDetailActivity extends Activity {
 					break;
 				}
 
-				String[] values = new String[]{
+				final String[] values = new String[]{
 						size,
 						quality,
 						(print_player.isChecked() ? "on" : null),
 						(print_location.isChecked() ? "on" : null)
 				};
-				try{
-					String token = service.preBuyingResultPicture(id, values);
-					String path = service.buyResultPicture(id, token, values);
-					new DownloadPictureTask(path, m_history.play_date, values).execute();
 
-				}catch(Exception e){
-					e.printStackTrace();
-				}
+				(new ServiceTask<Void, Void, String>(HistoryDetailActivity.this, R.string.rp_choose_rp){
+					protected String doTask(ServiceClient service, Void... params) throws Exception {
+						try{
+							String path = service.buyResultPicture(historyId, values);
+							return path;
+						}catch(Exception e){
+						}
+						return null;
+					}
+					protected void onResult(String dlPath) {
+						if(dlPath != null)
+							new DownloadPictureTask(dlPath, m_history.play_date, values).execute();
+						else
+							Toast.makeText(HistoryDetailActivity.this, "購入に失敗しました", Toast.LENGTH_LONG).show();
+					}
+				}).execute();
 			}
 		});
 		builder.show();
@@ -471,43 +472,30 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	public void ranking(){
-		final URI uri = URI.create(String.format("http://eario.jp/diva/ranking.cgi?music_name=%s&rank=%s&score=%s", URLEncoder.encode(DdNUtil.getMusicTitle(m_history.music_id)), m_history.rank, m_history.score));
 		try{
-			String ranking = read(uri);
-			Toast.makeText(this, ranking, Toast.LENGTH_LONG).show();
+			String musicTitle = URLEncoder.encode(DdNUtil.getMusicTitle(m_history.music_id), "UTF-8");
+			final URI uri = URI.create(String.format("http://eario.jp/diva/ranking.cgi?music_name=%s&rank=%s&score=%s", musicTitle, m_history.rank, m_history.score));
+			(new AsyncTask<Void, Void, String>(){
+				@Override
+				protected String doInBackground(Void... params) {
+					try{
+						return DdNUtil.read(uri);
+					}catch(Exception e){
+					}
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(String ranking) {
+					if(ranking != null)
+						Toast.makeText(HistoryDetailActivity.this, ranking, Toast.LENGTH_LONG).show();
+					else
+						Toast.makeText(HistoryDetailActivity.this, "ランキング取得に失敗しました", Toast.LENGTH_SHORT).show();
+				}
+			}).execute();
 		}catch(Exception e){
+			Toast.makeText(this, "楽曲情報のURLエンコードで失敗しました", Toast.LENGTH_SHORT).show();
 		}
-	}
-	private String read(URI uri) throws IOException {
-		HttpClient client = new DefaultHttpClient();
-		HttpResponse response = client.execute(new HttpGet(uri));
-		final int status = response.getStatusLine().getStatusCode();
-		if (status != HttpStatus.SC_OK)
-			throw new IOException(String.format("Invalid Server Response: %d", status));
-
-		String charset = findCharset(response.getFirstHeader("Content-Type"));
-
-		InputStream in = null;
-		try {
-			in = response.getEntity().getContent();
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte[] buffer = new byte[1024];
-			for (int read; (read = in.read(buffer)) != -1;)
-				out.write(buffer, 0, read);
-			return out.toString(charset);
-		}
-		finally {
-			if (in != null)
-				in.close();
-		}
-	}
-	private String findCharset(Header header) {
-		for (HeaderElement e: header.getElements()) {
-			NameValuePair pair = e.getParameterByName("charset");
-			if (pair != null)
-				return pair.getValue();
-		}
-		return "UTF-8";
 	}
 
 	private void delete(){

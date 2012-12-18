@@ -163,12 +163,26 @@ public class DdNMapActivity extends MapActivity {
 		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(searchText.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		String q = searchText.getText().toString();
+		if("".equals(q)){
+			AlertDialog.Builder builder = new AlertDialog.Builder(DdNMapActivity.this);
+			builder.setTitle("検索対象が未入力です");
+			builder.setMessage("現在地検索を行いますか？");
+			builder.setPositiveButton("はい", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					locationSearch();
+				}
+			});
+			builder.setNegativeButton("いいえ", null);
+			builder.show();
+			return;
+		}
 		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
 		Address loc;
 		try {
 			List<Address> addressList = geocoder.getFromLocationName(q, 1);
 			loc = addressList.get(0);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			Toast.makeText(this, "検索に失敗しました", Toast.LENGTH_SHORT).show();
 			return;
 		}
@@ -432,11 +446,7 @@ public class DdNMapActivity extends MapActivity {
 				AlertDialog.Builder builder = new AlertDialog.Builder(DdNMapActivity.this);
 				builder.setTitle("店舗情報詳細");
 				builder.setMessage(Html.fromHtml(m_info.detailInfo));
-				builder.setPositiveButton("閉じる", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
+				builder.setPositiveButton("閉じる", null);
 				builder.show();
 			}
 		}

@@ -404,9 +404,9 @@ public class HistoryDetailActivity extends Activity {
 	private String createTweetMsg(){
 		StringBuffer sb = new StringBuffer();
 		sb.append(m_music.title + " / ");
-		sb.append(String.format("%s ★%d / ", getResources().getStringArray(R.array.difficulty_names)[m_history.rank], m_music.records[m_history.rank].difficulty));
-		sb.append(String.format("%d pts / ", m_history.score));
-		sb.append(String.format("%d.%02d %% ", m_history.achievement/100, m_history.achievement%100));
+		sb.append(String.format("%s★%d / ", getResources().getStringArray(R.array.difficulty_names)[m_history.rank], m_music.records[m_history.rank].difficulty));
+		sb.append(String.format("%dpts / ", m_history.score));
+		sb.append(String.format("%d.%02d%% ", m_history.achievement/100, m_history.achievement%100));
 		sb.append("#DdNBrowser");
 		return sb.toString();
 	}

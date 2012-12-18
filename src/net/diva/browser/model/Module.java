@@ -23,6 +23,6 @@ public class Module {
 	public Drawable getThumbnail(Context context) {
 		if (thumbnail == null)
 			return null;
-		return new BitmapDrawable(getThumbnailPath(context).getAbsolutePath());
+		return new BitmapDrawable(context.getResources(), getThumbnailPath(context).getAbsolutePath());
 	}
 }

@@ -75,7 +75,7 @@ public class MusicInfo {
 
 	public Drawable getCoverArt(Context context) {
 		if(image == null)
-			image = new BitmapDrawable(getCoverArtPath(context).getAbsolutePath());
+			image = new BitmapDrawable(context.getResources(), getCoverArtPath(context).getAbsolutePath());
 		return image;
 	}
 

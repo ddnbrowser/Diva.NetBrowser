@@ -10,7 +10,6 @@ import net.diva.browser.R;
 import net.diva.browser.SortOrder;
 import net.diva.browser.WebBrowseActivity;
 import net.diva.browser.common.DownloadPlayRecord;
-import net.diva.browser.compatibility.Compatibility;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.MyList;
@@ -767,7 +766,8 @@ public abstract class MusicListFragment extends ListFragment
 			m_selections.clear();
 		}
 		m_adapter.notifyDataSetChanged();
-		Compatibility.invalidateOptionsMenu(this);
+		getActivity().invalidateOptionsMenu();
+		//Compatibility.invalidateOptionsMenu(this);
 	}
 
 	private class MyAdapter extends MusicAdapter {

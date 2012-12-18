@@ -1,6 +1,5 @@
 package net.diva.browser;
 
-import net.diva.browser.compatibility.Compatibility;
 import net.diva.browser.service.LoginFailedException;
 import net.diva.browser.service.ServiceClient;
 import android.app.Activity;
@@ -111,7 +110,8 @@ public class WebBrowseActivity extends Activity {
 			super.onPageFinished(view, url);
 			m_service.access();
 			setProgressBarIndeterminateVisibility(false);
-			Compatibility.invalidateOptionsMenu(WebBrowseActivity.this);
+			WebBrowseActivity.this.invalidateOptionsMenu();
+			//Compatibility.invalidateOptionsMenu(WebBrowseActivity.this);
 		}
 
 		@Override

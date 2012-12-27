@@ -61,11 +61,20 @@ public class SettingsActivity extends PreferenceActivity {
 	private void addMyLists(final ListPreference lp) {
 		List<CharSequence> names = new ArrayList<CharSequence>(Arrays.asList(lp.getEntries()));
 		List<CharSequence> values = new ArrayList<CharSequence>(Arrays.asList(lp.getEntryValues()));
+		int mylist_active = getResources().getInteger(R.integer.mylist_actives);
 		int index = values.indexOf("mylist");
-		if (index == -1)
+		if (index == -1){
 			index = values.size();
-		else
-			++index;
+		}else{
+			CharSequence selectMylistName = names.remove(index);
+			CharSequence selectMylistVal = values.remove(index);
+			--index;
+			for(int i = 0; i < mylist_active; i++){
+				names.add(index, (String) selectMylistName + (char) ('A' + i));
+				values.add(index, (String) selectMylistVal + (char) ('a' + i));
+				++index;
+			}
+		}
 		for (MyList mylist: DdN.getLocalStore().loadMyLists()) {
 			names.add(index, mylist.name);
 			values.add(index, mylist.tag);

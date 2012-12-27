@@ -558,8 +558,8 @@ public class ServiceClient {
 			throw new OperationFailedException(error);
 	}
 
-	public void activateMyList(int id) throws IOException, OperationFailedException {
-		HttpResponse response = postTo(String.format("/divanet/myList/activate/%d", id));
+	public void activateMyList(int id, int target) throws IOException, OperationFailedException {
+		HttpResponse response = postTo(String.format("/divanet/myList/activate/%d/%d", target, id));
 		String error = MyListParser.parseActivateResult(response.getEntity().getContent());
 		if (error != null)
 			throw new OperationFailedException(error);

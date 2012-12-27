@@ -52,7 +52,7 @@ public class MyListFragment extends MusicListFragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		final boolean canUpdate = DdN.isAllowUpdateMusics(m_preferences);
 		final boolean selection = isSelectionMode();
-		menu.findItem(R.id.item_activate_mylist).setEnabled(m_musics != null && !m_musics.isEmpty());
+		menu.findItem(R.id.item_activate_mylist).setEnabled(m_musics != null && !m_musics.isEmpty() && DdN.getLocalStore().getActiveMyList(m_myList.id) == -1);
 		menu.findItem(R.id.item_update_bulk).setEnabled(canUpdate);
 		MenuItem updateInHistory = menu.findItem(R.id.item_update_in_history);
 		if (updateInHistory != null)
@@ -184,12 +184,16 @@ public class MyListFragment extends MusicListFragment {
 	}
 
 	private void activateMyList() {
+		int mylist_active = getResources().getInteger(R.integer.mylist_actives);
+		int selected = DdN.getLocalStore().getActiveMyList(m_myList.id);
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(m_myList.name);
-		builder.setMessage(R.string.confirm_activate_mylist);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+		final String[] items = new String[mylist_active];
+		for(int i = 0; i < mylist_active; i++)
+			items[i] = "マイリスト" + (char)('A' + i);
+		builder.setSingleChoiceItems(items, selected, new DialogInterface.OnClickListener() {
 			public void onClick(DialogInterface dialog, int which) {
-				new ActivateMyList().execute(m_myList.id);
+				new ActivateMyList().execute(m_myList.id, which);
 				dialog.dismiss();
 			}
 		});
@@ -255,7 +259,7 @@ public class MyListFragment extends MusicListFragment {
 
 		@Override
 		protected String doTask(ServiceClient service, String... ids) throws Exception {
-			boolean isActive = myList.id == m_store.getActiveMyList();
+			int target = m_store.getActiveMyList(myList.id);
 
 			try {
 				service.deleteMyList(myList.id);
@@ -264,8 +268,8 @@ public class MyListFragment extends MusicListFragment {
 					service.addToMyList(myList.id, id);
 				m_store.updateMyList(myList.id, Arrays.asList(ids));
 
-				if (isActive)
-					service.activateMyList(myList.id);
+				if (target != -1)
+					service.activateMyList(myList.id, target);
 
 				service.renameMyList(m_myList.id, myList.name);
 				m_store.updateMyList(myList);
@@ -299,8 +303,9 @@ public class MyListFragment extends MusicListFragment {
 			MyList myList = service.getMyList(id);
 			m_store.updateMyList(myList);
 			m_store.clearMyList(id);
-			if (id == m_store.getActiveMyList())
-				m_store.activateMyList(-1);
+			int target = m_store.getActiveMyList(id);
+			if (target != -1)
+				m_store.activateMyList(id, -1);
 			return myList;
 		}
 
@@ -319,9 +324,10 @@ public class MyListFragment extends MusicListFragment {
 		@Override
 		protected String doTask(ServiceClient service, Integer... params) throws Exception {
 			int id = params[0];
+			int target = params[1];
 			try {
-				service.activateMyList(id);
-				m_store.activateMyList(id);
+				service.activateMyList(id, target);
+				m_store.activateMyList(id, target);
 				return null;
 			}
 			catch (Exception e) {

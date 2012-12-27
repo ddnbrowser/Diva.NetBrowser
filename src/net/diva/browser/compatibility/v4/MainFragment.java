@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.diva.browser.DdN;
 import net.diva.browser.MainActivity;
@@ -127,13 +129,13 @@ public class MainFragment extends Fragment
 				p.observer.onUpdate(myList, noMusic);
 		}
 
-		final int active = DdN.getLocalStore().getActiveMyList();
 		for (TabHolder holder: m_myListTabs) {
 			if (holder.myList.id == myList.id) {
 				holder.myList = myList;
 				holder.title.setText(myList.name);
 			}
-			holder.icon.setImageDrawable(getMyListIcon(holder.myList.id == active));
+			int active = DdN.getLocalStore().getActiveMyList(holder.myList.id);
+			holder.icon.setImageDrawable(getMyListIcon(active));
 		}
 		m_adapter.updateTitle();
 	}
@@ -176,7 +178,6 @@ public class MainFragment extends Fragment
 
 	private void addMyListTabs(TabHost host, TabWidget widget, TabsAdapter adapter, String klass) {
 		final LocalStore store = DdN.getLocalStore();
-		final int active = store.getActiveMyList();
 		for (MyList mylist: store.loadMyLists()) {
 			Bundle args = new Bundle(3);
 			args.putInt("id", mylist.id);
@@ -184,25 +185,40 @@ public class MainFragment extends Fragment
 			args.putString("tag", mylist.tag);
 
 			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);
-			tab.setIndicator(mylist.name, getMyListIcon(mylist.id == active));
+			tab.setIndicator(mylist.name, getMyListIcon(store.getActiveMyList(mylist.id)));
 			adapter.addTab(tab, klass, args);
 
 			m_myListTabs.add(new TabHolder(mylist, widget.getChildTabViewAt(widget.getTabCount()-1)));
 		}
 	}
 
-	private Drawable getMyListIcon(boolean active) {
-		return getResources().getDrawable(active ? R.drawable.ic_tab_mylist_checked : R.drawable.ic_tab_mylist);
+	private Drawable getMyListIcon(int target) {
+		Drawable icon;
+		switch(target){
+		case 0:
+			icon = getResources().getDrawable(R.drawable.ic_tab_mylist_selected_a);
+			break;
+		case 1:
+			icon = getResources().getDrawable(R.drawable.ic_tab_mylist_selected_b);
+			break;
+		case 2:
+			icon = getResources().getDrawable(R.drawable.ic_tab_mylist_selected_c);
+			break;
+		default:
+			icon = getResources().getDrawable(R.drawable.ic_tab_mylist);
+		}
+		return icon;
 	}
 
 	private String getTag(SharedPreferences preferences) {
 		final String tag = preferences.getString("default_tab", null);
-		if (tag == null || !tag.equals("mylist"))
+		if (tag == null || tag.matches("mylist[0-9]+"))
 			return tag;
 
-		final int active = DdN.getLocalStore().getActiveMyList();
+		Matcher m = Pattern.compile("mylist(.)").matcher(tag);
+		int target = m.group(0).charAt(0) - 'a';
 		for (TabHolder holder: m_myListTabs) {
-			if (holder.myList.id == active)
+			if (DdN.getLocalStore().getActiveMyList(holder.myList.id) == target)
 				return holder.myList.tag;
 		}
 

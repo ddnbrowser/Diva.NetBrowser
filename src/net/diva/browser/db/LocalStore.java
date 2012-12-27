@@ -722,14 +722,42 @@ public class LocalStore extends ContextWrapper {
 		}
 	}
 
-	public int getActiveMyList() {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		return preferences.getInt("active_mylist", -1);
+	public int getActiveMyList(int id){
+		if(id == -1)
+			return -1;
+		int[] actives = activeMyList();
+		for(int i = 0; i < actives.length; i++){
+			if(id == actives[i])
+				return i;
+		}
+		return -1;
 	}
 
-	public void activateMyList(int id) {
-		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
-		editor.putInt("active_mylist", id);
+	public int[] activeMyList(){
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		int mylist_active = getResources().getInteger(R.integer.mylist_actives);
+		int[] actives = new int[mylist_active];
+		for(int i = 0; i < mylist_active; i++)
+			actives[i] = preferences.getInt("active_mylist" + (char)('a' + i), -1);
+		return actives;
+	}
+
+	public void activateMyList(int id, int target) {
+		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences.Editor editor = preferences.edit();
+		int[] actives = activeMyList();
+		for(int i = 0; i < actives.length; i++){
+			if(actives[i] == id){
+				int targetId = preferences.getInt("active_mylist" + (char)('a' + target), -1);
+				if(targetId != -1){
+					editor.putInt("active_mylist" + (char)('a' + i), targetId);
+				}else{
+					editor.putInt("active_mylist" + (char)('a' + i), -1);
+				}
+				break;
+			}
+		}
+		editor.putInt("active_mylist" + (char)('a' + target), id);
 		editor.commit();
 	}
 

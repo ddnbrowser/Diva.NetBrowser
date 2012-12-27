@@ -28,9 +28,10 @@ public class MyListParser {
 			ids.add(m.group(1));
 	}
 
+	private static final Pattern MYLIST_REGST_OK = Pattern.compile("筐体で使用するマイリスト(.+)として設定しました");
 	public static String parseActivateResult(InputStream content)  {
 		String body = Parser.read(content);
-		if (body.contains("筐体で使用するマイリストとして設定しました"))
+		if (MYLIST_REGST_OK.matcher(body).find())
 			return null;
 		if (body.contains("このマイリストは設定済です"))
 			return null;

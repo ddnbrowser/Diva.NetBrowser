@@ -128,9 +128,11 @@ public class MyListFragment extends MusicListFragment {
 
 	@Override
 	protected void makeTitle(StringBuilder title, PlayRecord record) {
-		title.append('(');
-		title.append(m_musics.size());
-		title.append("/20) ");
+		if(m_musics != null){
+			title.append('(');
+			title.append(m_musics.size());
+			title.append("/20) ");
+		}
 		super.makeTitle(title, record);
 	}
 

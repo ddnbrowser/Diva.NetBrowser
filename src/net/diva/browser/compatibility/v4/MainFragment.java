@@ -216,7 +216,9 @@ public class MainFragment extends Fragment
 			return tag;
 
 		Matcher m = Pattern.compile("mylist(.)").matcher(tag);
-		int target = m.group(0).charAt(0) - 'a';
+		if(!m.find())
+			return null;
+		int target = m.group(1).charAt(0) - 'a';
 		for (TabHolder holder: m_myListTabs) {
 			if (DdN.getLocalStore().getActiveMyList(holder.myList.id) == target)
 				return holder.myList.tag;

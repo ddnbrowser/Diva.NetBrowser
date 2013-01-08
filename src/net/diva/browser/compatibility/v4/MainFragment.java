@@ -182,6 +182,7 @@ public class MainFragment extends Fragment
 			Bundle args = new Bundle(3);
 			args.putInt("id", mylist.id);
 			args.putString("name", mylist.name);
+			args.putInt("max", mylist.max);
 			args.putString("tag", mylist.tag);
 
 			TabHost.TabSpec tab = host.newTabSpec(mylist.tag);

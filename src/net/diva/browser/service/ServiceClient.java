@@ -537,7 +537,7 @@ public class ServiceClient {
 	}
 
 	public MyList getMyList(int id) throws IOException {
-		final MyList myList = new MyList(id, null);
+		final MyList myList = new MyList(id, null, 0);
 		MyListParser.parseSummary(getFrom("/divanet/myList/selectMyList/%d", id), myList);
 		return myList;
 	}

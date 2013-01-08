@@ -39,7 +39,7 @@ public class MyListFragment extends MusicListFragment {
 		setHasOptionsMenu(true);
 
 		Bundle args = getArguments();
-		m_myList = new MyList(args.getInt("id", 0), args.getString("name"));
+		m_myList = new MyList(args.getInt("id", 0), args.getString("name"), args.getInt("max"));
 	}
 
 	@Override
@@ -212,7 +212,7 @@ public class MyListFragment extends MusicListFragment {
 		protected String doTask(ServiceClient service, String... params) throws Exception {
 			String newName = params[0];
 			try {
-				MyList myList = new MyList(m_myList.id, newName);
+				MyList myList = new MyList(m_myList.id, newName, 0);
 				service.renameMyList(myList.id, myList.name);
 				m_store.updateMyList(myList);
 				DdN.notifyChanged(myList, true);
@@ -256,7 +256,7 @@ public class MyListFragment extends MusicListFragment {
 
 		public UpdateMyList(String name) {
 			super(getActivity(), R.string.message_updating);
-			myList = new MyList(m_myList.id, name);
+			myList = new MyList(m_myList.id, name, 0);
 		}
 
 		@Override

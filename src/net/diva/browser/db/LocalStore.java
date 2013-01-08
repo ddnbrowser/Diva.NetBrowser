@@ -32,7 +32,7 @@ import android.preference.PreferenceManager;
 
 public class LocalStore extends ContextWrapper {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 28;
+	private static final int VERSION = 29;
 
 	private static LocalStore m_instance;
 
@@ -650,10 +650,11 @@ public class LocalStore extends ContextWrapper {
 		Cursor c = db.query(MyListTable.TABLE_NAME, new String[] {
 				MyListTable.ID,
 				MyListTable.NAME,
+				MyListTable.MAX,
 		}, null, null, null, null, MyListTable.ID);
 		try {
 			while (c.moveToNext())
-				mylists.add(new MyList(c.getInt(0), c.getString(1)));
+				mylists.add(new MyList(c.getInt(0), c.getString(1), c.getInt(2)));
 		}
 		finally {
 			c.close();
@@ -685,7 +686,10 @@ public class LocalStore extends ContextWrapper {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		db.beginTransaction();
 		try {
-			MyListTable.update(db, myList.id, myList.name);
+			if(myList.max == 0)
+				MyListTable.update(db, myList.id, myList.name);
+			else
+				MyListTable.update(db, myList.id, myList.name, myList.max);
 			db.setTransactionSuccessful();
 		}
 		finally {
@@ -1225,6 +1229,8 @@ public class LocalStore extends ContextWrapper {
 				HistoryTable.addUniqueKey(db);
 			case 27:
 				ScoreTable.addRivalNameColumns(db);
+			case 28:
+				MyListTable.addMaxColumns(db);
 			default:
 				break;
 			}

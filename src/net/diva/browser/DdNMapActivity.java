@@ -27,9 +27,11 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.text.Html;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -306,6 +308,7 @@ public class DdNMapActivity extends MapActivity {
 		//overlayのlistにMyLocationOverlayを登録
         List<Overlay> overlays = mMapView.getOverlays();
         overlays.add(mMyLocationOverlay);
+        overlays.add(new LongTapListenOverlay());
 	}
 
 	private void resetOverlays(){
@@ -385,6 +388,49 @@ public class DdNMapActivity extends MapActivity {
 	    public MarkerOverlayItem(GeoPoint point){
 	        super(point, "", "");
 	    }
+	}
+
+	private class LongTapListenOverlay extends Overlay implements GestureDetector.OnGestureListener {
+		private GestureDetector gesture = new GestureDetector(this);
+
+		@Override
+		public boolean onTouchEvent(MotionEvent e, MapView mapView) {
+			gesture.onTouchEvent(e);
+			return super.onTouchEvent(e, mapView);
+		}
+
+		public void onLongPress(MotionEvent e) {
+			GeoPoint temp = mMapView.getProjection().fromPixels((int) e.getX(), (int) e.getY());
+			mMapView.getController().animateTo(temp);
+			mMapView.postInvalidate();
+			GeoPoint p = mMapView.getMapCenter();
+			storeList((double) p.getLatitudeE6()/1000000, (double) p.getLongitudeE6()/1000000);
+		}
+
+		@Override
+		public boolean onDown(MotionEvent e) {
+			return false;
+		}
+
+		@Override
+		public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+			return false;
+		}
+
+		@Override
+		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+
+			return false;
+		}
+
+		@Override
+		public void onShowPress(MotionEvent e) {
+		}
+
+		@Override
+		public boolean onSingleTapUp(MotionEvent e) {
+			return false;
+		}
 	}
 
 	private class StoreInfo{

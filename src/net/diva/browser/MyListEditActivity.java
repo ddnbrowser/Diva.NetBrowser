@@ -31,6 +31,7 @@ public class MyListEditActivity extends ListActivity {
 	private PlayRecord m_record;
 	private String m_name;
 	private List<MusicInfo> m_musics;
+	private int m_max;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +48,7 @@ public class MyListEditActivity extends ListActivity {
 
 		Intent intent = getIntent();
 		List<String> ids = intent.getStringArrayListExtra("ids");
+		m_max = intent.getIntExtra("max", 20);
 
 		m_record = DdN.getPlayRecord();
 		m_name = intent.getStringExtra("name");
@@ -111,11 +113,11 @@ public class MyListEditActivity extends ListActivity {
 	private void updateStatus() {
 		CharSequence title;
 		final int total = m_musics.size();
-		final boolean isValid = 0 < total && total <= 20;
+		final boolean isValid = 0 < total && total <= m_max;
 		if (isValid)
-			title = String.format("%s (%d/20)", m_name, total);
+			title = String.format("%s (%d/" + m_max + ")", m_name, total);
 		else
-			title = Html.fromHtml(String.format("%s <font color=#FF0000>(%d/20)</font>", m_name, total));
+			title = Html.fromHtml(String.format("%s <font color=#FF0000>(%d/" + m_max + ")</font>", m_name, total));
 		setTitle(title);
 		m_commit.setEnabled(isValid);
 	}

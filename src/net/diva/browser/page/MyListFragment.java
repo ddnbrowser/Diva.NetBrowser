@@ -131,7 +131,7 @@ public class MyListFragment extends MusicListFragment {
 		if(m_musics != null){
 			title.append('(');
 			title.append(m_musics.size());
-			title.append("/20) ");
+			title.append("/" + m_myList.max + ") ");
 		}
 		super.makeTitle(title, record);
 	}
@@ -168,6 +168,7 @@ public class MyListFragment extends MusicListFragment {
 		intent.putStringArrayListExtra("ids", ids);
 		intent.putExtra("layout", m_adapter.getLayout());
 		intent.putExtra("difficulty", m_adapter.getDifficulty());
+		intent.putExtra("max", m_myList.max);
 		startActivityForResult(intent, EDIT_MYLIST);
 	}
 
@@ -256,7 +257,7 @@ public class MyListFragment extends MusicListFragment {
 
 		public UpdateMyList(String name) {
 			super(getActivity(), R.string.message_updating);
-			myList = new MyList(m_myList.id, name, 0);
+			myList = new MyList(m_myList.id, name, m_myList.max);
 		}
 
 		@Override

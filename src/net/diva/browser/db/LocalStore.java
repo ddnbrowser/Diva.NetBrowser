@@ -1231,6 +1231,9 @@ public class LocalStore extends ContextWrapper {
 				ScoreTable.addRivalNameColumns(db);
 			case 28:
 				MyListTable.addMaxColumns(db);
+				for(int i = 0; i < 5; i++)
+					for(int j = 20; j < 30; j++)
+						MyListEntryTable.insert(db, i, j, null);
 			default:
 				break;
 			}
@@ -1239,7 +1242,7 @@ public class LocalStore extends ContextWrapper {
 		private void initializeMyList(SQLiteDatabase db) {
 			for (int i = 0; i < 5; ++i) {
 				MyListTable.insert(db, i, String.format("マイリスト%d", i+1));
-				for (int j = 0; j < 20; ++j)
+				for (int j = 0; j < 30; ++j)
 					MyListEntryTable.insert(db, i, j, null);
 			}
 		}

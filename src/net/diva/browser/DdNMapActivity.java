@@ -1,12 +1,12 @@
 package net.diva.browser;
 
-import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 import net.diva.browser.util.DdNUtil;
+import net.diva.browser.util.ProgressTask;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -25,7 +25,6 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -193,7 +192,7 @@ public class DdNMapActivity extends MapActivity {
 		storeList = new ArrayList<StoreInfo>();
 		final URI uri = URI.create(String.format("http://eario.jp/diva/location.cgi?lat=" + lat + "&lng=" + lng));
 
-		(new AsyncTask<Void, Void, String>(){
+		(new ProgressTask<Void, Void, String>(this, R.string.title_getting){
 			@Override
 			protected String doInBackground(Void... params) {
 				try{
@@ -204,7 +203,7 @@ public class DdNMapActivity extends MapActivity {
 			}
 
 			@Override
-			protected final void onPostExecute(String json) {
+			protected final void onResult(String json) {
 				final JSONArray data;
 				try{
 					data = new JSONArray(json);

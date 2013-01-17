@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.diva.browser.compatibility.Compatibility;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
@@ -173,9 +174,7 @@ public class DdN extends Application {
 		intent.setClass(ctx, WebBrowseActivity.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
-		Notification notice = new Notification(R.drawable.icon_module, ticker, System.currentTimeMillis());
-		notice.setLatestEventInfo(ctx, title, timestamp, PendingIntent.getActivity(ctx, 0, intent, 0));
-		notice.flags = Notification.FLAG_AUTO_CANCEL;
+		Notification notice = Compatibility.getNotification(ctx, PendingIntent.getActivity(ctx, 0, intent, 0), R.drawable.icon_module, ticker, title, timestamp, System.currentTimeMillis(), true);
 
 		NotificationManager nm = (NotificationManager)ctx.getSystemService(Context.NOTIFICATION_SERVICE);
 		nm.notify(R.id.notification_news_updated, notice);

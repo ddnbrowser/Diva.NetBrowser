@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import net.diva.browser.compatibility.Compatibility;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.PlayRecord;
@@ -195,10 +196,7 @@ public class DownloadRankingService extends Service {
 		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		PendingIntent operation = PendingIntent.getActivity(context, 0, intent, 0);
 
-		Notification notification = new Notification(
-				R.drawable.icon_module, text, System.currentTimeMillis());
-		notification.setLatestEventInfo(context, title, text, operation);
-		notification.flags = Notification.FLAG_AUTO_CANCEL;
+		Notification notification = Compatibility.getNotification(context, operation, R.drawable.icon_module, text, title, text, System.currentTimeMillis(), true);
 
 		NotificationManager nm = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
 		nm.notify(R.id.notification_ranking_updated, notification);

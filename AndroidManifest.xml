@@ -17,7 +17,6 @@
                   android:label="@string/app_name"
                   android:screenOrientation="user"
                   android:configChanges="keyboardHidden|orientation"
-                  android:uiOptions="splitActionBarWhenNarrow"
                   android:theme="@android:style/Theme.Black"
                   >
             <intent-filter>
@@ -30,7 +29,6 @@
         <activity
             android:name=".WebBrowseActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:uiOptions="splitActionBarWhenNarrow"
             />
         <activity android:name=".CommonConfigActivity" android:theme="@android:style/Theme.Black"></activity>
         <activity android:name=".SettingsActivity" android:theme="@android:style/Theme.Black"></activity>

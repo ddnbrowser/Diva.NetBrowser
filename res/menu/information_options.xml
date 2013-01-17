@@ -4,7 +4,6 @@
         android:id="@+id/item_update"
         android:icon="@drawable/ic_menu_refresh"
         android:title="@string/item_update"
-        android:showAsAction="ifRoom"
         />
     <item android:id="@+id/item_exchange_ticket" android:title="@string/exchange_ticket" android:icon="@drawable/ic_menu_exchange">
         <menu>

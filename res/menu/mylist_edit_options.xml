@@ -5,6 +5,5 @@
         android:id="@+id/item_sort"
         android:icon="@drawable/ic_menu_sort_by_size"
         android:title="@string/item_sort"
-        android:showAsAction="ifRoom"
         />
 </menu>

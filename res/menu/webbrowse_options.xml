@@ -4,12 +4,10 @@
         android:id="@+id/item_back"
         android:title="@string/item_back"
         android:icon="@drawable/ic_menu_back"
-        android:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/item_forward"
         android:title="@string/item_forward"
         android:icon="@drawable/ic_menu_forward"
-        android:showAsAction="ifRoom"
         />
 </menu>

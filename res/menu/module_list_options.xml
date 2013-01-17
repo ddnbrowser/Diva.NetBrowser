@@ -5,7 +5,6 @@
         android:id="@+id/item_update"
         android:title="@string/item_update"
         android:icon="@drawable/ic_menu_refresh"
-        android:showAsAction="ifRoom"
         />
 	<item android:icon="@drawable/android:ic_menu_agenda" android:id="@+id/item_switch_display" android:title="@string/item_switch_display">
 		<menu>

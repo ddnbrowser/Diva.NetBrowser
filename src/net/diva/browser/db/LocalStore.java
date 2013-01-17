@@ -1010,9 +1010,7 @@ public class LocalStore extends ContextWrapper {
 		return retMod;
 	}
 
-	public List<byte[]> csvExport() throws IOException {
-		List<byte[]> list = new ArrayList<byte[]>();
-
+	public Cursor getAllHistory() throws IOException {
 		Cursor c = m_helper.getReadableDatabase().query(HistoryTable.TABLE_NAME, new String[] {
 				HistoryTable.MUSIC_ID,
 				HistoryTable.RANK,
@@ -1043,42 +1041,60 @@ public class LocalStore extends ContextWrapper {
 				HistoryTable.LOCK,
 				HistoryTable.RESULT_PICTURE,
 		}, null, null, null, null, null);
+		return c;
+	}
 
-		while (c.moveToNext()){
-			StringBuffer sb = new StringBuffer();
-			sb.append(c.getString(0)).append(",");
-			sb.append(c.getInt(1)).append(",");
-			sb.append(c.getInt(2)).append(",");
-			sb.append(c.getString(3)).append(",");
-			sb.append(c.getInt(4)).append(",");
-			sb.append(c.getInt(5)).append(",");
-			sb.append(c.getInt(6)).append(",");
-			sb.append(c.getInt(7)).append(",");
-			sb.append(c.getInt(8)).append(",");
-			sb.append(c.getInt(9)).append(",");
-			sb.append(c.getInt(10)).append(",");
-			sb.append(c.getInt(11)).append(",");
-			sb.append(c.getInt(12)).append(",");
-			sb.append(c.getInt(13)).append(",");
-			sb.append(c.getInt(14)).append(",");
-			sb.append(c.getInt(15)).append(",");
-			sb.append(c.getInt(16)).append(",");
-			sb.append(c.getInt(17)).append(",");
-			sb.append(c.getInt(18)).append(",");
-			sb.append(c.getInt(19)).append(",");
-			sb.append(c.getInt(20)).append(",");
-			sb.append(c.getInt(21)).append(",");
-			sb.append(c.getString(22)).append(",");
-			sb.append(c.getString(23)).append(",");
-			sb.append(c.getString(24)).append(",");
-			sb.append(c.getString(25)).append(",");
-			sb.append(c.getString(26)).append(",");
-			sb.append(c.getString(27)).append("\r\n");
+	public int historyCount(){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		String sql = "select count(*) as count from " + HistoryTable.TABLE_NAME;
+		Cursor c = db.rawQuery(sql, null);
+		c.moveToFirst();
+		return c.getInt(0);
+	}
 
-			list.add(sb.toString().getBytes());
+	public Map<String, String> getModuleMap(){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		Cursor c = db.query(
+				ModuleTable.TABLE_NAME,
+				new String[] {
+						ModuleTable.ID,
+						ModuleTable.NAME,
+				}, null, null, null, null, null);
+		Map<String, String> map = new HashMap<String, String>();
+		while(c.moveToNext()){
+			map.put(c.getString(0), c.getString(1));
 		}
+		return map;
+	}
 
-		return list;
+	public Map<String, String> getSeMap(){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		Cursor c = db.query(
+				ButtonSETable.TABLE_NAME,
+				new String[] {
+						ButtonSETable.ID,
+						ButtonSETable.NAME,
+				}, null, null, null, null, null);
+		Map<String, String> map = new HashMap<String, String>();
+		while(c.moveToNext()){
+			map.put(c.getString(0), c.getString(1));
+		}
+		return map;
+	}
+
+	public Map<String, String> getSkinMap(){
+		SQLiteDatabase db = m_helper.getWritableDatabase();
+		Cursor c = db.query(
+				SkinTable.TABLE_NAME,
+				new String[] {
+						SkinTable.ID,
+						SkinTable.NAME,
+				}, null, null, null, null, null);
+		Map<String, String> map = new HashMap<String, String>();
+		while(c.moveToNext()){
+			map.put(c.getString(0), c.getString(1));
+		}
+		return map;
 	}
 
 	public List<RivalInfo> getRivalList(){

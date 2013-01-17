@@ -7,10 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.diva.browser.DdN;
 import net.diva.browser.model.History;
-import net.diva.browser.model.Module;
-import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.service.ParseException;
 import net.diva.browser.util.DdNUtil;
 /**
@@ -155,21 +152,21 @@ public class HistoryParser {
 					history.trial_result = DdNUtil.getTrialResultsCord((trial[1]));
 				}
 			}
-			history.module1_id = getModuleId(getMatchText(HIST_MODULE1, body)[1]);
+			history.module1_id = getMatchText(HIST_MODULE1, body)[1];
 			{
 				String[] mod2 = getMatchText(HIST_MODULE2, body);
 				if(mod2 != null)
-					history.module2_id = getModuleId(mod2[1]);
+					history.module2_id = mod2[1];
 			}
 			{
 				String[] se = getMatchText(HIST_SE, body);
 				if(se != null)
-					history.se_id = getSeId(se[0]);
+					history.se_id = se[0];
 			}
 			{
 				String[] skin = getMatchText(HIST_SKIN, body);
 				if(skin != null)
-					history.skin_id = getSkinId(skin[0]);
+					history.skin_id = skin[0];
 			}
 		} catch(Exception e){
 			throw new ParseException(e);
@@ -189,29 +186,5 @@ public class HistoryParser {
 			texts[i-1] = m.group(i);
 		}
 		return texts;
-	}
-
-	private static String getModuleId(String moduleName) {
-		List<ModuleGroup> groups = DdN.getModules();
-		for(ModuleGroup mg : groups) {
-			for(Module m : mg.modules){
-				if(m.name.equals(moduleName))
-					return m.id;
-			}
-		}
-
-		return "unknown";
-	}
-
-	private static String getSeId(String name) {
-		String se = DdN.getLocalStore().getButtonSeId(name);
-		return "".equals(se) ? "unknown" : se;
-	}
-
-	private static String getSkinId(String name){
-		if(name != null)
-			return DdN.getLocalStore().getSkinId(name);
-
-		return "unknown";
 	}
 }

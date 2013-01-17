@@ -9,6 +9,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ import java.util.List;
 import net.diva.browser.DdN;
 import net.diva.browser.R;
 import net.diva.browser.db.HistoryTable;
+import net.diva.browser.db.LocalStore;
 import net.diva.browser.history.HistoryDetailActivity;
 import net.diva.browser.history.UpdateHistoryTask;
 import net.diva.browser.model.History;
@@ -34,6 +36,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.ListFragment;
@@ -52,6 +55,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+import au.com.bytecode.opencsv.CSVReader;
+import au.com.bytecode.opencsv.CSVWriter;
 
 /** @author silvia */
 public class HistoryFragment extends ListFragment implements PageAdapter {
@@ -296,7 +301,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		final File[] files = dir.listFiles(
 				new FilenameFilter() {
 					public boolean accept(File dir, String name) {
-						return name.matches("DdNB_history_\\d{10}_exported_B\\.csv$");
+						return name.matches("DdNB_history_(\\d{10}|\\d{14})_exported_B\\d{0,1}\\.csv$");
 					}
 				});
 
@@ -306,8 +311,20 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		}
 
 		String[] items = new String[files.length];
-		for(int i = 0; i < files.length; i++)
-			items[i] = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date(1000L * Integer.valueOf(files[i].getName().substring(13, 23))));
+		for(int i = 0; i < files.length; i++){
+			if(files[i].getName().matches(".*B\\d.*")){
+				String yyyyMMddHHmmss = files[i].getName().substring(13, 27);
+				items[i] =
+						yyyyMMddHHmmss.substring(0, 4) + "年" +
+						yyyyMMddHHmmss.substring(4, 6) + "月" +
+						yyyyMMddHHmmss.substring(6, 8) + "日 " +
+						yyyyMMddHHmmss.substring(8, 10) + ":" +
+						yyyyMMddHHmmss.substring(10, 12) + ":" +
+						yyyyMMddHHmmss.substring(12, 14);
+			}else{
+				items[i] = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss").format(new Date(1000L * Integer.valueOf(files[i].getName().substring(13, 23))));
+			}
+		}
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setTitle(R.string.hist_menu_import);
@@ -436,7 +453,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		StringBuffer sb = new StringBuffer();
 
 		for(int i = 0; i < wl.size(); i++){
-			if(!sb.toString().isEmpty())
+			if(!"".equals(sb.toString()))
 				sb.append(and);
 			sb.append(wl.get(i));
 		}
@@ -570,34 +587,41 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		}
 
 		protected Boolean doInBackground(Void... params) {
-
 			if(!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()))
 				return false;
 
-			String outStragePath = Environment.getExternalStorageDirectory().getPath() + "/net.diva.browser";
-			File dir = new File(outStragePath);
+			File dir = new File(Environment.getExternalStorageDirectory().getPath(), "net.diva.browser");
 			if(!dir.exists())
 				dir.mkdirs();
 
-			String outputCsv = outStragePath + "/DdNB_history_"+ DdNUtil.now() + "_exported_B.csv";
-			File csv = new File(outputCsv);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+			File csv = new File(dir, "DdNB_history_"+ sdf.format(new Date()) + "_exported_B2.csv");
 			FileOutputStream fos = null;
 
+			CSVWriter writer = null;
 			try{
-				if(!csv.exists())
-					if(!csv.createNewFile())
+				if (!csv.exists())
+					if (!csv.createNewFile())
 						return false;
 
-				List<byte[]> data = DdN.getLocalStore().csvExport();
-		        m_progress.setMax(data.size());
-		        publishProgress(0, data.size());
+				writer = new CSVWriter(new OutputStreamWriter(new FileOutputStream(csv), "UTF-8"));
+				String[] values = new String[HistoryTable.COLUMNS.length];
+				LocalStore store = DdN.getLocalStore();
 
-				fos = new FileOutputStream(csv);
-				for(byte[] b : data){
-					fos.write(b);
+				int maxCount = store.historyCount();
+				m_progress.setMax(maxCount);
+				publishProgress(0, maxCount);
+
+				Cursor c = store.getAllHistory();
+
+				while (c.moveToNext()) {
+					for (int i = 0; i < HistoryTable.COLUMNS.length; ++i)
+						values[i] = c.getString(i);
+					HistoryTable.decodeVal(values);
+					writer.writeNext(values);
 					publishProgress(1);
 				}
-
+				writer.flush();
 			}catch(Exception e){
 				e.printStackTrace();
 			}finally{
@@ -605,6 +629,12 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 					try{
 						fos.close();
 					}catch(IOException e){
+					}
+				}
+				if(writer != null){
+					try {
+						writer.close();
+					} catch (IOException e) {
 					}
 				}
 			}
@@ -641,6 +671,7 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 		protected Boolean doInBackground(Void... params){
 
 			BufferedReader br = null;
+			CSVReader reader = null;
 			try {
 				LineNumberReader fin = new LineNumberReader(new FileReader(m_csv));
 
@@ -649,10 +680,10 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				publishProgress(0, fin.getLineNumber());
 				fin.close();
 
-				br = new BufferedReader(new InputStreamReader(new FileInputStream(m_csv)));
-				String line;
-				while((line = br.readLine()) != null) {
-					String[] data = line.split(",", -1);
+				reader = new CSVReader(new InputStreamReader(new FileInputStream(m_csv), "UTF-8"));
+				String[] data;
+				while((data = reader.readNext()) != null){
+					HistoryTable.decodeVal(data);
 					History h = new History();
 					h.music_id = data[0];
 					h.rank = Integer.valueOf(data[1]);
@@ -695,10 +726,13 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 					if(br !=null)
 						br.close();
 				}catch(Exception e){
-					e.printStackTrace();
+				}
+				try{
+					if(reader != null)
+						reader.close();
+				}catch(Exception e){
 				}
 			}
-
 
 			return Boolean.TRUE;
 		}

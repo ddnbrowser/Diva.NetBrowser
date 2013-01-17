@@ -1,6 +1,7 @@
 package net.diva.browser.db;
 
 import net.diva.browser.model.History;
+import net.diva.browser.util.DdNUtil;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -41,6 +42,37 @@ public class HistoryTable implements BaseColumns {
 	public static final String SKIN = "skin";
 	public static final String LOCK = "lock";
 	public static final String RESULT_PICTURE = "result_picture";
+
+	public static final String[] COLUMNS = new String[] {
+		MUSIC_ID,
+		RANK,
+		PLAY_DATE,
+		PLAY_PLACE,
+		CLEAR_STATUS,
+		ACHIEVEMENT,
+		SCORE,
+		COOL,
+		COOL_PER,
+		FINE,
+		FINE_PER,
+		SAFE,
+		SAFE_PER,
+		SAD,
+		SAD_PER,
+		WORST,
+		WORST_PER,
+		COMBO,
+		CHALLANGE_TIME,
+		HOLD,
+		TRIAL,
+		TRIAL_RESULT,
+		MODULE1,
+		MODULE2,
+		SE,
+		SKIN,
+		LOCK,
+		RESULT_PICTURE,
+	};
 
 	public static final String WHERE_IDENTITY = String.format("%s=? and %s=?", PLAY_DATE, SCORE);
 	public static final String WHERE_BY_MUSIC = String.format("%s=? and %s=?", MUSIC_ID, RANK);
@@ -109,35 +141,35 @@ public class HistoryTable implements BaseColumns {
 	}
 
 	static void tmpInster(SQLiteDatabase db, String where){
-		Cursor c = db.query(HistoryTable.TABLE_NAME, new String[] {
-				HistoryTable.MUSIC_ID,
-				HistoryTable.RANK,
-				HistoryTable.PLAY_DATE,
-				HistoryTable.PLAY_PLACE,
-				HistoryTable.CLEAR_STATUS,
-				HistoryTable.ACHIEVEMENT,
-				HistoryTable.SCORE,
-				HistoryTable.COOL,
-				HistoryTable.COOL_PER,
-				HistoryTable.FINE,
-				HistoryTable.FINE_PER,
-				HistoryTable.SAFE,
-				HistoryTable.SAFE_PER,
-				HistoryTable.SAD,
-				HistoryTable.SAD_PER,
-				HistoryTable.WORST,
-				HistoryTable.WORST_PER,
-				HistoryTable.COMBO,
-				HistoryTable.CHALLANGE_TIME,
-				HistoryTable.HOLD,
-				HistoryTable.TRIAL,
-				HistoryTable.TRIAL_RESULT,
-				HistoryTable.MODULE1,
-				HistoryTable.MODULE2,
-				HistoryTable.SE,
-				HistoryTable.SKIN,
-				HistoryTable.LOCK,
-				HistoryTable.RESULT_PICTURE,
+		Cursor c = db.query(TABLE_NAME, new String[] {
+				MUSIC_ID,
+				RANK,
+				PLAY_DATE,
+				PLAY_PLACE,
+				CLEAR_STATUS,
+				ACHIEVEMENT,
+				SCORE,
+				COOL,
+				COOL_PER,
+				FINE,
+				FINE_PER,
+				SAFE,
+				SAFE_PER,
+				SAD,
+				SAD_PER,
+				WORST,
+				WORST_PER,
+				COMBO,
+				CHALLANGE_TIME,
+				HOLD,
+				TRIAL,
+				TRIAL_RESULT,
+				MODULE1,
+				MODULE2,
+				SE,
+				SKIN,
+				LOCK,
+				RESULT_PICTURE,
 		}, where, null, null, null, null);
 
 		while (c.moveToNext()){
@@ -240,6 +272,34 @@ public class HistoryTable implements BaseColumns {
 		ContentValues cv = new ContentValues(1);
 		cv.put(RESULT_PICTURE, history.result_picture);
 		return db.update(TABLE_NAME, cv, WHERE_IDENTITY, new String[] { String.valueOf(history.play_date), String.valueOf(history.score) }) == 1;
+	}
+
+	public static void decodeVal(String[] values){
+		for(int i = 0; i < values.length; i++){
+			switch(i){
+			case 0:
+				// MUSIC_ID
+				String musicTitle = DdNUtil.getMusicTitle(values[i]);
+				if("".equals(musicTitle))
+					values[i] = musicTitle;
+				break;
+			case 22:
+			case 23:
+				// MODULE1, MODULE2
+				values[i] = DdNUtil.getModuleName(values[i]);
+				break;
+			case 24:
+				// SE
+				values[i] = DdNUtil.getSeName(values[i]);
+				break;
+			case 25:
+				// SKIN
+				values[i] = DdNUtil.getSkinName(values[i]);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 
 }

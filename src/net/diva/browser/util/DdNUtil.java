@@ -34,6 +34,10 @@ public class DdNUtil {
 	private static Map<String, Integer> m_trials;
 	private static Map<String, Integer> m_trial_results;
 
+	private static Map<String, String> m_module;
+	private static Map<String, String> m_se;
+	private static Map<String, String> m_skin;
+
 	public static void init(Resources res){
 		String[] diffNames = res.getStringArray(R.array.difficulty_names);
 		int[] diffIds = res.getIntArray(R.array.difficulty_ids);
@@ -111,6 +115,30 @@ public class DdNUtil {
 				return m.id;
 		}
 		return "";
+	}
+
+	public static String getModuleName(String module_id){
+		if(m_module == null){
+			m_module = DdN.getLocalStore().getModuleMap();
+		}
+		String moduleName = m_module.get(module_id);
+		return moduleName != null ? moduleName : module_id;
+	}
+
+	public static String getSeName(String se_id){
+		if(m_se == null){
+			m_se = DdN.getLocalStore().getSeMap();
+		}
+		String seName = m_se.get(se_id);
+		return seName != null ? seName : se_id;
+	}
+
+	public static String getSkinName(String skin_id){
+		if(m_skin == null){
+			m_skin = DdN.getLocalStore().getSkinMap();
+		}
+		String skinName = m_skin.get(skin_id);
+		return skinName != null ? skinName : skin_id;
 	}
 
 	private static int getCord(Map<String, Integer> target, String name){

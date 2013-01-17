@@ -391,11 +391,18 @@ public class DdNMapActivity extends MapActivity {
 	}
 
 	private class LongTapListenOverlay extends Overlay implements GestureDetector.OnGestureListener {
-		private GestureDetector gesture = new GestureDetector(this);
+		private GestureDetector gesture = new GestureDetector(DdNMapActivity.this, this);
 
 		@Override
 		public boolean onTouchEvent(MotionEvent e, MapView mapView) {
-			gesture.onTouchEvent(e);
+			// Activityのタッチイベント中でGestureDetectorのイベントを呼び出す
+	        // 長押しやダブルタップ等はGestureDetector内で判定されて、
+	        // GestureDetectorに登録したリスナー(このクラス)に処理が振り分けられる
+	        // if文で戻り値を判定することで、GestureDetectorで処理した後、
+	        // 通常のonTouchEventをそのまま継続するかどうかを選択できる
+			// from goo.gl/ZjzA1
+			if(gesture.onTouchEvent(e))
+				return true;
 			return super.onTouchEvent(e, mapView);
 		}
 
@@ -419,7 +426,6 @@ public class DdNMapActivity extends MapActivity {
 
 		@Override
 		public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-
 			return false;
 		}
 

@@ -75,6 +75,13 @@
 			android:summary="@string/summary_history_location_display"
 			/>
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/check_new_version">
+		<CheckBoxPreference
+			android:key="check_new_version"
+			android:title="@string/check_new_version"
+			android:summary="@string/summary_check_new_version"
+			/>
+	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/category_information">
 		<Preference
 			android:key="version_number"

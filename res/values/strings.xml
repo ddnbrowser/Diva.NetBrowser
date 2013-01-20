@@ -248,4 +248,8 @@
     <string name="all_music">全曲</string>
     <string name="all_difficulty">全難易度</string>
     <string name="location_search">店舗検索</string>
+    <string name="notification_new_version">新バージョンのインストール</string>
+    <string name="confirm">確認</string>
+    <string name="check_new_version">新バージョンチェック</string>
+    <string name="summary_check_new_version">アプリが更新されているかチェックします</string>
 </resources>

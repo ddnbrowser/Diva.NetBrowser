@@ -70,8 +70,8 @@ public class HistoryParser {
 
 		try {
 			while (m.find()) {
-				if(dateStr.equals(m.group(1)) && score.equals(m.group(2))){
-					id[0] = m.group(3);
+				if(dateStr.equals(m.group(1)) && score.equals(m.group(3))){
+					id[0] = m.group(5);
 					return null;
 				}
 			}

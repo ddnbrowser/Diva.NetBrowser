@@ -24,6 +24,7 @@ import net.diva.browser.util.DdNUtil;
 
 import org.apache.http.HttpResponse;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -374,6 +375,7 @@ public class HistoryDetailActivity extends Activity {
 		return os.toByteArray();
 	}
 
+	@SuppressLint("WorldReadableFiles")
 	private void writeDataFile(String name, byte[] w) throws Exception {
 		OutputStream out = null;
 		try {
@@ -414,6 +416,10 @@ public class HistoryDetailActivity extends Activity {
 	private MusicInfo getMusic(List<MusicInfo> musics, String id){
 		for(MusicInfo m : musics){
 			if(m.id.equals(id))
+				return m;
+		}
+		for(MusicInfo m : musics){
+			if(m.title.equals(id))
 				return m;
 		}
 		return null;
@@ -561,16 +567,22 @@ public class HistoryDetailActivity extends Activity {
 			HttpResponse response = service.downloadByPost(m_path);
 
 			InputStream in = response.getEntity().getContent();
-			OutputStream out = new FileOutputStream(new File(filePath));
+			OutputStream out = null;
 
-			byte[] buffer = new byte[1024];
-			int size = 0;
-			m_progress.setMax((int) response.getEntity().getContentLength());
-			publishProgress(size, (int) response.getEntity().getContentLength());
-			for (int read; (read = in.read(buffer)) != -1;){
-				out.write(buffer, 0, read);
-				size += read;
-				publishProgress(size);
+			try {
+				out = new FileOutputStream(new File(filePath));
+				byte[] buffer = new byte[1024];
+				int size = 0;
+				m_progress.setMax((int) response.getEntity().getContentLength());
+				publishProgress(size, (int) response.getEntity().getContentLength());
+				for (int read; (read = in.read(buffer)) != -1;) {
+					out.write(buffer, 0, read);
+					size += read;
+					publishProgress(size);
+				}
+			} finally {
+				if (out != null)
+					out.close();
 			}
 
 			return Boolean.TRUE;

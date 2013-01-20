@@ -545,7 +545,8 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 				rank.setText(DdNUtil.getDifficultyName(history.rank));
 				rank.setTextColor(m_context.getResources().getColor(rankColor[history.rank]));
 				clear_status.setText(m_context.getResources().getStringArray(R.array.clear_status_names)[history.clear_status]);
-				music_title.setText(DdNUtil.getMusicTitle(history.music_id));
+				String musicTitle = DdNUtil.getMusicTitle(history.music_id);
+				music_title.setText("".equals(musicTitle) ? history.music_id : musicTitle);
 				lock.setVisibility(history.isLocked() ? View.VISIBLE : View.INVISIBLE);
 				result_picture.setVisibility((history.result_picture != null && !"".equals(history.result_picture) && !"null".equals(history.result_picture)) ? View.VISIBLE : View.INVISIBLE);
 				score.setText(String.format("%dpts", history.score));

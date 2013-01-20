@@ -280,7 +280,7 @@ public class HistoryTable implements BaseColumns {
 			case 0:
 				// MUSIC_ID
 				String musicTitle = DdNUtil.getMusicTitle(values[i]);
-				if("".equals(musicTitle))
+				if(!"".equals(musicTitle))
 					values[i] = musicTitle;
 				break;
 			case 22:

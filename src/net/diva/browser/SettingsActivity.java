@@ -21,6 +21,7 @@ import android.preference.PreferenceScreen;
 import android.view.Menu;
 import android.view.MenuItem;
 
+@SuppressWarnings("deprecation")
 public class SettingsActivity extends PreferenceActivity {
 
 	@Override

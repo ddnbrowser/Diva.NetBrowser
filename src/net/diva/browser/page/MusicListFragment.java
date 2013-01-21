@@ -33,7 +33,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ListFragment;
-import android.text.ClipboardManager;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -52,7 +51,6 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
-@SuppressWarnings("deprecation")
 public abstract class MusicListFragment extends ListFragment
 		implements DdN.Observer, PageAdapter {
 	protected View m_buttons[];
@@ -226,9 +224,7 @@ public abstract class MusicListFragment extends ListFragment
 			WebBrowseActivity.open(getActivity(), String.format("/divanet/ranking/summary/%s/0", music.id));
 			return true;
 		case R.id.item_copy_title:
-			ClipboardManager clipboard = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-			if (clipboard != null)
-				clipboard.setText(music.title);
+			Compatibility.copyText(getActivity(), music.title);
 			return true;
 		case R.id.item_play_record:
 			try{

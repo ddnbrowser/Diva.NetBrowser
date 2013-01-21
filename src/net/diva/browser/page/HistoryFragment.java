@@ -163,10 +163,13 @@ public class HistoryFragment extends ListFragment implements PageAdapter {
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		getActivity().getMenuInflater().inflate(R.menu.history_context, menu);
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
-		History history = m_adapter.getItem(info.position);
-		menu.setHeaderTitle(DdNUtil.getMusicTitle(history.music_id));
+		try{
+			AdapterContextMenuInfo info = (AdapterContextMenuInfo)menuInfo;
+			History history = m_adapter.getItem(info.position);
+			menu.setHeaderTitle(DdNUtil.getMusicTitle(history.music_id));
+			getActivity().getMenuInflater().inflate(R.menu.history_context, menu);
+		}catch(Exception e){
+		}
 	}
 
 	@Override

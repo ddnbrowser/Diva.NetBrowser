@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/rival_cxt_update" android:title="@string/item_update_selction"></item>
+    <item android:id="@+id/item_ranking" android:title="@string/item_ranking"></item>
+    <item android:id="@+id/item_play_record" android:title="@string/item_play_history"></item>
+</menu>

@@ -152,13 +152,19 @@ public class MainFragment extends Fragment
 		for(int i = 0; i < tags.length; i++)
 			tagNumbering.put(tags[i], i);
 
-		String strTags = "";
-		for(String tag : tags)
-			strTags += tag + ",";
-		strTags = strTags.substring(0, strTags.length() - 1);
-
-		String customTabList = preferences.getString("customTabList", strTags);
-		tags = customTabList.split(",");
+		String customTabList = preferences.getString("customTabList", "");
+		if (!"".equals(customTabList)) {
+			String[] customTags = customTabList.split(",");
+			if (customTags.length < 6) {
+				String strTags = "";
+				for (String tag : tags)
+					strTags += tag + ",";
+				strTags = strTags.substring(0, strTags.length() - 1);
+				preferences.edit().putString("customTabList", strTags).commit();
+			} else {
+				tags = customTags;
+			}
+		}
 
 		for (int i = 0; i < tags.length; ++i) {
 			final String tag = tags[i];

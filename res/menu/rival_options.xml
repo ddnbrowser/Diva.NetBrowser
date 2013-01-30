@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:id="@+id/item_sort"
+        android:icon="@drawable/ic_menu_sort_by_size"
+        android:title="@string/item_sort"/>
+    <item
+        android:id="@+id/item_rival_input"
+        android:icon="@drawable/ic_menu_allfriends"
+        android:title="@string/rival_regist"/>
+    <item
+        android:id="@+id/item_rival_change"
+        android:icon="@drawable/ic_menu_allfriends"
+        android:title="@string/rival_change"/>
+    <item
+        android:id="@+id/item_rival_remove"
+        android:icon="@drawable/ic_menu_allfriends"
+        android:title="@string/rival_remove"/>
+    <item
+        android:id="@+id/item_rival_update"
+        android:icon="@drawable/ic_menu_allfriends"
+        android:title="@string/rival_update"/>
+    <item
+        android:id="@+id/item_rival_sync"
+        android:icon="@drawable/ic_menu_allfriends"
+        android:title="@string/rival_sync"/>
+
+</menu>

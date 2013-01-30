@@ -18,6 +18,7 @@
     <item>mylist</item>
     <item>record</item>
     <item>history</item>
+    <item>rival</item>
 </string-array>
 <string-array name="tab_names">
     <item>プレイヤー情報</item>
@@ -25,6 +26,7 @@
     <item>筐体使用マイリスト</item>
     <item>レコード</item>
     <item>プレイ履歴</item>
+    <item>ライバル比較</item>
 </string-array>
 <string-array name="tab_sort_name">
     <item>プレイヤー情報</item>
@@ -32,12 +34,14 @@
     <item>マイリスト</item>
     <item>レコード</item>
     <item>プレイ履歴</item>
+    <item>ライバル比較</item>
 </string-array>
 <array name="tab_icons">
     <item>@drawable/ic_tab_user</item>
     <item>@drawable/ic_tab_all</item>
     <item>@drawable/ic_tab_mylist</item>
     <item>@drawable/ic_tab_record</item>
+    <item>@drawable/ic_tab_user</item>
     <item>@drawable/ic_tab_user</item>
 </array>
 <string-array name="tab_classes">
@@ -46,6 +50,7 @@
     <item>net.diva.browser.page.MyListFragment</item>
     <item>net.diva.browser.page.RecordFragment</item>
     <item>net.diva.browser.page.HistoryFragment</item>
+    <item>net.diva.browser.page.RivalFragment</item>
 </string-array>
 <string-array name="music_layout_names">
     <item>3行表示 (達成率)</item>

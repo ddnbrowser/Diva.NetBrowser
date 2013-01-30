@@ -25,33 +25,6 @@
         android:title="@string/item_update_bulk"
         />
     <item
-        android:id="@+id/item_rival_menu"
-        android:icon="@drawable/ic_menu_allfriends"
-        android:title="@string/rival_menu">
-        <menu>
-            <item
-                android:id="@+id/item_rival_input"
-                android:title="@string/rival_regist"
-                />
-            <item
-                android:id="@+id/item_rival_change"
-                android:title="@string/rival_change"
-                />
-            <item
-                android:id="@+id/item_rival_remove"
-                android:title="@string/rival_remove"
-                />
-            <item
-                android:id="@+id/item_rival_update"
-                android:title="@string/rival_update"
-                />
-            <item
-                android:id="@+id/item_rival_sync"
-                android:title="@string/rival_sync"
-                />
-        </menu>
-    </item>
-    <item
         android:id="@+id/item_search"
         android:icon="@drawable/ic_menu_search"
         android:title="@string/item_search"

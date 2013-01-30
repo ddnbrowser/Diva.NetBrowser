@@ -15,7 +15,6 @@ import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
-import net.diva.browser.model.RivalInfo;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.service.ServiceTask;
 import net.diva.browser.util.CheckedFrameLayout;
@@ -28,7 +27,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -48,8 +46,6 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TabHost;
-import android.widget.TextView;
-import android.widget.Toast;
 
 public abstract class MusicListFragment extends ListFragment
 		implements DdN.Observer, PageAdapter {
@@ -110,12 +106,7 @@ public abstract class MusicListFragment extends ListFragment
 	@Override
 	public void onResume() {
 		super.onResume();
-		String name = m_preferences.getString("music_layout", null);
-		if (name != null) {
-			int id = getResources().getIdentifier(name, "layout", getActivity().getPackageName());
-			if (id != 0 && m_adapter.setLayout(id))
-				setListAdapter(m_adapter);
-		}
+		getLayout();
 		m_list.setFastScrollEnabled(DdN.Settings.enableFastScroll);
 
 		setDifficulty(m_localPrefs.getInt("difficulty", 3), false);
@@ -127,9 +118,20 @@ public abstract class MusicListFragment extends ListFragment
 			onUpdate(record, false);
 	}
 
+	protected void getLayout(){
+		String name = m_preferences.getString("music_layout", null);
+		if (name != null) {
+			int id = getResources().getIdentifier(name, "layout", getActivity().getPackageName());
+			if (id != 0 && m_adapter.setLayout(id))
+				setListAdapter(m_adapter);
+		}
+	}
+
 	@Override
 	public void onPause() {
 		super.onPause();
+		InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+		imm.hideSoftInputFromWindow(m_list.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
 		final Editor editor = m_localPrefs.edit();
 		editor.putInt("difficulty", m_adapter.getDifficulty());
 		editor.putInt("sort_order", m_adapter.sortOrder().ordinal());
@@ -157,21 +159,6 @@ public abstract class MusicListFragment extends ListFragment
 			break;
 		case R.id.item_update_in_history:
 			new UpdateInHistory().execute();
-			break;
-		case R.id.item_rival_input:
-			rivalInput();
-			break;
-		case R.id.item_rival_change:
-			rivalSelect();
-			break;
-		case R.id.item_rival_remove:
-			rivalRemoveSelect();
-			break;
-		case R.id.item_rival_update:
-			rivalUpdate();
-			break;
-		case R.id.item_rival_sync:
-			rivalSync();
 			break;
 		case R.id.item_search:
 			activateTextFilter();
@@ -255,172 +242,6 @@ public abstract class MusicListFragment extends ListFragment
 			m_adapter.setData(getMusics());
 			m_adapter.update();
 		}
-	}
-
-	private void rivalInput() {
-		LayoutInflater inflater = LayoutInflater.from(getActivity());
-		View view = inflater.inflate(R.layout.input_rival_code, null);
-		final TextView edit = (TextView) view.findViewById(R.id.rival_code);
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.rival_input_title);
-		builder.setView(view);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				final RivalInfo rival = new RivalInfo();
-				rival.rival_code = edit.getText().toString();
-				(new AsyncTask<Void, Void, Void>(){
-					@Override
-					protected Void doInBackground(Void... params) {
-						try {
-							if (rival.regist()) {
-								rival.getData();
-								m_store.update(rival);
-								rivalChanged(rival);
-							} else {
-								Toast.makeText(getActivity(), R.string.rival_regist_error_msg, Toast.LENGTH_LONG).show();
-							}
-						} catch (Exception e) {
-							Toast.makeText(getActivity(), "何かおかしいです", Toast.LENGTH_SHORT).show();
-						}
-						return null;
-					}
-				}).execute();
-			}
-		});
-		builder.setNegativeButton(R.string.cancel, null);
-		builder.show();
-	}
-
-	private void rivalSelect() {
-		final List<RivalInfo> rivalList = m_store.getRivalList();
-		final String[] nameList = new String[rivalList.size()];
-		for (int i = 0; i < rivalList.size(); i++) {
-			RivalInfo rival = rivalList.get(i);
-			nameList[i] = rival.rival_name;
-		}
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.rival_change_title);
-		builder.setItems(nameList, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, final int which) {
-				dialog.dismiss();
-				(new AsyncTask<Void, Void, Void>(){
-					@Override
-					protected Void doInBackground(Void... params) {
-						try{
-							if(rivalList.get(which).regist())
-								rivalChanged(rivalList.get(which));
-							else
-								Toast.makeText(getActivity(), R.string.rival_regist_error_msg, Toast.LENGTH_LONG).show();
-						}catch(Exception e){
-							Toast.makeText(getActivity(), "何かおかしいです", Toast.LENGTH_SHORT).show();
-						}
-						return null;
-					}
-				}).execute();
-			}
-		});
-		builder.show();
-	}
-
-	private void rivalRemoveSelect(){
-		(new AsyncTask<Void, Void, Void>(){
-			AlertDialog.Builder builder;
-			@Override
-			protected Void doInBackground(Void... params) {
-
-				try {
-					ServiceClient service = DdN.getServiceClient();
-					if(!service.isLogin())
-						service.login();
-					final List<RivalInfo> rivalList = service.getAllRivalInfo();
-					final String[] nameList = new String[rivalList.size()];
-					for (int i = 0; i < rivalList.size(); i++) {
-						RivalInfo r = rivalList.get(i);
-						nameList[i] = r.rival_name;
-					}
-					builder = new AlertDialog.Builder(getActivity());
-					builder.setTitle(R.string.rival_remove_title);
-					builder.setItems(nameList, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							try {
-								if(!rivalList.get(which).remove())
-									Toast.makeText(getActivity(), R.string.rival_remove_error_msg, Toast.LENGTH_LONG).show();
-							} catch (Exception e) {
-								Toast.makeText(getActivity(), "何かおかしいです", Toast.LENGTH_SHORT).show();
-							}
-						}
-					});
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				return null;
-			}
-			@Override
-			protected void onPostExecute(Void result) {
-				if(builder != null)
-					builder.show();
-			}
-
-		}).execute();
-	}
-
-	private void rivalUpdate() {
-		final List<RivalInfo> rivalList = m_store.getRivalList();
-		final String[] nameList = new String[rivalList.size()];
-		for (int i = 0; i < rivalList.size(); i++) {
-			RivalInfo rival = rivalList.get(i);
-			nameList[i] = rival.rival_name;
-		}
-
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setTitle(R.string.rival_change_title);
-		builder.setItems(nameList, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, final int which) {
-				dialog.dismiss();
-				(new AsyncTask<Void, Void, Void>(){
-
-					@Override
-					protected Void doInBackground(Void... params) {
-						RivalInfo rival = rivalList.get(which);
-						try{
-							rival.getData();
-						}catch(Exception e){
-							Toast.makeText(getActivity(), "何かおかしいです", Toast.LENGTH_SHORT).show();
-							return null;
-						}
-						m_store.update(rival);
-						m_store.loadRivalScore(DdN.getPlayRecord().musics);
-						DdN.notifyPlayRecordChanged();
-						Editor editor = m_preferences.edit();
-						DdN.setUpdateRivalTime(editor);
-						editor.commit();
-
-						return null;
-					}
-
-				}).execute();
-			}
-		});
-		builder.show();
-	}
-
-	private void rivalSync() {
-		new RivalSyncTask().execute();
-		Editor editor = m_preferences.edit();
-		DdN.setUpdateSyncRivalTime(editor);
-		editor.commit();
-	}
-
-	private void rivalChanged(RivalInfo rival){
-		final Editor editor = m_preferences.edit();
-		editor.putString("rival_code", rival.rival_code);
-		editor.putString("rival_name", rival.rival_name);
-		editor.commit();
-		m_store.loadRivalScore(DdN.getPlayRecord().musics);
-		DdN.notifyPlayRecordChanged();
 	}
 
 	public void onUpdate(MyList myList, boolean noMusic) {
@@ -725,28 +546,6 @@ public abstract class MusicListFragment extends ListFragment
 				}
 			});
 			b.show();
-		}
-	}
-
-	private class RivalSyncTask extends ServiceTask<Void, Integer, Boolean> {
-		public RivalSyncTask() {
-			super(getActivity(), R.string.message_updating);
-		}
-
-		@Override
-		protected Boolean doTask(ServiceClient service, Void... params) throws Exception {
-			List<RivalInfo> rivalList = service.getSyncableRivalScore();
-			for(RivalInfo rival : rivalList){
-				m_store.update(rival);
-			}
-
-			return Boolean.TRUE;
-		}
-
-		@Override
-		protected void onResult(Boolean result) {
-			if (result != null && result)
-				DdN.notifyPlayRecordChanged();
 		}
 	}
 

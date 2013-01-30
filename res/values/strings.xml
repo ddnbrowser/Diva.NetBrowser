@@ -229,11 +229,11 @@
     <string name="rp_choose_rp">リザピク</string>
     <string name="rp_choose_create">通常</string>
     <string name="rival_menu">ライバル</string>
-    <string name="rival_regist">ライバル登録</string>
-    <string name="rival_change">ライバル変更</string>
-    <string name="rival_remove">ライバル削除</string>
-    <string name="rival_update">ライバルデータ更新</string>
-    <string name="rival_sync">ライバルデータ同期</string>
+    <string name="rival_regist">登録</string>
+    <string name="rival_change">変更</string>
+    <string name="rival_remove">削除</string>
+    <string name="rival_update">更新</string>
+    <string name="rival_sync">サーバ同期</string>
     <string name="rival_input_title">ライバルコード入力</string>
     <string name="rival_change_title">ライバル変更</string>
     <string name="rival_regist_error_title">ライバル登録エラー</string>

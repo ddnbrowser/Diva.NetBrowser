@@ -4,7 +4,6 @@ import net.diva.browser.model.Ranking;
 import net.diva.browser.model.RivalInfo;
 import net.diva.browser.model.ScoreRecord;
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 
@@ -154,10 +153,5 @@ final class ScoreTable implements BaseColumns {
 		}else{
 			return db.update(NAME, values, WHERE_IDENTITY, new String[] { entry.id, String.valueOf(entry.rank), entry.rival_code }) == 1;
 		}
-	}
-
-	static boolean existRival(SQLiteDatabase db, RivalInfo rival){
-		Cursor c = db.query(NAME, new String[]{RIVAL_CODE}, String.format(RIVAL_CODE + "=?"), new String[] {rival.rival_code}, null, null, null);
-		return c.getCount() > 0;
 	}
 }

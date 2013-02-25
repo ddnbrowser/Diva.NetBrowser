@@ -303,12 +303,10 @@ public class LocalStore extends ContextWrapper {
 
 	public void update(RivalInfo rival) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		boolean exist = ScoreTable.existRival(db, rival);
 		for (MusicInfo music : rival.musics) {
 			for (int i = 0; i < music.rival_records.length; ++i) {
-				if (exist) {
-					ScoreTable.update(db, music.id, i, rival, music.rival_records[i]);
-				} else {
+				boolean exist = ScoreTable.update(db, music.id, i, rival, music.rival_records[i]);
+				if (!exist) {
 					ScoreTable.insert(db, music.id, i, rival, music.rival_records[i]);
 				}
 			}

@@ -448,7 +448,18 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 	}
 
 	public void selectSortOrder() {
-		final List<String> values = Arrays.asList(m_context.getResources().getStringArray(R.array.sort_order_values));
+		selectSortOrder(false);
+	}
+
+	public void selectSortOrder(final boolean rivalTab){
+		Resources res = m_context.getResources();
+		final List<String> values = Arrays.asList(res.getStringArray(R.array.sort_order_values));
+		List<String> names = Arrays.asList(res.getStringArray(R.array.sort_order_names));
+		if(!rivalTab){
+			names = names.subList(0, 10);
+		}else{
+			names = names.subList(10, 12);
+		}
 		final int checked = values.indexOf(sortOrder().name());
 
 		View custom = LayoutInflater.from(m_context).inflate(R.layout.descending_order, null);
@@ -457,13 +468,13 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(m_context);
 		builder.setTitle(R.string.item_sort);
-		builder.setSingleChoiceItems(R.array.sort_order_names, checked,
+		builder.setSingleChoiceItems(names.toArray(new String[0]), checked,
 				new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int which) {
-				sortBy(SortOrder.valueOf(values.get(which)), descending.isChecked());
-				dialog.dismiss();
-			}
-		});
+					public void onClick(DialogInterface dialog, int which) {
+						sortBy(SortOrder.valueOf(values.get(which + (rivalTab ? 10 : 0))), descending.isChecked());
+						dialog.dismiss();
+					}
+				});
 		builder.setView(custom);
 		builder.show();
 	}

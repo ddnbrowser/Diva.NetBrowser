@@ -54,6 +54,9 @@ public class RivalFragment extends MusicListFragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
+		case R.id.item_sort:
+			m_adapter.selectSortOrder(true);
+			break;
 		case R.id.item_rival_input:
 			rivalInput();
 			break;

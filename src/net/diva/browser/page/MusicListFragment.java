@@ -346,11 +346,6 @@ public abstract class MusicListFragment extends ListFragment
 			else
 				m_selections.remove(music);
 		}
-		else {
-			Intent i = new Intent(getActivity(), MusicDetailActivity.class);
-			i.putExtra("id", music.id);
-			startActivity(i);
-		}
 	}
 
 	private class OnTouchListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {
@@ -370,6 +365,18 @@ public abstract class MusicListFragment extends ListFragment
 				return m_adapter.getItem(position);
 			else
 				return null;
+		}
+
+		@Override
+		public boolean onSingleTapConfirmed(MotionEvent e) {
+			MusicInfo music = getItem(e);
+			if (music != null && !isSelectionMode()) {
+				Intent i = new Intent(getActivity(), MusicDetailActivity.class);
+				i.putExtra("id", music.id);
+				startActivity(i);
+				return true;
+			}
+			return super.onSingleTapConfirmed(e);
 		}
 
 		@Override

@@ -7,14 +7,13 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.WebBrowseActivity;
 import net.diva.browser.db.LocalStore;
 import net.diva.browser.model.History;
 import net.diva.browser.model.MusicInfo;
@@ -42,7 +41,6 @@ import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Typeface;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -118,7 +116,7 @@ public class HistoryDetailActivity extends Activity {
 			shareHistory();
 			break;
 		case R.id.history_ranking:
-			ranking();
+			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", m_history.music_id));
 			break;
 		case R.id.history_result_picture:
 			confirmResultPicture();
@@ -475,33 +473,6 @@ public class HistoryDetailActivity extends Activity {
 		String contentname = "content://media/external/images/media/" + c.getInt(c.getColumnIndex(MediaStore.MediaColumns._ID));
 
 		return Uri.parse(contentname);
-	}
-
-	public void ranking(){
-		try{
-			String musicTitle = URLEncoder.encode(DdNUtil.getMusicTitle(m_history.music_id), "UTF-8");
-			final URI uri = URI.create(String.format("http://eario.jp/diva/ranking.cgi?music_name=%s&rank=%s&score=%s", musicTitle, m_history.rank, m_history.score));
-			(new AsyncTask<Void, Void, String>(){
-				@Override
-				protected String doInBackground(Void... params) {
-					try{
-						return DdNUtil.read(uri);
-					}catch(Exception e){
-					}
-					return null;
-				}
-
-				@Override
-				protected void onPostExecute(String ranking) {
-					if(ranking != null)
-						Toast.makeText(HistoryDetailActivity.this, ranking, Toast.LENGTH_LONG).show();
-					else
-						Toast.makeText(HistoryDetailActivity.this, "ランキング取得に失敗しました", Toast.LENGTH_SHORT).show();
-				}
-			}).execute();
-		}catch(Exception e){
-			Toast.makeText(this, "楽曲情報のURLエンコードで失敗しました", Toast.LENGTH_SHORT).show();
-		}
 	}
 
 	private void delete(){

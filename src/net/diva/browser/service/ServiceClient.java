@@ -198,11 +198,22 @@ public class ServiceClient {
 		return true;
 	}
 
-	public List<Ranking> getRankInList() throws IOException, ParseException {
+//	public Map<String, Ranking> getRankInList() throws IOException, ParseException {
+//		Map<String, Ranking> map = new HashMap<String, Ranking>();
+//		String path = "/divanet/ranking/list/0";
+//		while (path != null)
+//			path = MusicParser.parseRankingList(getFrom(path), map);
+//
+//		return map;
+//	}
+
+	public List<Ranking> getInterimRankInList() throws IOException, ParseException {
 		List<Ranking> list = new ArrayList<Ranking>();
-		String path = "/divanet/ranking/list/0";
-		while (path != null)
-			path = MusicParser.parseRankingList(getFrom(path), list);
+		for(int i = 2; i < 4; i++){
+			String path = String.format("/divanet/statistics/interimRank/%d/0", i);
+			while (path != null)
+				path = MusicParser.parseInterimRankingList(getFrom(path), list, i);
+		}
 
 		return list;
 	}

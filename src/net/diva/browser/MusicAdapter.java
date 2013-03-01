@@ -18,6 +18,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -162,7 +163,16 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 				skin.setVisibility(music.skin != null ? View.VISIBLE : View.INVISIBLE);
 			if (button != null)
 				button.setVisibility(music.button != null ? View.VISIBLE : View.INVISIBLE);
-			ranking.setText(score.isRankIn() ? String.format("%d位", score.ranking) : "");
+			if (score.isRankIn()) {
+				ranking.setText(String.format("%d位", score.ranking));
+				ranking.setTextColor(Color.RED);
+			} else if (score.ranking != -1) {
+				ranking.setText(String.format("%d位", score.ranking));
+				ranking.setTextColor(Color.GRAY);
+			} else {
+				ranking.setText("");
+			}
+
 			high_score.setText(String.format("%d%s", score.high_score, rival_achivement != null ? "p" : "pts"));
 			if (achivement != null)
 				achivement.setText(String.format("%d.%02d%%", score.achievement/100, score.achievement%100));
@@ -293,9 +303,9 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 				int lRanking = lhs.records[m_difficulty].ranking;
 				int rRanking = rhs.records[m_difficulty].ranking;
 				if(lRanking == -1)
-					lRanking = 301;
+					lRanking = Integer.MAX_VALUE;
 				if(rRanking == -1)
-					rRanking = 301;
+					rRanking = Integer.MAX_VALUE;
 
 				int result = lRanking - rRanking;
 				if(result != 0)

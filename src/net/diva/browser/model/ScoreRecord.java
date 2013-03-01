@@ -10,6 +10,6 @@ public class ScoreRecord {
 	public int ranking;
 
 	public boolean isRankIn() {
-		return ranking > 0;
+		return 301 > ranking && ranking > 0;
 	}
 }

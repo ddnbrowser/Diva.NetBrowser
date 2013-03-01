@@ -87,7 +87,7 @@ final class ScoreTable implements BaseColumns {
 	static long insert(SQLiteDatabase db, String music_id, int rank, RivalInfo rival, ScoreRecord score) {
 		if (score == null)
 			return -1;
-		ContentValues values = new ContentValues(9);
+		ContentValues values = new ContentValues(10);
 		values.put(MUSIC_ID, music_id);
 		values.put(RANK, rank);
 		values.put(RIVAL_CODE, rival == null ? null : rival.rival_code);
@@ -97,19 +97,21 @@ final class ScoreTable implements BaseColumns {
 		values.put(TRIAL_STATUS, score.trial_status);
 		values.put(HIGH_SCORE, score.high_score);
 		values.put(ACHIEVEMENT, score.achievement);
+		values.put(RANKING, score.ranking);
 		return db.insert(NAME, null, values);
 	}
 
 	static boolean update(SQLiteDatabase db, String music_id, int rank, RivalInfo rival, ScoreRecord score) {
 		if (score == null)
 			return false;
-		ContentValues values = new ContentValues(6);
+		ContentValues values = new ContentValues(7);
 		values.put(DIFFICULTY, score.difficulty);
 		values.put(RIVAL_NAME, rival == null ? null : rival.rival_name);
 		values.put(CLEAR_STATUS, score.clear_status);
 		values.put(TRIAL_STATUS, score.trial_status);
 		values.put(HIGH_SCORE, score.high_score);
 		values.put(ACHIEVEMENT, score.achievement);
+		values.put(RANKING, score.ranking);
 
 		if(rival == null){
 			return db.update(NAME, values, WHERE_IDENTITY_MYSCORE, new String[] { music_id, String.valueOf(rank) }) == 1;

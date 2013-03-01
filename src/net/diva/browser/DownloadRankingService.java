@@ -159,7 +159,8 @@ public class DownloadRankingService extends Service {
 				m_preferences.getString("access_code", null),
 				m_preferences.getString("password", null));
 		service.login();
-		List<Ranking> ranking = service.getRankInList();
+		//List<Ranking> ranking = service.getRankInList();
+		List<Ranking> ranking = service.getInterimRankInList();
 		LocalStore.instance(this).update(ranking);
 		return ranking;
 	}

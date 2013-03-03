@@ -166,7 +166,7 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 			if (score.isRankIn()) {
 				ranking.setText(String.format("%d位", score.ranking));
 				ranking.setTextColor(Color.RED);
-			} else if (score.ranking != -1) {
+			} else if (score.ranking > 0) {
 				ranking.setText(String.format("%d位", score.ranking));
 				ranking.setTextColor(Color.GRAY);
 			} else {

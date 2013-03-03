@@ -3,6 +3,7 @@ package net.diva.browser.db;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -158,8 +159,15 @@ public class LocalStore extends ContextWrapper {
 	public void loadRivalScore(List<MusicInfo> musics) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		String rivalCode = preferences.getString("rival_code", null);
-		if(rivalCode == null)
+		if(musics == null)
 			return;
+		if(rivalCode == null || "".equals(rivalCode)){
+			for(MusicInfo music: musics){
+				for(int i = 0; i < 4; i++)
+				music.rival_records[i] = new ScoreRecord();
+			}
+			return;
+		}
 
 		SQLiteDatabase db = m_helper.getReadableDatabase();
 
@@ -303,7 +311,9 @@ public class LocalStore extends ContextWrapper {
 
 	public void update(RivalInfo rival) {
 		SQLiteDatabase db = m_helper.getWritableDatabase();
-		for (MusicInfo music : rival.musics) {
+		Iterator<String> ite = rival.musics.keySet().iterator();
+		while(ite.hasNext()){
+			MusicInfo music = rival.musics.get(ite.next());
 			for (int i = 0; i < music.rival_records.length; ++i) {
 				boolean exist = ScoreTable.update(db, music.id, i, rival, music.rival_records[i]);
 				if (!exist) {

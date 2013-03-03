@@ -470,7 +470,7 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 		}else{
 			names = names.subList(10, 12);
 		}
-		final int checked = values.indexOf(sortOrder().name());
+		final int checked = values.indexOf(sortOrder().name()) - (rivalTab ? 10 : 0);
 
 		View custom = LayoutInflater.from(m_context).inflate(R.layout.descending_order, null);
 		final CheckBox descending = (CheckBox)custom.findViewById(R.id.descending);

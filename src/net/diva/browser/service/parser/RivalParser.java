@@ -10,7 +10,6 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.RivalInfo;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.service.ParseException;
-import net.diva.browser.util.DdNUtil;
 
 public class RivalParser {
 
@@ -33,8 +32,7 @@ public class RivalParser {
 		return rivalList;
 	}
 
-	public static RivalInfo getRivalInfo(InputStream content) throws ParseException {
-		RivalInfo rival = new RivalInfo();
+	public static void getRivalInfo(InputStream content, RivalInfo rival) throws ParseException {
 		String body = Parser.read(content);
 		Matcher m = RIVAL_CODE.matcher(body);
 		if(!m.find())
@@ -54,7 +52,6 @@ public class RivalParser {
 		}
 
 		rival.rival_token = m.group(1);
-		return rival;
 	}
 
 	private static final Pattern SIMPLE_RIVAL_SCORE_TEXT = Pattern.compile("<FONT size=\"-1\" class=\"smaller\">(.*?)</FONT></TD>\\s*?" +
@@ -68,12 +65,11 @@ public class RivalParser {
 			String title = m.group(1).replaceAll("<.*?>", "");
 			String achievement = m.group(2);
 			String score = m.group(3);
-			MusicInfo music = rival.getMusic(DdNUtil.getMusicId(title), title);
+			MusicInfo music = rival.getMusic(title);
 			ScoreRecord scoreRecord = new ScoreRecord();
 			scoreRecord.achievement = (int) (Double.valueOf(achievement) * 100);
 			scoreRecord.high_score = Integer.valueOf(score);
 			music.rival_records[difficulty] = scoreRecord;
-			rival.put(music);
 		}
 
 		m = m.usePattern(Parser.RE_NEXT);

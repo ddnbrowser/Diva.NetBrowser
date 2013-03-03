@@ -655,64 +655,57 @@ public class ServiceClient {
 		return RivalParser.getRivalTokens(getFrom("/divanet/rival/deleteList"));
 	}
 
-	public List<RivalInfo> getSyncableRivalScore() throws IOException, ParseException {
-		List<RivalInfo> all = getAllRivalInfo();
-		List<RivalInfo> rivalList = new ArrayList<RivalInfo>();
-		for(RivalInfo rival : all){
-			if(rival.rival_code == null && rival.rival_token != null)
-				rival = getRivalInfoByToken(rival.rival_token);
-			if(rival.rival_code != null)
-				rivalList.add(getRivalScore(rival));
-		}
-		return rivalList;
-	}
-
-	public RivalInfo getRivalScore(String rivalCode) throws IOException, ParseException {
-		return getRivalScore(getRivalInfo(rivalCode));
-	}
-
-	public RivalInfo getRivalScore(RivalInfo rival) throws IOException, ParseException {
+	public boolean getRivalScore(RivalInfo rival) throws IOException, ParseException {
+		if(rival == null || (rival.rival_code == null && rival.rival_token == null))
+			return false;
+		if(rival.rival_token == null || rival.rival_code == null)
+			getRivalInfo(rival);
 		for(int j = 0; j < 4; j++){
 			String path = String.format("/divanet/statistics/selectByDifficultyOther/%s/%d/0", rival.rival_token, j);
 			while(path != null){
 				path = RivalParser.parseRivalScore(getFrom(path), rival, j);
 			}
 		}
-		return rival;
+		return rival.musics.size() > 0;
 	}
 
-	public RivalInfo getRivalInfo(String rivalCode) throws IOException, ParseException {
-		return RivalParser.getRivalInfo(getRivalDataPageStream(rivalCode));
+	public void getRivalInfo(RivalInfo rival) throws IOException, ParseException {
+		RivalParser.getRivalInfo(getRivalDataPageStream(rival), rival);
 	}
 
-	public RivalInfo getRivalInfoByToken(String rivalToken) throws IOException, ParseException {
-		RivalInfo rival = RivalParser.getRivalInfo(getFrom("/divanet/rival/detailOtherOpenData/%s/", rivalToken));
-		return rival;
+	public InputStream getRivalDataPageStream(RivalInfo rival) throws IOException {
+		if(rival.rival_code == null && rival.rival_token == null)
+			throw new NullPointerException("ライバルコードが識別用データがnull");
+
+		InputStream stream = null;
+		if (rival.rival_code != null) {
+			String path = "/divanet/rival/searchRivalCode";
+			List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+			params.add(new BasicNameValuePair("rivalCode", rival.rival_code));
+			HttpResponse response = postTo(path, new UrlEncodedFormEntity(params, "UTF-8"));
+			stream = response.getEntity().getContent();
+		} else {
+			String path = String.format("/divanet/rival/detailOtherOpenData/%s/", rival.rival_token);
+			stream = getFrom(path);
+		}
+		return stream;
 	}
 
-	public InputStream getRivalDataPageStream(String rivalCode) throws IOException {
-		if(rivalCode == null)
-			throw new NullPointerException("ライバルコードがnull");
-
-		String path = "/divanet/rival/searchRivalCode";
-		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
-		params.add(new BasicNameValuePair("rivalCode", rivalCode));
-		HttpResponse response = postTo(path, new UrlEncodedFormEntity(params, "UTF-8"));
-		return response.getEntity().getContent();
-	}
-
-	public boolean setRival(String rivalCode) throws IOException, ParseException {
-		RivalInfo rival = getRivalInfo(rivalCode);
+	public boolean setRival(RivalInfo rival) throws ParseException, IOException {
+		if(rival.rival_token == null)
+			getRivalInfo(rival);
 		if(!RivalParser.setRivalResult(getFrom(String.format("/divanet/rival/setRival/%s", rival.rival_token)))){
 			return RivalParser.setRivalResult(getFrom(String.format("/divanet/rival/registRival/%s", rival.rival_token)));
 		}
 		return true;
 	}
 
-	public boolean rivalRemove(String rivalToken) throws IOException, ParseException {
+	public boolean rivalRemove(RivalInfo rival) throws IOException, ParseException {
+		if(rival.rival_token == null)
+			return false;
 		String path = "/divanet/rival/deleteplayerexec";
 		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
-		params.add(new BasicNameValuePair("deletePlayer", rivalToken));
+		params.add(new BasicNameValuePair("deletePlayer", rival.rival_token));
 		HttpResponse response = postTo(path, new UrlEncodedFormEntity(params, "UTF-8"));
 		return RivalParser.removeRivalResult(response.getEntity().getContent());
 	}

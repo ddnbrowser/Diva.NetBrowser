@@ -116,7 +116,7 @@ public class HistoryDetailActivity extends Activity {
 			shareHistory();
 			break;
 		case R.id.history_ranking:
-			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", m_history.music_id));
+			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", DdNUtil.getMusicId(m_history.music_id)));
 			break;
 		case R.id.history_result_picture:
 			confirmResultPicture();

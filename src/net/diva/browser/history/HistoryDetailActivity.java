@@ -116,7 +116,9 @@ public class HistoryDetailActivity extends Activity {
 			shareHistory();
 			break;
 		case R.id.history_ranking:
-			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", DdNUtil.getMusicId(m_history.music_id)));
+			String id = DdNUtil.getMusicId(m_history.music_id);
+			id = "".equals(id) ? m_history.music_id : id;
+			WebBrowseActivity.open(this, String.format("/divanet/ranking/summary/%s/0", id));
 			break;
 		case R.id.history_result_picture:
 			confirmResultPicture();
@@ -450,9 +452,13 @@ public class HistoryDetailActivity extends Activity {
 		Intent intent = new Intent();
 		intent.setType("image/*");
 		intent.setAction(Intent.ACTION_VIEW);
-		intent.setData(getResultPicture());
 
-		startActivity(intent);
+		try{
+			intent.setData(getResultPicture());
+			startActivity(intent);
+		}catch(Exception e){
+			Toast.makeText(this, "登録された画像がなくなってました", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	private Uri getResultPicture(){

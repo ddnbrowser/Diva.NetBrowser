@@ -310,6 +310,8 @@ public class LocalStore extends ContextWrapper {
 	}
 
 	public void update(RivalInfo rival) {
+		if(rival.rival_code == null)
+			return;
 		SQLiteDatabase db = m_helper.getWritableDatabase();
 		Iterator<String> ite = rival.musics.keySet().iterator();
 		while(ite.hasNext()){

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
-      android:versionCode="400" android:versionName="4.00">
+      android:versionCode="402" android:versionName="4.02">
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="10"/>
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
     <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>

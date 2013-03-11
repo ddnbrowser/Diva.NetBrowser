@@ -302,9 +302,9 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 			public int compare(MusicInfo lhs, MusicInfo rhs) {
 				int lRanking = lhs.records[m_difficulty].ranking;
 				int rRanking = rhs.records[m_difficulty].ranking;
-				if(lRanking == -1)
+				if(lRanking < 1)
 					lRanking = Integer.MAX_VALUE;
-				if(rRanking == -1)
+				if(rRanking < 1)
 					rRanking = Integer.MAX_VALUE;
 
 				int result = lRanking - rRanking;

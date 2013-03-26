@@ -38,7 +38,8 @@ public class RivalParser {
 		if(!m.find())
 			throw new ParseException();
 
-		rival.rival_code = "非公開".equals(m.group(1)) ? null : m.group(1);
+		if(rival.rival_code == null)
+			rival.rival_code = "非公開".equals(m.group(1)) ? null : m.group(1);
 		m = RIVAL_CN.matcher(body);
 		if(!m.find())
 			throw new ParseException();

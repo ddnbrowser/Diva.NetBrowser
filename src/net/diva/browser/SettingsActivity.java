@@ -8,6 +8,8 @@ import net.diva.browser.common.UpdateSaturaionPoints;
 import net.diva.browser.model.MyList;
 import net.diva.browser.settings.TabSortActivity;
 import net.diva.browser.util.TimePreference;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -53,10 +55,22 @@ public class SettingsActivity extends PreferenceActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.item_update_saturations:
-			new UpdateSaturaionPoints(this).execute();
+			saturationUpdate();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void saturationUpdate(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.saturation_update_choose_menu);
+		builder.setItems(R.array.saturation_source_names, new DialogInterface.OnClickListener() {
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				new UpdateSaturaionPoints(SettingsActivity.this).execute(UpdateSaturaionPoints.SOURCE_URLS[which]);
+			}
+		});
+		builder.show();
 	}
 
 	private void addMyLists(final ListPreference lp) {

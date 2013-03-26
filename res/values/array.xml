@@ -158,4 +158,8 @@
     <item>900</item>
     <item>540</item>
 </integer-array>
+<string-array name="saturation_source_names">
+    <item>PDA@wiki</item>
+    <item>deco19</item>
+</string-array>
 </resources>

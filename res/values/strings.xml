@@ -267,5 +267,5 @@
     <string name="summary_check_new_version">アプリが更新されているかチェックします</string>
     <string name="tab_sort_change">タブの並べ替え</string>
     <string name="summary_tab_sort_change">タブの順番を変更します</string>
-
+    <string name="saturation_update_choose_menu">理論値取得先選択</string>
 </resources>

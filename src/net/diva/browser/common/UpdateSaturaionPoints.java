@@ -30,18 +30,27 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.content.Context;
 import android.widget.Toast;
 
-public class UpdateSaturaionPoints extends ProgressTask<Void, Void, String> {
-	private static final URI PAGE_URI = URI.create("http://www31.atwiki.jp/projectdiva_ac/pages/222.html");
-	private static final Pattern REGEX = Pattern.compile(buildRegex());
+public class UpdateSaturaionPoints extends ProgressTask<String, Void, String> {
+	public static final String WIKI_URL = "http://www31.atwiki.jp/projectdiva_ac/pages/222.html";
+	public static final String DECO_URL = "http://deco19.ddo.jp/data/score.dat";
+	public static final String[] SOURCE_URLS = new String[] { WIKI_URL, DECO_URL };
+	private String accessUrl;
 
-	private static String buildRegex() {
-		final String title = ">([^>]+)</a></td>";
-		final String saturation = "\\s*<!--\\d+-\\d+--><td style=\"\">((\\d+).(\\d\\d))?(.*)?</td>";
-		StringBuilder b = new StringBuilder();
-		b.append(title);
-		for (int i = 0; i < 4; ++i)
-			b.append(saturation);
-		return b.toString();
+	private String buildRegex() {
+		if(WIKI_URL.equals(accessUrl)){
+			String title = ">([^>]+)</a></td>";
+			String saturation = "\\s*<!--\\d+-\\d+--><td style=\"\">((\\d+).(\\d\\d))?(.*)?</td>";
+			StringBuilder b = new StringBuilder();
+			b.append(title);
+			for (int i = 0; i < 4; ++i)
+				b.append(saturation);
+			return b.toString();
+
+		}else if(DECO_URL.equals(accessUrl)){
+			String regixStr = "\\d+,(.+?),\\d+?,(.+?),\\d+?,(.+?),\\d+?,(.+?),\\d+?#(.+)";
+			return regixStr;
+		}
+		return "";
 	}
 
 	public UpdateSaturaionPoints(Context context) {
@@ -49,10 +58,14 @@ public class UpdateSaturaionPoints extends ProgressTask<Void, Void, String> {
 	}
 
 	@Override
-	protected String doInBackground(Void... args) {
+	protected String doInBackground(String... args) {
+		if(args.length != 1)
+			return null;
 		try {
+			accessUrl = args[0];
+			URI uri = URI.create(accessUrl);
 			final LocalStore store = DdN.getLocalStore();
-			for (MusicInfo music: parse(read(PAGE_URI), musicMap()))
+			for (MusicInfo music: parse(read(uri), musicMap()))
 				store.updateSaturation(music);
 		}
 		catch (IOException e) {
@@ -111,21 +124,40 @@ public class UpdateSaturaionPoints extends ProgressTask<Void, Void, String> {
 
 	private List<MusicInfo> parse(String contents, Map<String, MusicInfo> map) {
 		List<MusicInfo> updated = new ArrayList<MusicInfo>();
-		Matcher m = REGEX.matcher(contents);
+		Pattern regix = Pattern.compile(buildRegex());
+		Matcher m = regix.matcher(contents);
 		while (m.find()) {
-			MusicInfo music = map.get(m.group(1));
-			if (music == null)
-				continue;
-
-			for (int i = 0; i < 4; ++i) {
-				final int base = 1 + i * 4;
-				final ScoreRecord score = music.records[i];
-				if (score == null || m.group(base+1) == null)
+			if (WIKI_URL.equals(accessUrl)) {
+				MusicInfo music = map.get(m.group(1));
+				if (music == null)
 					continue;
 
-				score.saturation = Integer.valueOf(m.group(base+2) + m.group(base+3));
+				for (int i = 0; i < 4; ++i) {
+					final int base = 1 + i * 4;
+					final ScoreRecord score = music.records[i];
+					if (score == null || m.group(base + 1) == null)
+						continue;
+
+					score.saturation = Integer.valueOf(m.group(base + 2) + m.group(base + 3));
+				}
+				updated.add(music);
+
+			} else if (DECO_URL.equals(accessUrl)) {
+				String title = m.group(5);
+				MusicInfo music = map.get(title);
+				if (music == null)
+					continue;
+
+				for (int i = 0; i < 4; ++i) {
+					final ScoreRecord score = music.records[i];
+					final String satu = m.group(i + 1);
+					if (score == null || satu == null || "0.00".equals(satu))
+						continue;
+
+					score.saturation = Integer.valueOf(satu.replace(".", ""));
+				}
+				updated.add(music);
 			}
-			updated.add(music);
 		}
 		return updated;
 	}

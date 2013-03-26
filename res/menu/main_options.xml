@@ -9,6 +9,7 @@
             <item android:id="@+id/item_play_history" android:title="@string/item_play_history"></item>
             <item android:id="@+id/item_contest" android:title="@string/item_contest"></item>
             <item android:id="@+id/item_ranking_list" android:title="@string/item_ranking_list"></item>
+            <item android:id="@+id/item_achievment_ranking" android:title="@string/item_achievment_ranking"></item>
         </menu>
     </item>
     <item android:id="@+id/item_game_settings" android:title="@string/item_game_settings" android:icon="@drawable/ic_menu_manage"></item>

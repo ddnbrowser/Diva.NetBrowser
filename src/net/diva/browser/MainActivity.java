@@ -80,6 +80,9 @@ public class MainActivity extends FragmentActivity {
 		case R.id.item_ranking_list:
 			WebBrowseActivity.open(this, "/divanet/ranking/list/0");
 			break;
+		case R.id.item_achievment_ranking:
+			WebBrowseActivity.open(this, "/divanet/ranking/achievment");
+			break;
 		case R.id.item_game_settings: {
 			Intent intent = new Intent(getApplicationContext(), CommonConfigActivity.class);
 			startActivity(intent);

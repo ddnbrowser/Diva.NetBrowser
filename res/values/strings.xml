@@ -24,6 +24,7 @@
     <string name="item_contest">コンテスト情報</string>
     <string name="item_statistics">クリア統計情報</string>
     <string name="item_ranking_list">ランクインリスト</string>
+    <string name="item_achievment_ranking">達成率ランキング</string>
     <string name="item_check_record">クリア判定</string>
     <string name="item_reverse_order">逆順</string>
     <string name="item_game_settings">ゲーム設定</string>

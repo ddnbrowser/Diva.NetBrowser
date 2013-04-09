@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class DdNBrowserReceiver extends BroadcastReceiver {
 	public static final String ACTION_DOWNLOAD_RANKING = "net.diva.browser.action.DOWNLOAD_RANKING";
@@ -13,7 +15,19 @@ public class DdNBrowserReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-		if (ACTION_DOWNLOAD_RANKING.equals(action)) {
+		if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+			if (preferences.getBoolean("download_rankin", false))
+				DownloadRankingService.reserve(context);
+			else
+				DownloadRankingService.cancel(context);
+
+			if(preferences.getBoolean("download_history", false))
+				DownloadHistoryService.forceReserve(context);
+			else
+				DownloadHistoryService.cancel(context);
+		}
+		else if (ACTION_DOWNLOAD_RANKING.equals(action)) {
 			startDownloadRanking(context);
 		}
 		else if(ACTION_DOWNLOAD_HISTORY.equals(action)) {

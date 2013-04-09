@@ -130,11 +130,9 @@ public class MainActivity extends FragmentActivity {
 
 	private void versionCheck() {
 		SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(this);
-		if(!preference.contains("check_new_version")){
-			SharedPreferences.Editor editor = preference.edit();
-			editor.putBoolean("check_new_version", true);
-			editor.commit();
-		}
+		if(!preference.contains("check_new_version"))
+			preference.edit().putBoolean("check_new_version", true).commit();
+
 		if(!preference.getBoolean("check_new_version", false))
 			return;
 

@@ -54,7 +54,7 @@ public class DownloadHistoryService extends Service {
 				}
 				catch (Throwable e) {
 					e.printStackTrace();
-					m_preferences.edit().putBoolean("download_rankin", false).commit();
+					//m_preferences.edit().putBoolean("download_rankin", false).commit();
 				}
 				finally {
 					unlock();
@@ -152,7 +152,8 @@ public class DownloadHistoryService extends Service {
 			long after = ONE_HOUR;
 			if(isAuto){
 				int autoReserveTime = m_prefs.getInt("history_auto_reserve_time", 0);
-				if(autoReserveTime < 3){
+				boolean infinityFlag = m_prefs.getBoolean("download_history_infinity", false);
+				if(infinityFlag || autoReserveTime < 3){
 					reserve(now, after);
 					autoReserveTime++;
 					m_prefs.edit().putInt("history_auto_reserve_time", autoReserveTime).commit();

@@ -65,6 +65,12 @@
 			android:summary="@string/summary_download_history"
 			/>
 		<CheckBoxPreference
+			android:key="download_history_infinity"
+			android:title="@string/download_history_infinity"
+			android:summary="@string/summary_download_history_infinity"
+			android:dependency="download_history"
+			/>
+		<CheckBoxPreference
 			android:key="notify_history_download"
 			android:title="@string/notify_history_download"
 			android:summary="@string/summary_notify_history_download"

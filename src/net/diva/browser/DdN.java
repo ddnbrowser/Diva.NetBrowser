@@ -29,6 +29,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.webkit.CookieSyncManager;
+import android.widget.CheckBox;
 import android.widget.TextView;
 
 public class DdN extends Application {
@@ -294,6 +295,10 @@ public class DdN extends Application {
 			final View view = inflater.inflate(R.layout.account_input, null);
 			final TextView access_code = (TextView)view.findViewById(R.id.edit_access_code);
 			final TextView password = (TextView)view.findViewById(R.id.edit_password);
+			final CheckBox cb_ranking = (CheckBox)view.findViewById(R.id.cb_ranking);
+			final CheckBox cb_history = (CheckBox)view.findViewById(R.id.cb_history);
+			final CheckBox cb_infinity = (CheckBox)view.findViewById(R.id.cb_infinity);
+			final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
 			builder.setView(view)
@@ -301,6 +306,11 @@ public class DdN extends Application {
 			.setNegativeButton(R.string.cancel, null)
 			.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int which) {
+					SharedPreferences.Editor editor = pref.edit();
+					editor.putBoolean("download_rankin", cb_ranking.isChecked());
+					editor.putBoolean("download_history", cb_history.isChecked());
+					editor.putBoolean("download_history_infinity", cb_infinity.isChecked());
+					editor.commit();
 					task.execute(new Account(
 							access_code.getText().toString(),
 							password.getText().toString()));

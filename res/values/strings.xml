@@ -6,6 +6,7 @@
     <string name="account_input_title">ログイン</string>
     <string name="access_code">アクセスコード:</string>
     <string name="password">パスワード：</string>
+    <string name="auto_option">自動オプション：</string>
     <string name="module">モジュール</string>
     <string name="skin">スキン</string>
     <string name="button_se">ボタン音</string>
@@ -268,4 +269,9 @@
     <string name="tab_sort_change">タブの並べ替え</string>
     <string name="summary_tab_sort_change">タブの順番を変更します</string>
     <string name="saturation_update_choose_menu">理論値取得先選択</string>
+    <string name="download_history_infinity">履歴自動取得永続化</string>
+    <string name="summary_download_history_infinity">常時1時間間隔でプレイ履歴をチェックします</string>
+    <string name="cb_ranking">Ranking</string>
+    <string name="cb_history">History</string>
+    <string name="cb_infinity">永続化</string>
 </resources>

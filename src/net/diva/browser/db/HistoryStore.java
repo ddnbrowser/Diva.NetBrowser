@@ -20,7 +20,7 @@ import android.net.Uri;
 
 public class HistoryStore extends ContentProvider {
 	private static final String DATABASE_NAME = "history.db";
-	private static final int VERSION = 2;
+	private static final int VERSION = 3;
 
 	private static HistoryStore s_instance;
 
@@ -53,11 +53,29 @@ public class HistoryStore extends ContentProvider {
 				HistoryTable.COMBO,
 				HistoryTable.CHALLANGE_TIME,
 				HistoryTable.HOLD,
+				HistoryTable.SLIDE,
 				HistoryTable.TRIAL,
 				HistoryTable.TRIAL_RESULT,
+				HistoryTable.PV_FORK,
 				HistoryTable.MODULE1,
+				HistoryTable.MODULE1_HEAD,
+				HistoryTable.MODULE1_FACE,
+				HistoryTable.MODULE1_FRONT,
+				HistoryTable.MODULE1_BACK,
 				HistoryTable.MODULE2,
-				HistoryTable.BUTTON_SE,
+				HistoryTable.MODULE2_HEAD,
+				HistoryTable.MODULE2_FACE,
+				HistoryTable.MODULE2_FRONT,
+				HistoryTable.MODULE2_BACK,
+				HistoryTable.MODULE3,
+				HistoryTable.MODULE3_HEAD,
+				HistoryTable.MODULE3_FACE,
+				HistoryTable.MODULE3_FRONT,
+				HistoryTable.MODULE3_BACK,
+				HistoryTable.SE_BUTTON,
+				HistoryTable.SE_SLIDE,
+				HistoryTable.SE_CHAIN,
+				HistoryTable.SE_TOUCH,
 				HistoryTable.SKIN,
 				HistoryTable.LOCK,
 		}, HistoryTable._ID + "=?", new String[] { String.valueOf(rowId) }, null, null, null);
@@ -85,18 +103,34 @@ public class HistoryStore extends ContentProvider {
 			h.combo = c.getInt(17);
 			h.challange_time = c.getInt(18);
 			h.hold = c.getInt(19);
-			h.trial = c.getInt(20);
-			h.trial_result = c.getInt(21);
-			h.module1 = c.getString(22);
-			h.module2 = c.getString(23);
-			h.button_se = c.getString(24);
-			h.skin = c.getString(25);
-			h.lock = c.getInt(26);
+			h.slide = c.getInt(20);
+			h.trial = c.getInt(21);
+			h.trial_result = c.getInt(22);
+			h.pv_fork = c.getInt(23);
+			h.module1 = createModule(c, 24);
+			h.module2 = createModule(c, 29);
+			h.module3 = createModule(c, 34);
+			h.se_button = c.getString(39);
+			h.se_slide = c.getString(40);
+			h.se_chain = c.getString(41);
+			h.se_touch = c.getString(42);
+			h.skin = c.getString(43);
+			h.lock = c.getInt(44);
 			return h;
 		}
 		finally {
 			c.close();
 		}
+	}
+
+	private static History.Module createModule(Cursor c, int from) {
+		History.Module module = new History.Module();
+		module.base = c.getString(from);
+		module.head = c.getString(from+1);
+		module.face = c.getString(from+2);
+		module.front = c.getString(from+3);
+		module.back = c.getString(from+4);
+		return module;
 	}
 
 	public List<String> getPlayHistoryList(String where, List<String> params, String orderBy){
@@ -194,6 +228,8 @@ public class HistoryStore extends ContentProvider {
 			switch (oldVersion) {
 			case 1:
 				HistoryTable.upgradeToVerB(db);
+			case 2:
+				HistoryTable.upgradeToFutureTone(db);
 			default:
 				break;
 			}

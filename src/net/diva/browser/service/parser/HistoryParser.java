@@ -69,11 +69,13 @@ public class HistoryParser {
 	private static final Pattern HIST_COMBO = Pattern.compile("COMBO：</TD>\\s*<TD align=\"right\">(.+?)</TD>");
 	private static final Pattern HIST_CHALLENGE_TIME = Pattern.compile("CHALLENGE TIME：</TD>\\s*</TR>\\s*<TR>\\s*<TD align=\"right\" colspan=\"4\">(.+?)</TD>");
 	private static final Pattern HIST_HOLD = Pattern.compile("同時押し/ホールド：</TD>\\s*</TR>\\s*<TR>\\s*<TD align=\"right\" colspan=\"4\">(.+?)</TD>");
+	private static final Pattern HIST_SLIDE = Pattern.compile("スライド：</TD>\\s*</TR>\\s*<TR>\\s*<TD align=\"right\" colspan=\"4\">(.+?)</TD>");
 	private static final Pattern HIST_TRIAL = Pattern.compile("\\[クリアトライアル\\]</font><br>(.*?)クリアトライアル\\s*(.+?)<br>");
-	private static final Pattern HIST_MODULE1 = Pattern.compile("(ボーカル|衣装)1：(.+?)<br>");
-	private static final Pattern HIST_MODULE2 = Pattern.compile("(ボーカル|衣装)2：(.+?)<br>");
-	private static final Pattern HIST_SE = Pattern.compile("\\[ボタン音\\]</font><br>\\s*(.+?)<br>");
-	private static final Pattern HIST_SKIN = Pattern.compile("\\[スキン\\]</font><br>\\s*(.+?)<br>");
+	private static final Pattern HIST_FORK = Pattern.compile("<div>(.+)</div>");
+	private static final Pattern HIST_MODULE = Pattern.compile("(.+?)：(.+?)<br>");
+	private static final Pattern RE_SINGLE_ITEM = Pattern.compile("\\s*(.+?)<br>");
+	private static final Pattern RE_DIV_BEG = Pattern.compile("<div[^>]*>");
+	private static final Pattern RE_DIV_END = Pattern.compile("</div>");
 
 	public static History parseHistoryDetail(InputStream content) throws ParseException {
 		History history = new History();
@@ -120,14 +122,27 @@ public class HistoryParser {
 			history.combo = m.findInteger(HIST_COMBO, 1);
 			history.challange_time = m.findInteger(HIST_CHALLENGE_TIME, 1);
 			history.hold = m.findInteger(HIST_HOLD, 1);
+			history.slide = m.findInteger(HIST_SLIDE, 1, 0);
 			if (m.find(HIST_TRIAL)) {
 				history.trial = DdNUtil.getTrialsCord(m.group(1));
 				history.trial_result = DdNUtil.getTrialResultsCord(m.group(2));
 			}
-			history.module1 = m.findString(HIST_MODULE1, 2, null);
-			history.module2 = m.findString(HIST_MODULE2, 2, null);
-			history.button_se = m.findString(HIST_SE, 1, null);
-			history.skin = m.findString(HIST_SKIN, 1, null);
+			if (bindSection(m, "PV分岐")) {
+				if (m.find(HIST_FORK))
+					history.pv_fork = DdNUtil.getTrialResultsCord(m.group(1));
+				m.unbind();
+			}
+			if (bindSection(m, "モジュール")) {
+				history.module1 = parseModule(m);
+				history.module2 = parseModule(m);
+				history.module3 = parseModule(m);
+				m.unbind();
+			}
+			history.se_button = findStringInSection(m, "ボタン音", RE_SINGLE_ITEM, 1);
+			history.se_slide = findStringInSection(m, "スライド音", RE_SINGLE_ITEM, 1);
+			history.se_chain = findStringInSection(m, "チェーンスライド音", RE_SINGLE_ITEM, 1);
+			history.se_touch = findStringInSection(m, "スライダータッチ音", RE_SINGLE_ITEM, 1);
+			history.skin = findStringInSection(m, "スキン", RE_SINGLE_ITEM, 1);
 		}
 		catch (ParseException e) {
 			throw e;
@@ -139,11 +154,46 @@ public class HistoryParser {
 		return history;
 	}
 
+	private static History.Module parseModule(MatchHelper m) {
+		History.Module module = new History.Module();
+		module.base = m.findString(HIST_MODULE, 2, null);
+		if (module.base != null && m.bind(RE_DIV_BEG, RE_DIV_END)) {
+			module.head = findCustomizeItem(m, "頭");
+			module.face = findCustomizeItem(m, "顔");
+			module.front = findCustomizeItem(m, "胸元");
+			module.back = findCustomizeItem(m, "背中");
+			m.unbind();
+		}
+		return module;
+	}
+
+	private static String findStringInSection(MatchHelper m, String section, Pattern regexp, int group) {
+		if (!bindSection(m, section))
+			return null;
+		try {
+			return m.findString(regexp, group, null);
+		}
+		finally {
+			m.unbind();
+		}
+	}
+
+	private static String findCustomizeItem(MatchHelper m, String part) {
+		return m.findString(Pattern.compile(Pattern.quote(part) + "：(.+?)<br>"), 1, null);
+	}
+
 	private static int getFixedPointValue(MatchHelper m, int baseIndex) {
 		String figure = m.group(baseIndex + 2);
 		int value = figure == null ? 0 : Integer.parseInt(figure);
 		value += Integer.parseInt(m.group(baseIndex + 1)) * 10;
 		value += Integer.parseInt(m.group(baseIndex)) * 100;
 		return value;
+	}
+
+	private static boolean bindSection(MatchHelper m, String name) {
+		String sectionPattern = "(?:<[^>]+>)+\\[%s\\](?:<[^>]+>)+\\s*";
+		Pattern from = Pattern.compile(String.format(sectionPattern, Pattern.quote(name)));
+		Pattern to = Pattern.compile(String.format(sectionPattern, ".+?"));
+		return m.bind(from, to);
 	}
 }

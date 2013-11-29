@@ -26,11 +26,17 @@ public class History {
 	public int combo;
 	public int challange_time;
 	public int hold;
+	public int slide;
 	public int trial;
 	public int trial_result;
-	public String module1;
-	public String module2;
-	public String button_se;
+	public int pv_fork;
+	public Module module1;
+	public Module module2;
+	public Module module3;
+	public String se_button;
+	public String se_slide;
+	public String se_chain;
+	public String se_touch;
 	public String skin;
 	public int lock;
 
@@ -40,5 +46,13 @@ public class History {
 
 	public void setLocked(boolean on) {
 		lock = on ? 1 : 0;
+	}
+
+	public static class Module {
+		public String base;
+		public String head;
+		public String face;
+		public String front;
+		public String back;
 	}
 }

@@ -32,11 +32,29 @@ public class HistoryTable implements BaseColumns {
 	public static final String COMBO = "combo";
 	public static final String CHALLANGE_TIME = "challange_time";
 	public static final String HOLD = "hold";
+	public static final String SLIDE = "slide";
 	public static final String TRIAL = "trial";
 	public static final String TRIAL_RESULT = "trial_result";
+	public static final String PV_FORK = "pv_fork";
 	public static final String MODULE1 = "module1";
+	public static final String MODULE1_HEAD = "module1_head";
+	public static final String MODULE1_FACE = "module1_face";
+	public static final String MODULE1_FRONT = "module1_front";
+	public static final String MODULE1_BACK = "module1_back";
 	public static final String MODULE2 = "module2";
-	public static final String BUTTON_SE = "button_se";
+	public static final String MODULE2_HEAD = "module2_head";
+	public static final String MODULE2_FACE = "module2_face";
+	public static final String MODULE2_FRONT = "module2_front";
+	public static final String MODULE2_BACK = "module2_back";
+	public static final String MODULE3 = "module3";
+	public static final String MODULE3_HEAD = "module3_head";
+	public static final String MODULE3_FACE = "module3_face";
+	public static final String MODULE3_FRONT = "module3_front";
+	public static final String MODULE3_BACK = "module3_back";
+	public static final String SE_BUTTON = "button_se";
+	public static final String SE_SLIDE = "se_slide";
+	public static final String SE_CHAIN = "se_chain";
+	public static final String SE_TOUCH = "se_touch";
 	public static final String SKIN = "skin";
 	public static final String LOCK = "lock";
 
@@ -70,11 +88,29 @@ public class HistoryTable implements BaseColumns {
 		.append(COMBO).append(" integer,")
 		.append(CHALLANGE_TIME).append(" integer,")
 		.append(HOLD).append(" integer,")
+		.append(SLIDE).append(" integer default 0,")
 		.append(TRIAL).append(" integer,")
 		.append(TRIAL_RESULT).append(" integer,")
+		.append(PV_FORK).append(" integer default 0,")
 		.append(MODULE1).append(" text,")
+		.append(MODULE1_HEAD).append(" text,")
+		.append(MODULE1_FACE).append(" text,")
+		.append(MODULE1_FRONT).append(" text,")
+		.append(MODULE1_BACK).append(" text,")
 		.append(MODULE2).append(" text,")
-		.append(BUTTON_SE).append(" text,")
+		.append(MODULE2_HEAD).append(" text,")
+		.append(MODULE2_FACE).append(" text,")
+		.append(MODULE2_FRONT).append(" text,")
+		.append(MODULE2_BACK).append(" text,")
+		.append(MODULE3).append(" text,")
+		.append(MODULE3_HEAD).append(" text,")
+		.append(MODULE3_FACE).append(" text,")
+		.append(MODULE3_FRONT).append(" text,")
+		.append(MODULE3_BACK).append(" text,")
+		.append(SE_BUTTON).append(" text,")
+		.append(SE_SLIDE).append(" text,")
+		.append(SE_CHAIN).append(" text,")
+		.append(SE_TOUCH).append(" text,")
 		.append(SKIN).append(" text,")
 		.append(LOCK).append(" integer")
 		.append(")");
@@ -103,11 +139,29 @@ public class HistoryTable implements BaseColumns {
 		values.put(COMBO, history.combo);
 		values.put(CHALLANGE_TIME, history.challange_time);
 		values.put(HOLD, history.hold);
+		values.put(SLIDE, history.slide);
 		values.put(TRIAL, history.trial);
 		values.put(TRIAL_RESULT, history.trial_result);
-		values.put(MODULE1, history.module1);
-		values.put(MODULE2, history.module2);
-		values.put(BUTTON_SE, history.button_se);
+		values.put(PV_FORK, history.pv_fork);
+		values.put(MODULE1, history.module1.base);
+		values.put(MODULE1_HEAD, history.module1.head);
+		values.put(MODULE1_FACE, history.module1.face);
+		values.put(MODULE1_FRONT, history.module1.front);
+		values.put(MODULE1_BACK, history.module1.back);
+		values.put(MODULE2, history.module2.base);
+		values.put(MODULE2_HEAD, history.module2.head);
+		values.put(MODULE2_FACE, history.module2.face);
+		values.put(MODULE2_FRONT, history.module2.front);
+		values.put(MODULE2_BACK, history.module2.back);
+		values.put(MODULE3, history.module3.base);
+		values.put(MODULE3_HEAD, history.module3.head);
+		values.put(MODULE3_FACE, history.module3.face);
+		values.put(MODULE3_FRONT, history.module3.front);
+		values.put(MODULE3_BACK, history.module3.back);
+		values.put(SE_BUTTON, history.se_button);
+		values.put(SE_SLIDE, history.se_slide);
+		values.put(SE_CHAIN, history.se_chain);
+		values.put(SE_TOUCH, history.se_touch);
 		values.put(SKIN, history.skin);
 		values.put(LOCK, history.lock);
 
@@ -165,5 +219,26 @@ public class HistoryTable implements BaseColumns {
 				CLEAR_STATUS, 0,
 				RANK, 0,
 				ACHIEVEMENT, 8000));
+	}
+
+	static void upgradeToFutureTone(SQLiteDatabase db) {
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s default 0", TABLE_NAME, SLIDE, "integer"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s default 0", TABLE_NAME, PV_FORK, "integer"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE1_HEAD, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE1_FACE, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE1_FRONT, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE1_BACK, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE2_HEAD, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE2_FACE, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE2_FRONT, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE2_BACK, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE3, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE3_HEAD, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE3_FACE, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE3_FRONT, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, MODULE3_BACK, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, SE_SLIDE, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, SE_CHAIN, "text"));
+		db.execSQL(String.format("ALTER TABLE %s ADD %s %s", TABLE_NAME, SE_TOUCH, "text"));
 	}
 }

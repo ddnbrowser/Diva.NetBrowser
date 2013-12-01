@@ -81,7 +81,7 @@
                     android:src="@drawable/pv_012" />
 
             </LinearLayout>
-
+
             <LinearLayout
                 android:id="@+id/LayoutRight"
                 android:layout_width="wrap_content"
@@ -130,6 +130,7 @@
                         android:ellipsize="end"
                         android:gravity="right"
                         android:maxLines="1"
+                        android:typeface="monospace"
                         android:text="637" />
                 </LinearLayout>
 
@@ -154,6 +155,7 @@
                         android:ellipsize="end"
                         android:gravity="right"
                         android:maxLines="1"
+                        android:typeface="monospace"
                         android:text="18" />
                 </LinearLayout>
 
@@ -178,6 +180,7 @@
                         android:ellipsize="end"
                         android:gravity="right"
                         android:maxLines="1"
+                        android:typeface="monospace"
                         android:text="0" />
                 </LinearLayout>
 
@@ -202,6 +205,7 @@
                         android:ellipsize="end"
                         android:gravity="right"
                         android:maxLines="1"
+                        android:typeface="monospace"
                         android:text="0" />
                 </LinearLayout>
 
@@ -226,6 +230,7 @@
                         android:ellipsize="end"
                         android:gravity="right"
                         android:maxLines="1"
+                        android:typeface="monospace"
                         android:text="1" />
                 </LinearLayout>
 
@@ -292,6 +297,30 @@
 
                     <TextView
                         android:id="@+id/hold"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="30dip"
+                        android:ellipsize="end"
+                        android:gravity="right"
+                        android:maxLines="1"
+                        android:text="166480" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" >
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="30dip"
+                        android:ellipsize="end"
+                        android:maxLines="1"
+                        android:text="@string/hist_slide_txt" />
+
+                    <TextView
+                        android:id="@+id/slide"
                         android:layout_width="fill_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginRight="30dip"

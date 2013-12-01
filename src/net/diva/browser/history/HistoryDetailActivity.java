@@ -14,10 +14,10 @@ import net.diva.browser.util.DdNUtil;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -37,8 +37,6 @@ public class HistoryDetailActivity extends Activity {
 	private History m_history;
 	private MusicInfo m_music;
 
-	private Holder h;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,8 +48,8 @@ public class HistoryDetailActivity extends Activity {
 		m_history = m_store.getPlayHistory(intent.getLongExtra("history_id", 0));
 		m_music = DdN.getPlayRecord().getMusicByTitle(m_history.music_title);
 
-		h = new Holder(this, null);
-		h.attach(m_history, m_music);
+		ViewGroup contentRoot = (ViewGroup)findViewById(android.R.id.content);
+		new ViewAdapter(this, contentRoot.getChildAt(0)).setData(m_history, m_music);
 
 	}
 
@@ -137,104 +135,59 @@ public class HistoryDetailActivity extends Activity {
 		m_store.lockHistory(m_history);
 	}
 
-	private static class Holder{
+	private static class ViewAdapter {
 		private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
-		Activity m_act;
+		Context m_context;
+		View m_root;
 
-		TextView title1;
-		TextView play_date;
-		TextView play_place;
-		TextView title2;
-		ImageView cover_art;
-		TextView music_title;
-		TextView rank;
-		TextView clear_status;
-		TextView achievement;
-		TextView score;
-		TextView trial_result;
-		TextView title3;
-		TextView cool;
-		TextView fine;
-		TextView safe;
-		TextView sad;
-		TextView worst;
-		TextView combo;
-		TextView challenge_time;
-		TextView hold;
-
-		private Holder(Activity act, View view) {
-			m_act = act;
-			if(view == null){
-				ViewGroup contentRoot = (ViewGroup)act.findViewById(android.R.id.content);
-				view = contentRoot.getChildAt(0);
-			}
-
-			title1 = (TextView)view.findViewById(R.id.detail_title1);
-			play_date = (TextView)view.findViewById(R.id.play_date);
-			play_place = (TextView)view.findViewById(R.id.play_place);
-			title2 = (TextView)view.findViewById(R.id.detail_title2);
-			cover_art = (ImageView)view.findViewById(R.id.cover_art);
-			music_title = (TextView)view.findViewById(R.id.music_title);
-			rank = (TextView)view.findViewById(R.id.rank);
-			clear_status = (TextView)view.findViewById(R.id.clear_status);
-			achievement = (TextView)view.findViewById(R.id.achievement);
-			score = (TextView)view.findViewById(R.id.score);
-			trial_result = (TextView)view.findViewById(R.id.trial_result);
-			title3 = (TextView)view.findViewById(R.id.detail_title3);
-			cool = (TextView)view.findViewById(R.id.cool);
-			fine = (TextView)view.findViewById(R.id.fine);
-			safe = (TextView)view.findViewById(R.id.safe);
-			sad = (TextView)view.findViewById(R.id.sad);
-			worst = (TextView)view.findViewById(R.id.worst);
-			combo = (TextView)view.findViewById(R.id.combo);
-			challenge_time = (TextView)view.findViewById(R.id.challenge_time);
-			hold = (TextView)view.findViewById(R.id.hold);
+		private ViewAdapter(Context context, View view) {
+			m_context = context;
+			m_root = view;
 		}
 
-		private void attach(History h, MusicInfo m){
-
-			final Resources res = m_act.getResources();
+		private void setData(History h, MusicInfo m){
+			final Resources res = m_context.getResources();
 			int difficulty = 0;
 			Drawable coverArt = null;
 			if (m != null) {
 				difficulty = m.records[h.rank].difficulty;
-				coverArt = m.getCoverArt(m_act.getApplicationContext());
+				coverArt = m.getCoverArt(m_context.getApplicationContext());
 			}
 
-			if(title1 != null)
-				title1.setText(res.getString(R.string.hist_title1));
-			if(play_date != null)
-				play_date.setText(DATE_FORMAT.format(new Date(h.play_date)));
-			if(play_place != null)
-				play_place.setText(h.play_place);
-			title2.setText(res.getString(R.string.hist_title2));
-			cover_art.setImageDrawable(coverArt);
-			music_title.setText(h.music_title);
-			rank.setText(String.format("%s ★%d", res.getStringArray(R.array.difficulty_names)[h.rank], difficulty));
-			clear_status.setText(res.getStringArray(R.array.clear_status_names)[h.clear_status]);
-			achievement.setText(String.format("%d.%02d%%", h.achievement/100, h.achievement%100));
-			score.setText(String.format("%d pts", h.score));
-			if(h.trial == 0){
-				trial_result.setVisibility(View.INVISIBLE);
-			}else{
-				trial_result.setText(DdNUtil.getTrialsName(h.trial) + "クリアトライアル " + DdNUtil.getTrialResultsName(h.trial_result));
-			}
-			if(title3 != null)
-				title3.setText(res.getString(R.string.hist_title3));
-			cool.setText(formatNotes(h.cool, h.cool_rate));
-			cool.setTypeface(Typeface.MONOSPACE);
-			fine.setText(formatNotes(h.fine, h.fine_rate));
-			fine.setTypeface(Typeface.MONOSPACE);
-			safe.setText(formatNotes(h.safe, h.safe_rate));
-			safe.setTypeface(Typeface.MONOSPACE);
-			sad.setText(formatNotes(h.sad, h.sad_rate));
-			sad.setTypeface(Typeface.MONOSPACE);
-			worst.setText(formatNotes(h.worst, h.worst_rate));
-			worst.setTypeface(Typeface.MONOSPACE);
-			combo.setText(String.valueOf(h.combo));
-			challenge_time.setText(String.format("%d pts", h.challange_time));
-			hold.setText(String.format("%d pts", h.hold));
+			ImageView image = (ImageView)m_root.findViewById(R.id.cover_art);
+			if (image != null)
+				image.setImageDrawable(coverArt);
+
+			setText(R.id.detail_title1, res.getString(R.string.hist_title1));
+			setText(R.id.play_date, DATE_FORMAT.format(new Date(h.play_date)));
+			setText(R.id.play_place, h.play_place);
+			setText(R.id.detail_title2, res.getString(R.string.hist_title2));
+			setText(R.id.music_title, h.music_title);
+			setText(R.id.rank, String.format("%s ★%d", res.getStringArray(R.array.difficulty_names)[h.rank], difficulty));
+			setText(R.id.clear_status, res.getStringArray(R.array.clear_status_names)[h.clear_status]);
+			setText(R.id.achievement, String.format("%d.%02d%%", h.achievement/100, h.achievement%100));
+			setText(R.id.score, String.format("%d pts", h.score));
+			if (h.trial == 0)
+				m_root.findViewById(R.id.trial_result).setVisibility(View.INVISIBLE);
+			else
+				setText(R.id.trial_result, DdNUtil.getTrialsName(h.trial) + "クリアトライアル " + DdNUtil.getTrialResultsName(h.trial_result));
+			setText(R.id.detail_title3, res.getString(R.string.hist_title3));
+			setText(R.id.cool, formatNotes(h.cool, h.cool_rate));
+			setText(R.id.fine, formatNotes(h.fine, h.fine_rate));
+			setText(R.id.safe, formatNotes(h.safe, h.safe_rate));
+			setText(R.id.sad, formatNotes(h.sad, h.sad_rate));
+			setText(R.id.worst, formatNotes(h.worst, h.worst_rate));
+			setText(R.id.combo, String.valueOf(h.combo));
+			setText(R.id.challenge_time, String.format("%d pts", h.challange_time));
+			setText(R.id.hold, String.format("%d pts", h.hold));
+			setText(R.id.slide, String.format("%d pts", h.slide));
+		}
+
+		private void setText(int id, CharSequence text) {
+			TextView view = (TextView)m_root.findViewById(id);
+			if (view != null)
+				view.setText(text);
 		}
 
 		private String formatNotes(int notes, int rate) {

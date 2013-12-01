@@ -266,6 +266,7 @@
             android:maxLines="1"
             android:gravity="right"
             android:layout_marginRight="30dip"
+            android:typeface="monospace"
             android:text="637"
             />
     </LinearLayout>
@@ -289,6 +290,7 @@
             android:maxLines="1"
             android:gravity="right"
             android:layout_marginRight="30dip"
+            android:typeface="monospace"
             android:text="18"
             />
     </LinearLayout>
@@ -312,6 +314,7 @@
             android:maxLines="1"
             android:gravity="right"
             android:layout_marginRight="30dip"
+            android:typeface="monospace"
             android:text="0"
             />
     </LinearLayout>
@@ -335,6 +338,7 @@
             android:maxLines="1"
             android:gravity="right"
             android:layout_marginRight="30dip"
+            android:typeface="monospace"
             android:text="0"
             />
     </LinearLayout>
@@ -358,6 +362,7 @@
             android:maxLines="1"
             android:gravity="right"
             android:layout_marginRight="30dip"
+            android:typeface="monospace"
             android:text="1"
             />
     </LinearLayout>
@@ -422,6 +427,29 @@
             />
         <TextView
             android:id="@+id/hold"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:gravity="right"
+            android:layout_marginRight="30dip"
+            android:text="166480"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <TextView
+            android:text="@string/hist_slide_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_marginLeft="30dip"
+            />
+        <TextView
+            android:id="@+id/slide"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"

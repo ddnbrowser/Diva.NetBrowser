@@ -188,6 +188,7 @@
     <string name="hist_combo_txt">COMBO :</string>
     <string name="hist_challenge_time_txt">CHALLENGE TIME :</string>
     <string name="hist_hold_txt">同時/HOLD :</string>
+    <string name="hist_slide_txt">スライド :</string>
     <string name="hist_menu_update">履歴取得</string>
     <string name="hist_menu_delete">履歴削除</string>
     <string name="hist_menu_awake">全て表示</string>

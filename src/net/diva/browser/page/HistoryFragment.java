@@ -24,7 +24,6 @@ import net.diva.browser.history.DownloadHistoryService;
 import net.diva.browser.history.HistoryDetailActivity;
 import net.diva.browser.history.HistorySerializer;
 import net.diva.browser.model.History;
-import net.diva.browser.util.DdNUtil;
 import net.diva.browser.util.ProgressTask;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -273,7 +272,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 		final CharSequence all = getText(R.string.all);
 		final String message = getString(R.string.confirm_delete_histories,
 				(m_music_title == null ? all : m_music_title),
-				(m_rank == -1 ? all : DdNUtil.getDifficultyName(m_rank)),
+				(m_rank == -1 ? all : DdN.difficulty().name(m_rank)),
 				(m_date == -1 ? all : android.text.format.DateFormat.format("yyyy/MM/dd", m_date)));
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -622,9 +621,9 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 			final History d = getHistory(c);
 			final Holder h = (Holder)view.getTag();
 			h.date.setText(DATE_FORMAT.format(new Date(d.play_date)));
-			h.rank.setText(DdNUtil.getDifficultyName(d.rank));
+			h.rank.setText(DdN.difficulty().name(d.rank));
 			h.rank.setTextColor(context.getResources().getColor(RANK_COLORS[d.rank]));
-			h.status.setText(context.getResources().getStringArray(R.array.clear_status_names)[d.clear_status]);
+			h.status.setText(DdN.clearStatus().name(d.clear_status));
 			h.music.setText(d.music_title);
 			h.score.setText(String.format("%dpts", d.score));
 			h.achievement.setText(String.format("%d.%02d%%", d.achievement/100, d.achievement%100));

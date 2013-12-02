@@ -83,25 +83,12 @@
     <item>EXCELLENT</item>
     <item>PERFECT</item>
 </string-array>
-<integer-array name="clear_status_ids">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-    <item>3</item>
-    <item>4</item>
-</integer-array>
 <string-array name="difficulty_names">
     <item>EASY</item>
     <item>NORMAL</item>
     <item>HARD</item>
     <item>EXTREME</item>
 </string-array>
-<integer-array name="difficulty_ids">
-    <item>0</item>
-    <item>1</item>
-    <item>2</item>
-    <item>3</item>
-</integer-array>
 <string-array name="trial_names">
     <item></item>
     <item>グレート</item>

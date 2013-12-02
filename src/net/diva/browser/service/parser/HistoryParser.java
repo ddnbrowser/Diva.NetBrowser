@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.diva.browser.DdN;
 import net.diva.browser.model.History;
 import net.diva.browser.service.ParseException;
-import net.diva.browser.util.DdNUtil;
 import net.diva.browser.util.MatchHelper;
 /**
  *
@@ -85,8 +85,8 @@ public class HistoryParser {
 			history.play_date = DATE_FORMAT.parse(m.findString(HIST_DATE, 1)).getTime();
 			history.play_place = m.findString(HIST_PLACE, 1);
 			history.music_title = m.findString(HIST_MUSIC, 2);
-			history.rank = DdNUtil.getDifficultyCord((m.findString(HIST_RANK, 1)));
-			history.clear_status = DdNUtil.getClearStatusCord((m.findString(HIST_CLEAR_STATUS, 1)));
+			history.rank = DdN.difficulty().code((m.findString(HIST_RANK, 1)));
+			history.clear_status = DdN.clearStatus().code((m.findString(HIST_CLEAR_STATUS, 1)));
 			history.achievement = m.find(HIST_ACHIEVEMENT) ? getFixedPointValue(m, 1) : 0;
 			history.score = m.findInteger(HIST_SCORE, 1);
 			if (!m.find(HIST_COOL))
@@ -124,12 +124,12 @@ public class HistoryParser {
 			history.hold = m.findInteger(HIST_HOLD, 1);
 			history.slide = m.findInteger(HIST_SLIDE, 1, 0);
 			if (m.find(HIST_TRIAL)) {
-				history.trial = DdNUtil.getTrialsCord(m.group(1));
-				history.trial_result = DdNUtil.getTrialResultsCord(m.group(2));
+				history.trial = DdN.trial().code(m.group(1));
+				history.trial_result = DdN.successOrFail().code(m.group(2));
 			}
 			if (bindSection(m, "PV分岐")) {
 				if (m.find(HIST_FORK))
-					history.pv_fork = DdNUtil.getTrialResultsCord(m.group(1));
+					history.pv_fork = DdN.successOrFail().code(m.group(1));
 				m.unbind();
 			}
 			if (bindSection(m, "モジュール")) {

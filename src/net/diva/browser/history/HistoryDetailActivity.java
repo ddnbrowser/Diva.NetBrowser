@@ -10,7 +10,6 @@ import net.diva.browser.R;
 import net.diva.browser.db.HistoryStore;
 import net.diva.browser.model.History;
 import net.diva.browser.model.MusicInfo;
-import net.diva.browser.util.DdNUtil;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
@@ -164,14 +163,14 @@ public class HistoryDetailActivity extends Activity {
 			setText(R.id.play_place, h.play_place);
 			setText(R.id.detail_title2, res.getString(R.string.hist_title2));
 			setText(R.id.music_title, h.music_title);
-			setText(R.id.rank, String.format("%s ★%d", res.getStringArray(R.array.difficulty_names)[h.rank], difficulty));
-			setText(R.id.clear_status, res.getStringArray(R.array.clear_status_names)[h.clear_status]);
+			setText(R.id.rank, String.format("%s ★%d", DdN.difficulty().name(h.rank), difficulty));
+			setText(R.id.clear_status, DdN.clearStatus().name(h.clear_status));
 			setText(R.id.achievement, String.format("%d.%02d%%", h.achievement/100, h.achievement%100));
 			setText(R.id.score, String.format("%d pts", h.score));
 			if (h.trial == 0)
 				m_root.findViewById(R.id.trial_result).setVisibility(View.INVISIBLE);
 			else
-				setText(R.id.trial_result, DdNUtil.getTrialsName(h.trial) + "クリアトライアル " + DdNUtil.getTrialResultsName(h.trial_result));
+				setText(R.id.trial_result, DdN.trial().name(h.trial) + "クリアトライアル " + DdN.successOrFail().name(h.trial_result));
 			setText(R.id.detail_title3, res.getString(R.string.hist_title3));
 			setText(R.id.cool, formatNotes(h.cool, h.cool_rate));
 			setText(R.id.fine, formatNotes(h.fine, h.fine_rate));

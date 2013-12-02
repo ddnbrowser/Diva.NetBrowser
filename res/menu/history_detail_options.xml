@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/item_lock"
+        android:icon="@drawable/ic_menu_account_list"
+        android:title="@string/item_lock"
+        />
+    <item
+        android:id="@+id/item_unlock"
+        android:icon="@drawable/ic_menu_login"
+        android:title="@string/item_unlock"
+        />
+    <item
+        android:id="@+id/item_share"
+        android:icon="@drawable/ic_menu_share"
+        android:title="@string/item_share"
+        />
+    <item
+        android:id="@+id/item_delete"
+        android:icon="@drawable/ic_menu_delete"
+        android:title="@string/item_delete_history"
+        />
+</menu>

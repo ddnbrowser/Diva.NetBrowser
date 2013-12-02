@@ -13,6 +13,7 @@ import java.util.Map;
 import net.diva.browser.DdN;
 import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.DecorTitle;
+import net.diva.browser.model.History;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MusicInfo;
@@ -21,6 +22,7 @@ import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
+import net.diva.browser.service.parser.HistoryParser;
 import net.diva.browser.service.parser.ModuleParser;
 import net.diva.browser.service.parser.MusicParser;
 import net.diva.browser.service.parser.MyListParser;
@@ -572,5 +574,18 @@ public class ServiceClient {
 
 	public void deleteMyList(int id) throws IOException {
 		postTo(String.format("/divanet/myList/deleteMyList/%d", id));
+	}
+
+	public long getHistory(List<String> newHistorys, long since) throws IOException, ParseException {
+		final long[] params = new long[] { since, since };
+		String path = "/divanet/personal/playHistory/0";
+		while (path != null)
+			path = HistoryParser.parsePlayHistory(getFrom(path), newHistorys, params);
+
+		return params[1];
+	}
+
+	public History getHistoryDetail(String historyId) throws ParseException, IOException {
+		return HistoryParser.parseHistoryDetail(getFrom("/divanet/personal/playHistoryDetail/%s/0", historyId));
 	}
 }

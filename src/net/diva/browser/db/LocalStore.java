@@ -18,39 +18,40 @@ import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
 import net.diva.browser.util.StringUtils;
+import android.content.ContentProvider;
+import android.content.ContentValues;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.SharedPreferences;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 
-public class LocalStore extends ContextWrapper {
+public class LocalStore extends ContentProvider {
 	private static final String DATABASE_NAME = "diva.db";
 	private static final int VERSION = 24;
 
 	private static LocalStore m_instance;
 
 	public static LocalStore instance(Context context) {
-		if (m_instance == null)
-			m_instance = new LocalStore(context.getApplicationContext());
 		return m_instance;
 	}
 
 	private SQLiteOpenHelper m_helper;
 	private Map<String, String> m_readingMap;
 
-	private LocalStore(Context context) {
-		super(context);
-		m_helper = new OpenHelper(context, DATABASE_NAME, null, VERSION);
+	private SharedPreferences getPreferences() {
+		return PreferenceManager.getDefaultSharedPreferences(getContext());
 	}
 
 	public String getReading(String title) {
 		if (m_readingMap == null) {
 			Map<String, String> map = new HashMap<String, String>();
-			String[] items = getResources().getStringArray(R.array.music_name_map);
+			String[] items = getContext().getResources().getStringArray(R.array.music_name_map);
 			for (int i = 0; i < items.length; i += 2)
 				map.put(items[i], items[i+1]);
 			m_readingMap = map;
@@ -61,7 +62,7 @@ public class LocalStore extends ContextWrapper {
 
 	public PlayRecord load(String access_code) {
 		PlayRecord record = new PlayRecord();
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences prefs = getPreferences();
 		record.player_name = prefs.getString("player_name", null);
 		record.level = prefs.getString("level_rank", null);
 		record.title = prefs.getString("title", null);
@@ -230,7 +231,7 @@ public class LocalStore extends ContextWrapper {
 	}
 
 	public void update(PlayRecord record) {
-		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+		SharedPreferences.Editor editor = getPreferences().edit();
 		editor.putString("player_name", record.player_name);
 		editor.putString("level_rank", record.level);
 		editor.putString("title", record.title);
@@ -662,12 +663,12 @@ public class LocalStore extends ContextWrapper {
 	}
 
 	public int getActiveMyList() {
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		SharedPreferences preferences = getPreferences();
 		return preferences.getInt("active_mylist", -1);
 	}
 
 	public void activateMyList(int id) {
-		SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
+		SharedPreferences.Editor editor = getPreferences().edit();
 		editor.putInt("active_mylist", id);
 		editor.commit();
 	}
@@ -710,6 +711,75 @@ public class LocalStore extends ContextWrapper {
 			db.endTransaction();
 			db.close();
 		}
+	}
+
+	private static final String AUTHORITY = "net.diva.browser.store";
+
+	private static final int MUSICS = 1;
+	private static final int MODULES = 2;
+	private static final int SKINS = 3;
+	private static final int BUTTON_SES = 4;
+
+	private static final UriMatcher s_matcher;
+
+	static {
+		s_matcher = new UriMatcher(UriMatcher.NO_MATCH);
+		s_matcher.addURI(AUTHORITY, "musics", MUSICS);
+		s_matcher.addURI(AUTHORITY, "modules", MODULES);
+		s_matcher.addURI(AUTHORITY, "skins", SKINS);
+		s_matcher.addURI(AUTHORITY, "button_ses", BUTTON_SES);
+	}
+
+	@Override
+	public boolean onCreate() {
+		m_helper = new OpenHelper(getContext(), DATABASE_NAME, null, VERSION);
+		m_instance = this;
+		return true;
+	}
+
+	@Override
+	public String getType(Uri uri) {
+		return null;
+	}
+
+	@Override
+	public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+		switch (s_matcher.match(uri)) {
+		case MUSICS:
+			qb.setTables(MusicTable.NAME);
+			break;
+		case MODULES:
+			qb.setTables(ModuleTable.TABLE_NAME);
+			break;
+		case SKINS:
+			qb.setTables(SkinTable.TABLE_NAME);
+			break;
+		case BUTTON_SES:
+			qb.setTables(ButtonSETable.TABLE_NAME);
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown URI: " + uri);
+		}
+
+		Cursor c = qb.query(m_helper.getReadableDatabase(), projection, selection, selectionArgs, null, null, sortOrder);
+		c.setNotificationUri(getContext().getContentResolver(), uri);
+		return c;
+	}
+
+	@Override
+	public Uri insert(Uri uri, ContentValues values) {
+		return null;
+	}
+
+	@Override
+	public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+		return 0;
+	}
+
+	@Override
+	public int delete(Uri uri, String selection, String[] selectionArgs) {
+		return 0;
 	}
 
 	private static class OpenHelper extends SQLiteOpenHelper {

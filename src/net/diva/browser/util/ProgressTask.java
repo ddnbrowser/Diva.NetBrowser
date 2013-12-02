@@ -5,9 +5,11 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 public abstract class ProgressTask<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
+	protected Context m_context;
 	protected ProgressDialog m_progress;
 
 	public ProgressTask(Context context, int message) {
+		m_context = context;
 		m_progress = new ProgressDialog(context);
 		m_progress.setMessage(context.getString(message));
 		m_progress.setIndeterminate(true);

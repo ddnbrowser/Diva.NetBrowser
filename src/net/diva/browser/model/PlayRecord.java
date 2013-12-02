@@ -20,6 +20,14 @@ public class PlayRecord {
 		return null;
 	}
 
+	public MusicInfo getMusicByTitle(String title) {
+		for (MusicInfo music: musics) {
+			if (music.title.equals(title))
+				return music;
+		}
+		return null;
+	}
+
 	public int rankPoint() {
 		int point = 0;
 		for (MusicInfo m: musics)

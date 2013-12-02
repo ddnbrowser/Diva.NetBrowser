@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends FragmentActivity {
@@ -32,6 +33,12 @@ public class MainActivity extends FragmentActivity {
 		DdN.Account account = DdN.Account.load(preferences);
 		if (account == null)
 			DdN.Account.input(this, new DownloadPlayRecord(this));
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.main_options, menu);
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override

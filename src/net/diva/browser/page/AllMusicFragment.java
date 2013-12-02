@@ -20,7 +20,6 @@ public class AllMusicFragment extends MusicListFragment {
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.allmusic_options, menu);
-		inflater.inflate(R.menu.main_options, menu);
 	}
 
 	@Override

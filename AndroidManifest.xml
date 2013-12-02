@@ -2,6 +2,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
       android:versionCode="324" android:versionName="3.24">
+
+    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
+
+    <permission
+        android:name="net.diva.browser.permission.WRITE_HISTORY"
+        android:label="@string/permission_label_write_history"
+        android:description="@string/permisstion_desc_write_history"
+        android:protectionLevel="signature"
+        />
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="net.diva.browser.permisstion.WRITE_HISTORY"/>
+
     <application
         android:label="@string/app_name"
         android:icon="@drawable/icon"
@@ -28,6 +43,7 @@
             />
         <activity android:name=".CommonConfigActivity"></activity>
         <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".common.ContainerActivity"></activity>
         <activity android:name=".settings.TitleListActivity"></activity>
         <activity android:name=".settings.DecorTitlesActivity"></activity>
         <activity android:name=".settings.ModuleListActivity"></activity>
@@ -36,16 +52,20 @@
         <activity android:name=".settings.ShopActivity"></activity>
         <activity android:name=".ticket.DecorPrizeActivity"></activity>
         <activity android:name=".ticket.SkinPrizeActivity"></activity>
+        <activity android:name=".history.HistoryDetailActivity"></activity>
         <receiver android:name=".DdNBrowserReceiver">
             <intent-filter>
                 <action android:name="net.diva.browser.action.DOWNLOAD_RANKING"></action>
+                <action android:name="net.diva.browser.action.DOWNLOAD_HISTORY"></action>
             </intent-filter>
         </receiver>
         <service android:name=".DownloadRankingService"></service>
+        <service android:name=".history.DownloadHistoryService"></service>
+        <provider android:name=".db.LocalStore" android:authorities="net.diva.browser.store"></provider>
+        <provider
+            android:name=".db.HistoryStore"
+            android:authorities="net.diva.browser.history"
+            android:writePermission="net.diva.browser.permission.WRITE_HISTORY"
+            />
     </application>
-
-    <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
-
-    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
 </manifest>

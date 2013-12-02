@@ -10,6 +10,7 @@ import net.diva.browser.model.ModuleGroup;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
+import net.diva.browser.util.CodeMap;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Notification;
@@ -40,6 +41,11 @@ public class DdN extends Application {
 	public static final int EXPERIENCE_UNIT = 13979;
 
 	private static DdN s_instance;
+
+	private CodeMap m_difficulty;
+	private CodeMap m_clearStatus;
+	private CodeMap m_trial;
+	private CodeMap m_successOrFail;
 
 	private ServiceClient m_service;
 
@@ -126,6 +132,30 @@ public class DdN extends Application {
 
 	public static String url(String relative, Object...args) {
 		return url(String.format(relative, args));
+	}
+
+	public static CodeMap difficulty() {
+		if (s_instance.m_difficulty == null)
+			s_instance.m_difficulty = new CodeMap(s_instance, R.array.difficulty_names);
+		return s_instance.m_difficulty;
+	}
+
+	public static CodeMap clearStatus() {
+		if (s_instance.m_clearStatus == null)
+			s_instance.m_clearStatus = new CodeMap(s_instance, R.array.clear_status_names);
+		return s_instance.m_clearStatus;
+	}
+
+	public static CodeMap trial() {
+		if (s_instance.m_trial == null)
+			s_instance.m_trial = new CodeMap(s_instance, R.array.trial_ids, R.array.trial_names);
+		return s_instance.m_trial;
+	}
+
+	public static CodeMap successOrFail() {
+		if (s_instance.m_successOrFail == null)
+			s_instance.m_successOrFail = new CodeMap(s_instance, R.array.trial_result_ids, R.array.trial_result_names);
+		return s_instance.m_successOrFail;
 	}
 
 	public static void setUpdateTime(SharedPreferences.Editor editor, int count) {

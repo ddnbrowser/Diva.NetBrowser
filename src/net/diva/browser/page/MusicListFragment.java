@@ -9,6 +9,7 @@ import net.diva.browser.MusicDetailActivity;
 import net.diva.browser.R;
 import net.diva.browser.SortOrder;
 import net.diva.browser.WebBrowseActivity;
+import net.diva.browser.common.ContainerActivity;
 import net.diva.browser.common.DownloadPlayRecord;
 import net.diva.browser.compatibility.Compatibility;
 import net.diva.browser.db.LocalStore;
@@ -209,6 +210,12 @@ public abstract class MusicListFragment extends ListFragment
 			ClipboardManager clipboard = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
 			if (clipboard != null)
 				clipboard.setText(music.title);
+			return true;
+		case R.id.item_play_record:
+			Bundle args = new Bundle();
+			args.putString(HistoryFragment.KEY_MUSIC, music.title);
+			args.putInt(HistoryFragment.KEY_RANK, m_adapter.getDifficulty());
+			startActivity(ContainerActivity.makeIntent(getActivity(), HistoryFragment.class.getName(), args));
 			return true;
 		default:
 			return super.onContextItemSelected(item);

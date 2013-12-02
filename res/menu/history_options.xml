@@ -4,11 +4,13 @@
         android:id="@+id/history_update"
         android:icon="@drawable/ic_menu_refresh"
         android:title="@string/hist_menu_update"
+        android:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/history_sort"
         android:icon="@drawable/ic_menu_sort_by_size"
         android:title="@string/item_sort"
+        android:showAsAction="ifRoom"
         />
     <group android:id="@+id/group_require_records">
         <item
@@ -39,5 +41,6 @@
         android:id="@+id/history_awake"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@string/hist_menu_awake"
+        android:showAsAction="ifRoom"
         />
 </menu>

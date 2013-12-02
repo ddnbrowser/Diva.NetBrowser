@@ -15,6 +15,7 @@
         android:id="@+id/item_share"
         android:icon="@drawable/ic_menu_share"
         android:title="@string/item_share"
+        android:showAsAction="ifRoom"
         />
     <item
         android:id="@+id/item_delete"

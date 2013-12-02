@@ -121,8 +121,4 @@
     <item>play_date</item>
     <item>lock</item>
 </string-array>
-<integer-array name="capture_size">
-    <item>900</item>
-    <item>540</item>
-</integer-array>
 </resources>

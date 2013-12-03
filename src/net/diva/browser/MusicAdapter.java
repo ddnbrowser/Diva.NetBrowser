@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import net.diva.browser.common.Representation;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.util.ReverseComparator;
@@ -143,9 +144,11 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 		}
 
 		void attach(MusicInfo music, ScoreRecord score) {
+			final Representation representation = Representation.getInstance();
+
 			cover.setImageDrawable(music.getCoverArt(m_context));
 			title.setText(music.title);
-			difficulty.setText(String.format("★%d", score.difficulty));
+			difficulty.setText("★" + representation.difficulty(score.difficulty));
 			clear_status.setImageDrawable(m_clear_icons[score.clear_status]);
 			trial_status.setText(m_trial_labels[score.trial_status]);
 			if (module != null)

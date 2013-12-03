@@ -42,11 +42,13 @@ public class MusicParser {
 		if (score == null)
 			score = new ScoreRecord();
 
-		Pattern RE_DIFFICULTY = Pattern.compile(Pattern.quote(difficulty)+"</b><br>\\s*★(\\d+)");
+		Pattern RE_DIFFICULTY = Pattern.compile(Pattern.quote(difficulty)+"</b><br>\\s*★(\\d+)(?:\\.(\\d))?");
 		m = m.usePattern(RE_DIFFICULTY);
 		if (!m.find())
 			return null;
-		score.difficulty = Integer.valueOf(m.group(1));
+		score.difficulty = Integer.valueOf(m.group(1)) * 10;
+		if (m.group(2) != null)
+			score.difficulty += Integer.parseInt(m.group(2));
 
 		int end = m.regionEnd();
 		int start = m.end();

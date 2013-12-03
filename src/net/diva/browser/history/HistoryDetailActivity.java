@@ -7,6 +7,7 @@ import java.util.Date;
 
 import net.diva.browser.DdN;
 import net.diva.browser.R;
+import net.diva.browser.common.Representation;
 import net.diva.browser.db.HistoryStore;
 import net.diva.browser.model.History;
 import net.diva.browser.model.MusicInfo;
@@ -100,7 +101,8 @@ public class HistoryDetailActivity extends Activity {
 	}
 
 	private String sharingMessage(){
-		final int difficulty = m_music != null ? m_music.records[m_history.rank].difficulty : 0;
+		final Representation representation = Representation.getInstance();
+		final String difficulty = m_music != null ? representation.difficulty(m_music.records[m_history.rank].difficulty) : "??";
 		StringBuffer sb = new StringBuffer();
 		sb.append(m_history.music_title);
 		sb.append(" / ");
@@ -147,10 +149,12 @@ public class HistoryDetailActivity extends Activity {
 
 		private void setData(History h, MusicInfo m){
 			final Resources res = m_context.getResources();
-			int difficulty = 0;
+			final Representation representation = Representation.getInstance();
+
+			String difficulty = "??";
 			Drawable coverArt = null;
 			if (m != null) {
-				difficulty = m.records[h.rank].difficulty;
+				difficulty = representation.difficulty(m.records[h.rank].difficulty);
 				coverArt = m.getCoverArt(m_context.getApplicationContext());
 			}
 
@@ -163,7 +167,7 @@ public class HistoryDetailActivity extends Activity {
 			setText(R.id.play_place, h.play_place);
 			setText(R.id.detail_title2, res.getString(R.string.hist_title2));
 			setText(R.id.music_title, h.music_title);
-			setText(R.id.rank, String.format("%s ★%d", DdN.difficulty().name(h.rank), difficulty));
+			setText(R.id.rank, String.format("%s ★%s", DdN.difficulty().name(h.rank), difficulty));
 			setText(R.id.clear_status, DdN.clearStatus().name(h.clear_status));
 			setText(R.id.achievement, String.format("%d.%02d%%", h.achievement/100, h.achievement%100));
 			setText(R.id.score, String.format("%d pts", h.score));

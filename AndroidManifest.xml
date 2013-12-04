@@ -41,6 +41,7 @@
             android:configChanges="keyboardHidden|orientation"
             android:uiOptions="splitActionBarWhenNarrow"
             />
+        <activity android:name=".PreviewImageActivity" android:theme="@style/Theme.DdN.Translucent.NoTitleBar"></activity>
         <activity android:name=".CommonConfigActivity"></activity>
         <activity android:name=".SettingsActivity"></activity>
         <activity android:name=".common.ContainerActivity"></activity>

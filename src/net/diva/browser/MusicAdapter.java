@@ -18,8 +18,10 @@ import net.diva.browser.util.StringUtils;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -112,7 +114,7 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 			notifyDataSetChanged();
 	}
 
-	private class Holder {
+	private class Holder implements View.OnClickListener {
 		ImageView cover;
 		TextView title;
 		TextView difficulty;
@@ -127,8 +129,11 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 		TextView saturation;
 		TextView difference;
 
+		Uri uri;
+
 		Holder(View view) {
 			cover = (ImageView)view.findViewById(R.id.cover_art);
+			cover.setOnClickListener(this);
 			title = (TextView)view.findViewById(R.id.music_title);
 			difficulty = (TextView)view.findViewById(R.id.difficulty);
 			clear_status = (ImageView)view.findViewById(R.id.clear_status);
@@ -178,6 +183,14 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 					difference.setText(String.format("(%s%d.%02d%%)", minus ? "-" : "", diff/100, diff%100));
 				}
 			}
+
+			uri = Uri.fromFile(music.getCoverArtPath(m_context));
+		}
+
+		@Override
+		public void onClick(View v) {
+			Intent i = new Intent(Intent.ACTION_VIEW, uri, m_context, PreviewImageActivity.class);
+			m_context.startActivity(i);
 		}
 	}
 

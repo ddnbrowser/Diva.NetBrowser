@@ -14,7 +14,7 @@ final class SkinTable implements BaseColumns {
 	public static final String PATH = "path";
 	public static final String STATUS = "status";
 
-	private static final String WHERE_IDENTITY = String.format("%s=?", ID);
+	public static final String WHERE_IDENTITY = String.format("%s=?", ID);
 
 	private SkinTable() {}
 

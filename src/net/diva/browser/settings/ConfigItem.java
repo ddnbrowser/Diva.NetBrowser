@@ -44,6 +44,10 @@ public abstract class ConfigItem {
 	}
 
 	protected void confirm(Context context, final Callback callback, int title, int message) {
+		confirm(context, callback, context.getText(title), context.getText(message));
+	}
+
+	protected void confirm(Context context, final Callback callback, CharSequence title, CharSequence message) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(context);
 		builder.setTitle(title);
 		builder.setMessage(message);

@@ -33,7 +33,7 @@ public class MatchHelper {
 	private Matcher usePattern(Pattern pattern) {
 		if (m_matcher == null)
 			m_matcher = pattern.matcher(m_input);
-		else
+		else if (!m_matcher.pattern().equals(pattern))
 			m_matcher.usePattern(pattern);
 
 		return m_matcher;

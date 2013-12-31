@@ -7,6 +7,7 @@ import java.util.Map;
 
 import net.diva.browser.R;
 import net.diva.browser.model.ButtonSE;
+import net.diva.browser.model.CustomizeItem;
 import net.diva.browser.model.DecorTitle;
 import net.diva.browser.model.Module;
 import net.diva.browser.model.ModuleGroup;
@@ -14,6 +15,7 @@ import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.Role;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.model.SkinInfo;
 import net.diva.browser.model.TitleInfo;
@@ -30,10 +32,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
+import android.util.SparseArray;
 
 public class LocalStore extends ContentProvider {
 	private static final String DATABASE_NAME = "diva.db";
-	private static final int VERSION = 24;
+	private static final int VERSION = 25;
 
 	private static LocalStore m_instance;
 
@@ -82,33 +86,52 @@ public class LocalStore extends ContentProvider {
 				MusicTable.ID,
 				MusicTable.TITLE,
 				MusicTable.COVERART,
-				MusicTable.PART,
-				MusicTable.VOCAL1,
-				MusicTable.VOCAL2,
 				MusicTable.READING,
-				MusicTable.FAVORITE,
 				MusicTable.PUBLISH,
+				MusicTable.PART,
+				MusicTable.ROLE1,
+				MusicTable.CAST1,
+				MusicTable.MODULE1,
+				MusicTable.MODULE1_ITEMS[0],
+				MusicTable.MODULE1_ITEMS[1],
+				MusicTable.MODULE1_ITEMS[2],
+				MusicTable.MODULE1_ITEMS[3],
+				MusicTable.ROLE2,
+				MusicTable.CAST2,
+				MusicTable.MODULE2,
+				MusicTable.MODULE2_ITEMS[0],
+				MusicTable.MODULE2_ITEMS[1],
+				MusicTable.MODULE2_ITEMS[2],
+				MusicTable.MODULE2_ITEMS[3],
+				MusicTable.ROLE3,
+				MusicTable.CAST3,
+				MusicTable.MODULE3,
+				MusicTable.MODULE3_ITEMS[0],
+				MusicTable.MODULE3_ITEMS[1],
+				MusicTable.MODULE3_ITEMS[2],
+				MusicTable.MODULE3_ITEMS[3],
 				MusicTable.SKIN,
-				MusicTable.BUTTON,
-				MusicTable.VOICE1,
-				MusicTable.VOICE2,
+				MusicTable.SOUNDS[0],
+				MusicTable.SOUNDS[1],
+				MusicTable.SOUNDS[2],
+				MusicTable.SOUNDS[3],
 		}, null, null, null, null, MusicTable._ID);
 		try {
 			while (cm.moveToNext()) {
 				MusicInfo music = new MusicInfo(cm.getString(0), cm.getString(1));
 				music.coverart = cm.getString(2);
-				music.part = cm.getInt(3);
-				music.vocal1 = cm.getString(4);
-				music.vocal2 = cm.getString(5);
-				music.skin = cm.getString(9);
-				music.button = cm.getString(10);
-				music.reading = cm.getString(6);
+				music.reading = cm.getString(3);
 				if (music.reading == null)
 					music.reading = getReading(music.title);
+				music.publish_order = cm.getInt(4);
+				music.part = cm.getInt(5);
+				music.role1 = createRole(cm, 6);
+				music.role2 = createRole(cm, 13);
+				music.role3 = createRole(cm, 20);
+				music.skin = cm.getString(27);
+				for (int i = 0; i < ButtonSE.COUNT; ++i)
+					music.sounds[i] = cm.getString(28+1);
 				music.ordinal = StringUtils.forLexicographical(music.reading);
-				music.publish_order = cm.getInt(8);
-				music.voice1 = cm.getInt(11);
-				music.voice2 = cm.getInt(12);
 				musics.add(music);
 				id2music.put(music.id, music);
 			}
@@ -151,9 +174,28 @@ public class LocalStore extends ContentProvider {
 		return musics;
 	}
 
+	private Role createRole(Cursor c, int from) {
+		String name = c.getString(from);
+		if (TextUtils.isEmpty(name))
+			return null;
+
+		Role role = new Role();
+		role.name = name;
+		role.cast = c.getInt(from+1);
+		role.module = c.getString(from+2);
+		for (int i = 0; i < CustomizeItem.COUNT; ++i)
+			role.items[i] = c.getString(from+3+i);
+		return role;
+	}
+
+	public Module getModule(String id) {
+		List<Module> modules = findModules(new SparseArray<ModuleGroup>(), ModuleTable.WHERE_IDENTITY, id);
+		return modules.isEmpty() ? null : modules.get(0);
+	}
+
 	public List<ModuleGroup> loadModules() {
 		List<ModuleGroup> groups = new ArrayList<ModuleGroup>();
-		Map<Integer, ModuleGroup> id2group = new HashMap<Integer, ModuleGroup>();
+		SparseArray<ModuleGroup> id2group = new SparseArray<ModuleGroup>();
 
 		SQLiteDatabase db = m_helper.getReadableDatabase();
 
@@ -172,6 +214,15 @@ public class LocalStore extends ContentProvider {
 			cg.close();
 		}
 
+		findModules(id2group, null);
+
+		return groups;
+	}
+
+	private List<Module> findModules(SparseArray<ModuleGroup> id2group, String selection, String...selectionArgs) {
+		SQLiteDatabase db = m_helper.getReadableDatabase();
+
+		List<Module> modules = new ArrayList<Module>();
 		Cursor cm = db.query(ModuleTable.TABLE_NAME, new String[] {
 				ModuleTable.ID,
 				ModuleTable.NAME,
@@ -179,7 +230,7 @@ public class LocalStore extends ContentProvider {
 				ModuleTable.GROUP_ID,
 				ModuleTable.IMAGE,
 				ModuleTable.THUMBNAIL,
-		}, null, null, null, null, ModuleTable._ID);
+		}, selection, selectionArgs, null, null, ModuleTable._ID);
 		try {
 			while (cm.moveToNext()) {
 				Module module = new Module();
@@ -192,13 +243,15 @@ public class LocalStore extends ContentProvider {
 				ModuleGroup group = id2group.get(cm.getInt(3));
 				if (group != null)
 					group.modules.add(module);
+				else
+					modules.add(module);
 			}
 		}
 		finally {
 			cm.close();
 		}
 
-		return groups;
+		return modules;
 	}
 
 	public void insert(PlayRecord record) {
@@ -485,11 +538,20 @@ public class LocalStore extends ContentProvider {
 		}
 	}
 
+	public SkinInfo getSkin(String id) {
+		List<SkinInfo> skins = findSkins(SkinTable.WHERE_IDENTITY, id);
+		return skins.isEmpty() ? null : skins.get(0);
+	}
+
 	public List<SkinInfo> loadSkins() {
 		return loadSkins(false);
 	}
 
 	public List<SkinInfo> loadSkins(boolean prize) {
+		return findSkins(String.format(prize ? "%s=2" : "%s!=2", SkinTable.STATUS));
+	}
+
+	private List<SkinInfo> findSkins(String selection, String...selectionArgs) {
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 
 		SQLiteDatabase db = m_helper.getReadableDatabase();
@@ -499,7 +561,7 @@ public class LocalStore extends ContentProvider {
 				SkinTable.NAME,
 				SkinTable.PATH,
 				SkinTable.STATUS,
-		}, String.format(prize ? "%s=2" : "%s!=2", SkinTable.STATUS), null, null, null, SkinTable._ID);
+		}, selection, selectionArgs, null, null, SkinTable._ID);
 		try {
 			while (c.moveToNext()) {
 				SkinInfo skin = new SkinInfo(c.getString(0), c.getString(1), c.getString(2), c.getInt(4) == 1);
@@ -544,7 +606,16 @@ public class LocalStore extends ContentProvider {
 		}
 	}
 
-	public List<ButtonSE> loadButtonSEs() {
+	public ButtonSE getButtonSE(int type, String id) {
+		List<ButtonSE> sounds = findButtonSEs(ButtonSETable.WHERE_IDENTITY, String.valueOf(type), id);
+		return sounds.isEmpty() ? null : sounds.get(0);
+	}
+
+	public List<ButtonSE> loadButtonSEs(int type) {
+		return findButtonSEs(ButtonSETable.WHERE_BY_TYPE, String.valueOf(type));
+	}
+
+	private List<ButtonSE> findButtonSEs(String selection, String... selectionArgs) {
 		List<ButtonSE> buttonSEs = new ArrayList<ButtonSE>();
 
 		SQLiteDatabase db = m_helper.getReadableDatabase();
@@ -552,11 +623,13 @@ public class LocalStore extends ContentProvider {
 				ButtonSETable.ID,
 				ButtonSETable.NAME,
 				ButtonSETable.SAMPLE,
-		}, null, null, null, null, ButtonSETable._ID);
+				ButtonSETable.TYPE,
+		}, selection, selectionArgs, null, null, ButtonSETable._ID);
 		try {
 			while (c.moveToNext()) {
 				ButtonSE se = new ButtonSE(c.getString(0), c.getString(1));
 				se.sample = c.getString(2);
+				se.type = c.getInt(3);
 				buttonSEs.add(se);
 			}
 		}
@@ -856,6 +929,11 @@ public class LocalStore extends ContentProvider {
 			case 23:
 				db.execSQL(String.format("DELETE FROM %s WHERE %s='%s'",
 						DecorTitleTable.TABLE_NAME, DecorTitleTable.ID, DecorTitle.OFF.id));
+			case 24:
+				db.execSQL(String.format("DROP TABLE %s", MusicTable.NAME));
+				db.execSQL(MusicTable.create_statement());
+				db.execSQL(String.format("DROP TABLE %s", ButtonSETable.TABLE_NAME));
+				db.execSQL(ButtonSETable.create_statement());
 			default:
 				break;
 			}

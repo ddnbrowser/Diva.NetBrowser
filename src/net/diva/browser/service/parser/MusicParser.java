@@ -7,10 +7,14 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.diva.browser.DdNIndex;
+import net.diva.browser.model.CustomizeItem;
 import net.diva.browser.model.MusicInfo;
 import net.diva.browser.model.Ranking;
+import net.diva.browser.model.Role;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.service.ParseException;
+import net.diva.browser.util.MatchHelper;
 
 public class MusicParser {
 	private static final Pattern RE_MUSIC_TITLE = Pattern.compile("<a href=\"/divanet/pv/info/(\\w+)/0/\\d+\">(.+)</a>");
@@ -79,26 +83,43 @@ public class MusicParser {
 
 	public static void parseInfoPage(InputStream content, MusicInfo music) throws ParseException {
 		String body = Parser.read(content);
-		Pattern RE_COVERART = Pattern.compile(Pattern.quote(music.title) + "<br>\\s*\\[(.*)\\]\\s*<br>\\s*<img src=\"(.+?)\"");
+		Pattern RE_COVERART = Pattern.compile(Pattern.quote(music.title) + "<br>\\s*\\[(\\d+)人設定\\]\\s*<br>\\s*<img src=\"(.+?)\"");
 		Matcher m = RE_COVERART.matcher(body);
 		if (!m.find())
 			throw new ParseException();
-		music.part = "ソロ".equals(m.group(1)) ? 1 : 2;
+		music.part = Integer.parseInt(m.group(1));
 		music.coverart = m.group(2);
 		for (int i = 0; i < DIFFICULTIES.length; ++i)
 			music.records[i] = parseScore(m, DIFFICULTIES[i], music.records[i]);
 	}
 
-	private static final Pattern RE_VOICE = Pattern.compile("\\[ボイス(1|2)?　(.+)\\]");
+	private static final Pattern RE_ROLE = Pattern.compile("\\[(.+?)\\](?:<[^>]+>\\s*)+\\[(?:ボイス|デフォルト)　(.+?)\\](?:<[^>]+>\\s*)+([^<>]+)");
+	private static final Pattern RE_ITEM = Pattern.compile("<a href=\".*/customizeItem/selectPart/\\w+/vocal\\d/\\d/[^>]*>(.+)</a>");
 
-	public static String[] parseVoice(InputStream content) throws ParseException {
+	public static void parseRoles(InputStream content, MusicInfo music, DdNIndex index) throws ParseException {
 		String body = Parser.read(content);
-		Matcher m = RE_VOICE.matcher(body);
-		if (!m.find())
+		MatchHelper m = new MatchHelper(body);
+		if ((music.role1 = parseRole(m, index)) == null)
 			throw new ParseException();
-		String voice1 = m.group(2);
-		String voice2 = m.find() ? m.group(2) : null;
-		return new String[] { voice1, voice2 };
+		if ((music.role2 = parseRole(m, index)) == null)
+			return;
+		if ((music.role3 = parseRole(m, index)) == null)
+			return;
+	}
+
+	private static Role parseRole(MatchHelper m, DdNIndex index) throws ParseException {
+		if (!m.find(RE_ROLE))
+			return null;
+
+		Role role = new Role();
+		role.name = m.group(1);
+		role.cast = index.character().code(m.group(2));
+		role.module = index.module().id(m.group(3));
+		if (role.module != null) {
+			for (int i = 0; i < CustomizeItem.COUNT; ++i)
+				role.items[i] = index.customizeItem().id(m.findString(RE_ITEM, 1, null));
+		}
+		return role;
 	}
 
 	static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\".*?>(.+)</a>");

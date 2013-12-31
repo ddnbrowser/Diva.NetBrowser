@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<color name="normal">#3ec053</color>
-<color name="hard">#e2e511</color>
-<color name="extreme">#d42d1d</color>
-<color name="easy">#2795ff</color>
+    <color name="normal">#3ec053</color>
+    <color name="hard">#e2e511</color>
+    <color name="extreme">#d42d1d</color>
+    <color name="easy">#2795ff</color>
     <color name="translucent">#AA000000</color>
+    <color name="item_name">#00FFFF</color>
 </resources>

@@ -155,7 +155,7 @@ public class SkinListActivity extends ListActivity {
 
 	private View noUseSkinView(ViewGroup parent) {
 		LayoutInflater infralter = LayoutInflater.from(this);
-		View view = infralter.inflate(android.R.layout.simple_list_item_1, parent, false);
+		View view = infralter.inflate(R.layout.common_list_item, parent, false);
 		TextView text1 = (TextView)view.findViewById(android.R.id.text1);
 		text1.setText(R.string.no_use_skin);
 		return view;

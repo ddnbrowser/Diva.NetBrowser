@@ -6,11 +6,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import net.diva.browser.DdN;
+import net.diva.browser.DdNIndex;
 import net.diva.browser.model.ButtonSE;
 import net.diva.browser.model.DecorTitle;
 import net.diva.browser.model.History;
@@ -155,14 +158,13 @@ public class ServiceClient {
 		}
 	}
 
-	public String[] getVoice(String id) throws IOException {
+	public void updateRoles(MusicInfo music, DdNIndex index) throws IOException {
 		try {
-			return MusicParser.parseVoice(getFrom("/divanet/module/selectPv/%s/0", id));
+			MusicParser.parseRoles(getFrom("/divanet/module/selectPv/%s/0", music.id), music, index);
 		}
 		catch (ParseException e) {
 			e.printStackTrace();
 		}
-		return new String[] { null, null };
 	}
 
 	public InputStream download(String path) throws IOException {
@@ -323,33 +325,63 @@ public class ServiceClient {
 		return ShopParser.parse(getFrom(path), details);
 	}
 
-	public List<ButtonSE> getButtonSEs(String music_id) throws IOException {
+	public List<ButtonSE> getButtonSEs(String music_id, int type) throws IOException {
 		List<ButtonSE> ses = new ArrayList<ButtonSE>();
-		String path = String.format("/divanet/buttonSE/list/%s/0/0", music_id);
+		String path = String.format(Locale.US, "/divanet/buttonSE/list/%d/%s/0/0", type, music_id);
 		while (path != null)
 			path = SEParser.parse(getFrom(path), ses);
 
-		Map<String, String> samples = getSESamples(music_id);
-		for (ButtonSE se: ses)
+		Map<String, String> samples = getSESamples(music_id, type);
+		for (ButtonSE se: ses) {
+			se.type = type;
 			se.sample = samples.get(se.name);
+		}
 
 		return ses;
 	}
 
-	private Map<String, String> getSESamples(String music_id) throws IOException {
+	private Map<String, String> getSESamples(String music_id, int type) throws IOException {
 		Map<String, String> map = new HashMap<String, String>();
-		String path = String.format("/divanet/buttonSE/sample/%s/0/0", music_id);
+		String path = String.format(Locale.US, "/divanet/buttonSE/sample/%d/%s/0/0", type, music_id);
 		while (path != null)
 			path = SEParser.parse(getFrom(path), map);
 		return map;
 	}
 
-	public Map<String, IndividualSetting> getIndividualSettings() throws IOException {
+	public void updateIndividualSettings(List<MusicInfo> musics, DdNIndex index) throws IOException {
 		Map<String, IndividualSetting> settings = new HashMap<String, IndividualSetting>();
 		String path = "/divanet/setting/individual/0/true/0";
 		while (path != null)
 			path = Parser.parseIndividualSettings(getFrom(path), settings);
-		return settings;
+
+		for (MusicInfo music: musics) {
+			IndividualSetting setting = settings.get(music.id);
+			if (setting.hasCustomizeItem)
+				updateRoles(music, index);
+			else {
+				if (music.role1 != null) {
+					music.role1.module = index.module().id(setting.vocal1);
+					Arrays.fill(music.role1.items, null);
+				}
+				if (music.role2 != null) {
+					music.role2.module = index.module().id(setting.vocal2);
+					Arrays.fill(music.role2.items, null);
+				}
+				if (music.role3 != null) {
+					music.role3.module = index.module().id(setting.vocal3);
+					Arrays.fill(music.role3.items, null);
+				}
+			}
+			music.skin = index.skin().id(setting.skin);
+			if (setting.isSeCustomized)
+				updateIndividualSE(music, index);
+			else
+				music.resetIndividualSe();
+		}
+	}
+
+	public void updateIndividualSE(MusicInfo music, DdNIndex index) throws IOException {
+		SEParser.parseIndividual(getFrom("/divanet/setting/individualSe/%s/0", music.id), music, index);
 	}
 
 	public List<String> getDIVARecords() throws IOException {
@@ -439,15 +471,15 @@ public class ServiceClient {
 		postTo("/divanet/module/resetCommon/");
 	}
 
-	public void setIndividualModule(String music_id, String vocal1) throws IOException {
-		postTo(String.format("/divanet/module/update/%s/vocal1/%s/0", music_id, vocal1));
-	}
+	public void setIndividualModule(String music_id, String...modules) throws IOException {
+		List<NameValuePair> parameters = new ArrayList<NameValuePair>(modules.length);
 
-	public void setIndividualModule(String music_id, String vocal1, String vocal2) throws IOException {
 		getFrom("/divanet/module/selectPv/%s/0", music_id);
-		getFrom("/divanet/module/confirm/%s/vocal1/%s/0/0/0", music_id, vocal1);
-		getFrom("/divanet/module/confirm/%s/vocal2/%s/0/0/0", music_id, vocal2);
-		postTo(String.format("/divanet/module/updateDuet/%s/%s/%s/0", music_id, vocal1, vocal2));
+		for (int i = 0; i < modules.length && modules[i] != null; ++i) {
+			parameters.add(new BasicNameValuePair(String.format("cryptoModuleIdList[%d]", i), modules[i]));
+			getFrom("/divanet/module/confirm/%s/vocal%d/%s/0/0/0", music_id, i+1, modules[i]);
+		}
+		postTo(String.format("/divanet/module/updateMulti/%s/0", music_id), new UrlEncodedFormEntity(parameters, "US-ASCII"));
 	}
 
 	public void resetIndividualModule(String music_id) throws IOException {
@@ -487,16 +519,20 @@ public class ServiceClient {
 		postTo(String.format("/divanet/skin/unset/%s/0/0", music_id));
 	}
 
-	public void setButtonSE(String music_id, String se_id) throws IOException {
-		postTo(String.format("/divanet/buttonSE/update/%s/%s/0/0", music_id, se_id));
+	public void setButtonSE(String music_id, int type, String se_id) throws IOException {
+		postTo(String.format("/divanet/buttonSE/update/%d/%s/%s/0/0", type, music_id, se_id));
 	}
 
-	public void setButtonSEInvalidateCommon(String music_id) throws IOException {
-		postTo(String.format("/divanet/buttonSE/invalidateCommonSetting/%s/0/0", music_id));
+	public void setButtonSEInvalidateCommon(String music_id, int type) throws IOException {
+		postTo(String.format("/divanet/buttonSE/invalidateCommonSetting/%d/%s/0/0", type, music_id));
+	}
+
+	public void resetButtonSE(String music_id, int type) throws IOException {
+		postTo(String.format("/divanet/buttonSE/unset/%d/%s/0/0", type, music_id));
 	}
 
 	public void resetButtonSE(String music_id) throws IOException {
-		postTo(String.format("/divanet/buttonSE/unset/%s/0/0", music_id));
+		postTo(String.format("/divanet/buttonSE/unsetAll/%s/0", music_id));
 	}
 
 	private int checkShopResult(HttpResponse response) throws OperationFailedException, IOException {

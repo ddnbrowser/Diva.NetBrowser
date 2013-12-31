@@ -121,4 +121,10 @@
     <item>play_date</item>
     <item>lock</item>
 </string-array>
+<string-array name="sound_effects">
+    <item>ボタン音</item>
+    <item>スライド音</item>
+    <item>チェーンスライド音</item>
+    <item>スライダータッチ音</item>
+</string-array>
 </resources>

@@ -7,12 +7,12 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.IndividualSetting;
 import net.diva.browser.service.ParseException;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
 public final class Parser {
 	static final Pattern RE_NEXT = Pattern.compile("<a href=\"([/\\w]+)\".*>次へ.*</a>");
@@ -89,9 +89,10 @@ public final class Parser {
 		return null;
 	}
 
-	private static final Pattern RE_SETTING_MODULE = Pattern.compile("/divanet/module/selectPv/(\\w+)/\\d+\".*?>(.*)</a>");
-	private static final Pattern RE_SETTING_SKIN = Pattern.compile("/divanet/skin/list/(\\w+)/\\d+/\\d+\".*?>(.*)</a>");
-	private static final Pattern RE_SETTING_BUTTON = Pattern.compile("/divanet/buttonSE/list/(\\w+)/\\d+/\\d+\".*?>(.*)</a>");
+	private static final Pattern RE_SETTING_MODULE = Pattern.compile("/divanet/module/selectPv/(\\w+)/\\d+#(M|C)[^>]*>(.*)</a>");
+	private static final Pattern RE_SETTING_SKIN = Pattern.compile("/divanet/skin/list/(\\w+)/\\d+/\\d+\"[^>]*>(.*)</a>");
+	private static final Pattern RE_SETTING_BUTTON = Pattern.compile("/divanet/setting/individualSe/(\\w+)/\\d+\"[^>]*>(.*)</a>");
+	private static final String NO_SETTING = "未設定";
 
 	public static String parseIndividualSettings(InputStream content, Map<String, IndividualSetting> settings) {
 		String body = read(content);
@@ -101,10 +102,14 @@ public final class Parser {
 			IndividualSetting setting = settings.get(id);
 			if (setting == null)
 				settings.put(id, setting = new IndividualSetting());
-			if (setting.vocal1 == null)
-				setting.vocal1 = m.group(2);
+			if (m.group(2).equals("C"))
+				setting.hasCustomizeItem |= !NO_SETTING.equals(m.group(3));
+			else if (setting.vocal1 == null)
+				setting.vocal1 = m.group(3);
+			else if (setting.vocal2 == null)
+				setting.vocal2 = m.group(3);
 			else
-				setting.vocal2 = m.group(2);
+				setting.vocal3 = m.group(3);
 		}
 
 		m = m.usePattern(RE_SETTING_SKIN);
@@ -113,7 +118,7 @@ public final class Parser {
 
 		m = m.usePattern(RE_SETTING_BUTTON);
 		while (m.find())
-			settings.get(m.group(1)).button = m.group(2);
+			settings.get(m.group(1)).isSeCustomized = !NO_SETTING.equals(m.group(2));
 
 		m = m.usePattern(RE_NEXT);
 		return m.find() ? m.group(1) : null;

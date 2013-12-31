@@ -19,13 +19,11 @@ public class MusicInfo {
 	public int publish_order;
 
 	public int part;
-	public int voice1;
-	public int voice2;
-
-	public String vocal1;
-	public String vocal2;
+	public Role role1;
+	public Role role2;
+	public Role role3;
 	public String skin;
-	public String button;
+	public String[] sounds;
 
 	public ScoreRecord[] records;
 
@@ -37,9 +35,32 @@ public class MusicInfo {
 		id = id_;
 		title = title_;
 		publish_order = -1;
-		voice1 = -1;
-		voice2 = -1;
+		sounds = new String[ButtonSE.COUNT];
 		records = new ScoreRecord[4];
+	}
+
+	public boolean hasIndividualModule() {
+		return role1 != null && role1.module != null;
+	}
+
+	public boolean hasIndividualSkin() {
+		return skin != null;
+	}
+
+	public boolean hasIndividualSe() {
+		for (String se: sounds) {
+			if (se != null && !se.equals(ButtonSE.UNSUPPORTED))
+				return true;
+		}
+		return false;
+	}
+
+	public void resetIndividualSe() {
+		for (int i = 0; i < sounds.length; ++i) {
+			String se = sounds[i];
+			if (se != null && !se.equals(ButtonSE.UNSUPPORTED))
+				sounds[i] = null;
+		}
 	}
 
 	public int rankPoint() {

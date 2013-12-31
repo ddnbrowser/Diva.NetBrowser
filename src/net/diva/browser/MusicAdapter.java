@@ -157,11 +157,11 @@ public class MusicAdapter extends BaseAdapter implements Filterable, SortableLis
 			clear_status.setImageDrawable(m_clear_icons[score.clear_status]);
 			trial_status.setText(m_trial_labels[score.trial_status]);
 			if (module != null)
-				module.setVisibility(music.vocal1 != null ? View.VISIBLE : View.INVISIBLE);
+				module.setVisibility(music.hasIndividualModule() ? View.VISIBLE : View.INVISIBLE);
 			if (skin != null)
-				skin.setVisibility(music.skin != null ? View.VISIBLE : View.INVISIBLE);
+				skin.setVisibility(music.hasIndividualSkin() ? View.VISIBLE : View.INVISIBLE);
 			if (button != null)
-				button.setVisibility(music.button != null ? View.VISIBLE : View.INVISIBLE);
+				button.setVisibility(music.hasIndividualSe() ? View.VISIBLE : View.INVISIBLE);
 			ranking.setText(score.isRankIn() ? String.format("%d位", score.ranking) : "");
 			high_score.setText(String.format("%dpts", score.high_score));
 			if (achivement != null)

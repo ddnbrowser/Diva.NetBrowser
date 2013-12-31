@@ -101,12 +101,12 @@
     <string name="description_unset_skin">未設定にする</string>
     <string name="summary_unset_skin">スキンを未設定にします</string>
     <string name="message_unset_skin">スキンを未設定にします。よろしいですか?</string>
-    <string name="category_common_buttonse">共通ボタン音設定</string>
-    <string name="description_set_buttonse">ボタン音を設定する</string>
-    <string name="summary_set_buttonse">選択したボタン音を設定します</string>
+    <string name="category_common_buttonse">共通SE設定</string>
+    <string name="description_set_buttonse">%sを設定する</string>
+    <string name="summary_set_buttonse">選択した%sを設定します</string>
     <string name="description_unset_buttonse">未設定にする</string>
-    <string name="summary_unset_buttonse">ボタン音を未設定にします</string>
-    <string name="message_unset_buttonse">ボタン音を未設定にします。よろしいですか?</string>
+    <string name="summary_unset_buttonse">%sを未設定にします</string>
+    <string name="message_unset_buttonse">%sを未設定にします。よろしいですか?</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
     <string name="message_updating">更新しています...</string>
@@ -221,4 +221,8 @@
     <string name="item_unlock">ロック解除</string>
     <string name="item_share">共有</string>
     <string name="item_delete_history">履歴削除</string>
+    <string name="category_module">モジュール設定</string>
+    <string name="category_se">SE設定</string>
+    <string name="no_setting">未設定</string>
+    <string name="initialize">初期化</string>
 </resources>

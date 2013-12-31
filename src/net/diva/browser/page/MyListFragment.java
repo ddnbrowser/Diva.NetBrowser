@@ -103,8 +103,11 @@ public class MyListFragment extends MusicListFragment {
 	public void onUpdate(PlayRecord record, boolean noMusic) {
 		m_ids = m_store.loadMyList(m_myList.id);
 		List<MusicInfo> musics = new ArrayList<MusicInfo>(m_ids.size());
-		for (String id: m_ids)
-			musics.add(record.getMusic(id));
+		for (String id: m_ids) {
+			MusicInfo m = record.getMusic(id);
+			if (m != null)
+				musics.add(m);
+		}
 		m_musics = musics;
 
 		super.onUpdate(record, noMusic);

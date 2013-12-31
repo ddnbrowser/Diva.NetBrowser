@@ -58,7 +58,7 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 		if (intent != null) {
 			m_request = intent.getIntExtra("request", 0);
 			m_part = intent.getIntExtra("part", 0);
-			m_group = intent.getIntExtra("group", -1);
+			m_group = getGroup(intent);
 			m_key = String.format("vocal%d", m_request);
 			Module module = DdN.getModule(intent.getStringExtra(m_key));
 			if (module != null && (m_group < 0 || m_group == DdN.getModuleGroup(module))) {
@@ -129,9 +129,12 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			Intent data = new Intent(getIntent());
 			data.putExtra(m_key, module.id);
 			if (m_request < m_part) {
+				int[] groups = data.getIntArrayExtra("groups");
+				if (groups != null) {
+					groups[m_request] = DdN.getModuleGroup(module);
+					data.putExtra("groups", groups);
+				}
 				data.putExtra("request", m_request+1);
-				if (data.getBooleanExtra("same", false))
-					data.putExtra("group", DdN.getModuleGroup(module));
 				startActivityForResult(data, R.id.item_set_module);
 			}
 			else {
@@ -166,6 +169,15 @@ public class ModuleListActivity extends ExpandableListActivity implements Adapte
 			super.onActivityResult(requestCode, resultCode, data);
 			break;
 		}
+	}
+
+	private int getGroup(Intent intent) {
+		int[] reference = intent.getIntArrayExtra("reference");
+		int[] groups = intent.getIntArrayExtra("groups");
+		if (reference == null || groups == null)
+			return -1;
+		else
+			return groups[reference[intent.getIntExtra("request", 0)]];
 	}
 
 	private void refresh(int mode) {

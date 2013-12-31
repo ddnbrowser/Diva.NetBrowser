@@ -32,6 +32,8 @@ public class SEListActivity extends ListActivity {
 	private LocalStore m_store;
 	private ButtonSEAdapber m_adapter;
 
+	private int m_type;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,12 +44,16 @@ public class SEListActivity extends ListActivity {
 		if (empty != null)
 			empty.setText(R.string.no_button_se);
 
-		if (getIntent().getBooleanExtra("enable_invalidate", false))
-			getListView().addHeaderView(invalidateCommonView());
+		Intent intent = getIntent();
+		if (intent.getBooleanExtra("enable_unset", false))
+			getListView().addHeaderView(dummyItemView(R.string.description_unset_buttonse), new ButtonSE(null, null), true);
+		if (intent.getBooleanExtra("enable_invalidate", false))
+			getListView().addHeaderView(dummyItemView(R.string.invalidate_common_button_se), new ButtonSE(ButtonSE.INVALIDATE_COMMON, null), true);
 
+		m_type = intent.getIntExtra("type", 0);
 		m_store = DdN.getLocalStore();
 		m_adapter = new ButtonSEAdapber(this);
-		m_adapter.setData(m_store.loadButtonSEs());
+		m_adapter.setData(m_store.loadButtonSEs(m_type));
 		setListAdapter(m_adapter);
 	}
 
@@ -55,10 +61,7 @@ public class SEListActivity extends ListActivity {
 	protected void onListItemClick(ListView list, View v, int position, long id) {
 		ButtonSE se = (ButtonSE)list.getAdapter().getItem(position);
 		Intent data = new Intent(getIntent());
-		if (se != null)
-			data.putExtra("id", se.id);
-		else
-			data.putExtra("invalidate", true);
+		data.putExtra("id", se.id);
 		setResult(RESULT_OK, data);
 		finish();
 	}
@@ -81,11 +84,11 @@ public class SEListActivity extends ListActivity {
 		return true;
 	}
 
-	private View invalidateCommonView() {
+	private View dummyItemView(int textId) {
 		LayoutInflater inflater = getLayoutInflater();
-		View view = inflater.inflate(android.R.layout.simple_list_item_1, getListView(), false);
+		View view = inflater.inflate(R.layout.common_list_item, getListView(), false);
 		TextView text = (TextView)view.findViewById(android.R.id.text1);
-		text.setText(R.string.invalidate_common_button_se);
+		text.setText(textId);
 		return view;
 	}
 
@@ -97,7 +100,7 @@ public class SEListActivity extends ListActivity {
 		@Override
 		protected List<ButtonSE> doTask(ServiceClient service, Void... params) throws Exception {
 			MusicInfo music = DdN.getPlayRecord().musics.get(0);
-			final List<ButtonSE> buttonSEs = service.getButtonSEs(music.id);
+			final List<ButtonSE> buttonSEs = service.getButtonSEs(music.id, m_type);
 			for (ButtonSE se: buttonSEs) {
 				File file = se.getSamplePath(getApplicationContext());
 				if (file.exists())

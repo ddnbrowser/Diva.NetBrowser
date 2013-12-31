@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.diva.browser.DdN;
+import net.diva.browser.DdNIndex;
 import net.diva.browser.MusicAdapter;
 import net.diva.browser.MusicDetailActivity;
 import net.diva.browser.R;
@@ -395,15 +396,16 @@ public abstract class MusicListFragment extends ListFragment
 
 			service.updatePublishOrder(musics, record.nextPublishOrder());
 			publishProgress(0, musics.size());
+
+			DdNIndex index = new DdNIndex(m_context);
 			for (MusicInfo music: musics) {
 				music.reading = m_store.getReading(music.title);
 				music.ordinal = StringUtils.forLexicographical(music.reading);
 				service.update(music);
 				service.cacheContent(music.coverart, music.getCoverArtPath(m_context));
-				if (music.voice1 < 0) {
-					String[] voices = service.getVoice(music.id);
-					music.voice1 = DdN.getVoice(voices[0]);
-					music.voice2 = DdN.getVoice(voices[1]);
+				if (music.role1 == null) {
+					service.updateRoles(music, index);
+					service.updateIndividualSE(music, index);
 				}
 				publishProgress(1);
 			}

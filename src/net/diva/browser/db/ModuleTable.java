@@ -15,7 +15,7 @@ final class ModuleTable implements BaseColumns {
 	public static final String IMAGE = "image";
 	public static final String THUMBNAIL = "thumbnail";
 
-	private static final String WHERE_IDENTITY = String.format("%s=?", ID);
+	public static final String WHERE_IDENTITY = String.format("%s=?", ID);
 
 	private ModuleTable() {}
 

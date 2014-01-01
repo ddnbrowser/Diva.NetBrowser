@@ -127,4 +127,20 @@
     <item>チェーンスライド音</item>
     <item>スライダータッチ音</item>
 </string-array>
+<string-array name="individual_setting_names">
+    <item>モジュール</item>
+    <item>スキン</item>
+    <item>ボタン音</item>
+    <item>スライド音</item>
+    <item>チェーンスライド音</item>
+    <item>スライダータッチ音</item>
+</string-array>
+<string-array name="individual_setting_keys">
+    <item>usePvModuleEquip</item>
+    <item>usePvSkinEquip</item>
+    <item>usePvButtonSeEquip</item>
+    <item>usePvSlideSeEquip</item>
+    <item>usePvChainSlideSeEquip</item>
+    <item>usePvSliderTouchSeEquip</item>
+</string-array>
 </resources>

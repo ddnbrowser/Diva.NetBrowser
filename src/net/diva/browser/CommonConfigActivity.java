@@ -43,11 +43,8 @@ public class CommonConfigActivity extends ConfigActivity {
 				new ConfigUnsetButtonSE(this, 3),
 				new ConfigCategory(getText(R.string.category_individual)),
 				new ConfigResetIndividual(this),
+				new ConfigActivationIndividual(this),
 				new ConfigSyncIndividual(this),
-				new ConfigCategory(getText(R.string.category_activation_individual)),
-				new ConfigActivationIndividual(this, 0, R.string.module, R.string.summary_activation_individual),
-				new ConfigActivationIndividual(this, 1, R.string.skin, R.string.summary_activation_individual),
-				new ConfigActivationIndividual(this, 2, R.string.button_se, R.string.summary_activation_individual_se),
 		};
 	}
 }

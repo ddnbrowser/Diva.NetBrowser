@@ -4,7 +4,6 @@
 package net.diva.browser.service.parser;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,24 +39,17 @@ public class SkinParser {
 			skin.image_path = m.group(1);
 	}
 
-	private static final Pattern RE_PRIZE_INDEX = Pattern.compile("/divanet/divaTicket/selectSkinGroup/(\\w+)");
 	private static final Pattern RE_PRIZE_GROUP = Pattern.compile("/divanet/divaTicket/selectSkin/(\\w+)");
 	private static final Pattern RE_PRIZE_SKIN = Pattern.compile("<a href=\"/divanet/divaTicket/confirmExchangeSkin/(\\w+)\">(.+)：\\d+枚</a>");
 
-	public static List<String> parseExchange(InputStream from) {
-		List<String> urls = new ArrayList<String>();
-		String body = Parser.read(from);
-		Matcher m = RE_PRIZE_INDEX.matcher(body);
-		while (m.find())
-			urls.add(m.group());
-		return urls;
-	}
-
-	public static void parsePrizeGroup(InputStream from, List<String> groups) {
+	public static String parsePrizeGroup(InputStream from, List<String> groups) {
 		String body = Parser.read(from);
 		Matcher m = RE_PRIZE_GROUP.matcher(body);
 		while (m.find())
 			groups.add(m.group(1));
+
+		m = m.usePattern(Parser.RE_NEXT);
+		return m.find() ? m.group(1) : null;
 	}
 
 	public static void parsePrizeSkin(InputStream from, String group_id, List<SkinInfo> skins) {

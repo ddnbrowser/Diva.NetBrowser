@@ -300,9 +300,9 @@ public class ServiceClient {
 
 	public List<SkinInfo> getSkinPrize() throws IOException {
 		List<String> groups = new ArrayList<String>();
-		for (String index: SkinParser.parseExchange(getFrom("/divanet/divaTicket/exchange/"))) {
-			SkinParser.parsePrizeGroup(getFrom(index), groups);
-		}
+		String path = "/divanet/divaTicket/skin/0";
+		while (path != null)
+			path = SkinParser.parsePrizeGroup(getFrom(path), groups);
 
 		List<SkinInfo> skins = new ArrayList<SkinInfo>();
 		for (String group_id: groups) {

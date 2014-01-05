@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,6 +109,14 @@ public class ComplexAdapter extends BaseAdapter {
 		private int m_itemId;
 		private CharSequence m_text;
 
+		public TextItem(int layout, int itemId) {
+			this(layout, itemId, null, null);
+		}
+
+		public TextItem(int layout, int itemId, Action action) {
+			this(layout, itemId, null, action);
+		}
+
 		public TextItem(int layout, int itemId, CharSequence text) {
 			this(layout, itemId, text, null);
 		}
@@ -115,6 +124,10 @@ public class ComplexAdapter extends BaseAdapter {
 		public TextItem(int layout, int itemId, CharSequence text, Action action) {
 			super(layout, action);
 			m_itemId = itemId;
+			m_text = text;
+		}
+
+		public void setText(CharSequence text) {
 			m_text = text;
 		}
 
@@ -127,6 +140,48 @@ public class ComplexAdapter extends BaseAdapter {
 		public void attach(View view) {
 			TextView text = (TextView)view.getTag();
 			text.setText(m_text);
+		}
+	}
+
+	public static class MultiTextItem extends Item {
+		private SparseArray<CharSequence> m_texts;
+
+		public MultiTextItem(int layout, int...items) {
+			this(layout, null, items);
+		}
+
+		public MultiTextItem(int layout, Action action, int...items) {
+			super(layout, action);
+
+			m_texts = new SparseArray<CharSequence>(items.length);
+			for (int item: items)
+				m_texts.put(item, null);
+		}
+
+		public void setText(int item, CharSequence text) {
+			int index = m_texts.indexOfKey(item);
+			if (index >= 0)
+				m_texts.setValueAt(index, text);
+		}
+
+		@Override
+		public void prepare(View view) {
+			TextView[] views = new TextView[m_texts.size()];
+			for (int i = 0; i < m_texts.size(); ++i) {
+				int item = m_texts.keyAt(i);
+				views[i] = (TextView)view.findViewById(item);
+			}
+			view.setTag(views);
+		}
+
+		@Override
+		public void attach(View view) {
+			TextView[] views = (TextView[])view.getTag();
+			for (int i = 0; i < m_texts.size(); ++i) {
+				TextView tv = views[i];
+				if (tv != null)
+					tv.setText(m_texts.valueAt(i));
+			}
 		}
 	}
 }

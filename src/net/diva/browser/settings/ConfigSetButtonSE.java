@@ -34,12 +34,17 @@ public class ConfigSetButtonSE extends ConfigItem {
 	public Intent dispatch(Context context, Callback callback) {
 		Intent intent = new Intent(context, SEListActivity.class);
 		intent.putExtra("type", m_type);
+		intent.putExtra("enable_unset", true);
 		return intent;
 	}
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
-		service.setButtonSE("COMMON", m_type, data.getStringExtra("id"));
+		final String id = data.getStringExtra("id");
+		if (id !=null)
+			service.setButtonSE("COMMON", m_type, id);
+		else
+			service.resetButtonSE("COMMON", m_type);
 		return Boolean.TRUE;
 	}
 }

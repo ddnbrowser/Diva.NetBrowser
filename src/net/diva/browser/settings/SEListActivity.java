@@ -46,7 +46,7 @@ public class SEListActivity extends ListActivity {
 
 		Intent intent = getIntent();
 		if (intent.getBooleanExtra("enable_unset", false))
-			getListView().addHeaderView(dummyItemView(R.string.description_unset_buttonse), new ButtonSE(null, null), true);
+			getListView().addHeaderView(dummyItemView(R.string.unset), new ButtonSE(null, null), true);
 		if (intent.getBooleanExtra("enable_invalidate", false))
 			getListView().addHeaderView(dummyItemView(R.string.invalidate_common_button_se), new ButtonSE(ButtonSE.INVALIDATE_COMMON, null), true);
 

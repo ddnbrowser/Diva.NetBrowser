@@ -9,7 +9,7 @@
     <string name="module">モジュール</string>
     <string name="skin">スキン</string>
     <string name="button_se">ボタン音</string>
-    <string name="unset">未設定に</string>
+    <string name="unset">未設定にする</string>
     <string name="item_update_all">全曲更新</string>
     <string name="item_update_new">新曲チェック</string>
     <string name="item_update_selction">更新</string>
@@ -104,9 +104,6 @@
     <string name="category_common_buttonse">共通SE設定</string>
     <string name="description_set_buttonse">%sを設定する</string>
     <string name="summary_set_buttonse">選択した%sを設定します</string>
-    <string name="description_unset_buttonse">未設定にする</string>
-    <string name="summary_unset_buttonse">%sを未設定にします</string>
-    <string name="message_unset_buttonse">%sを未設定にします。よろしいですか?</string>
     <string name="category_misc_common">その他楽曲共通設定</string>
     <string name="description_border_config">クリアボーダー表示設定</string>
     <string name="summary_border_config">ゲーム中に表示するクリアボーダーを選択します</string>

@@ -5,6 +5,7 @@ import net.diva.browser.settings.ConfigActivity;
 import net.diva.browser.settings.ConfigBorder;
 import net.diva.browser.settings.ConfigCategory;
 import net.diva.browser.settings.ConfigCommonModule;
+import net.diva.browser.settings.ConfigInterimRanking;
 import net.diva.browser.settings.ConfigItem;
 import net.diva.browser.settings.ConfigRename;
 import net.diva.browser.settings.ConfigResetCommon;
@@ -44,6 +45,7 @@ public class CommonConfigActivity extends ConfigActivity {
 				new ConfigUnsetButtonSE(this, 3),
 				new ConfigCategory(getText(R.string.category_misc_common)),
 				new ConfigBorder(this),
+				new ConfigInterimRanking(this),
 				new ConfigCategory(getText(R.string.category_individual)),
 				new ConfigResetIndividual(this),
 				new ConfigActivationIndividual(this),

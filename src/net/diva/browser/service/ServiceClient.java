@@ -508,6 +508,12 @@ public class ServiceClient {
 		postTo("/divanet/setting/updateBorderConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
 	}
 
+	public void setInterimRanking(boolean on) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
+		params.add(new BasicNameValuePair("dispInterimRanking", String.valueOf(on)));
+		postTo("/divanet/setting/updateInterimRankingConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
+	}
+
 	public void setSkin(String group_id, String skin_id) throws IOException {
 		setSkin("COMMON", group_id, skin_id);
 	}

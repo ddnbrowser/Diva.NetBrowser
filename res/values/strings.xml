@@ -110,6 +110,8 @@
     <string name="category_misc_common">その他楽曲共通設定</string>
     <string name="description_border_config">クリアボーダー表示設定</string>
     <string name="summary_border_config">ゲーム中に表示するクリアボーダーを選択します</string>
+    <string name="description_interim_ranking">スコア暫定全国順位表示設定</string>
+    <string name="summary_interim_ranking">チェックするとゲーム筐体に表示されます</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
     <string name="message_updating">更新しています...</string>

@@ -457,10 +457,11 @@ public class ServiceClient {
 		postTo(String.format("/divanet/title/updateDecor/%b/%s", pre, decor_id));
 	}
 
-	public void setTitleReplace(boolean on) throws IOException {
-		List<NameValuePair> params = new ArrayList<NameValuePair>(1);
-		params.add(new BasicNameValuePair("overwrite", String.valueOf(on)));
-		postTo("/divanet/title/updateReplaceSetting/", new UrlEncodedFormEntity(params, "UTF-8"));
+	public void setTitleReplace(String[] keys, int[] values) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(keys.length);
+		for (int i = 0; i < keys.length; ++i)
+			params.add(new BasicNameValuePair(keys[i], String.valueOf(values[i])));
+		postTo("/divanet/title/updateReplaceSetting/", new UrlEncodedFormEntity(params, "US-ASCII"));
 	}
 
 	public void setCommonModule(String key, String module_id) throws IOException {

@@ -153,4 +153,15 @@
     <item>dispClearExcellentBorder</item>
     <item>dispRivalBestBorder</item>
 </string-array>
+<string-array name="title_overwrite_types">
+    <item>上書きしない</item>
+    <item>デコレーション称号を解除</item>
+    <item>文字数不足時のみ解除</item>
+    <item>文字数不足時は上書きしない</item>
+</string-array>
+<string-array name="plate_overwrite_types">
+    <item>上書きしない</item>
+    <item>常に上書きする</item>
+    <item>未所持プレート獲得時のみ</item>
+</string-array>
 </resources>

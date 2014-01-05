@@ -2,6 +2,7 @@ package net.diva.browser;
 
 import net.diva.browser.settings.ConfigActivationIndividual;
 import net.diva.browser.settings.ConfigActivity;
+import net.diva.browser.settings.ConfigBorder;
 import net.diva.browser.settings.ConfigCategory;
 import net.diva.browser.settings.ConfigCommonModule;
 import net.diva.browser.settings.ConfigItem;
@@ -41,6 +42,8 @@ public class CommonConfigActivity extends ConfigActivity {
 				new ConfigUnsetButtonSE(this, 2),
 				new ConfigSetButtonSE(this, 3),
 				new ConfigUnsetButtonSE(this, 3),
+				new ConfigCategory(getText(R.string.category_misc_common)),
+				new ConfigBorder(this),
 				new ConfigCategory(getText(R.string.category_individual)),
 				new ConfigResetIndividual(this),
 				new ConfigActivationIndividual(this),

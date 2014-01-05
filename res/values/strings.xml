@@ -107,6 +107,9 @@
     <string name="description_unset_buttonse">未設定にする</string>
     <string name="summary_unset_buttonse">%sを未設定にします</string>
     <string name="message_unset_buttonse">%sを未設定にします。よろしいですか?</string>
+    <string name="category_misc_common">その他楽曲共通設定</string>
+    <string name="description_border_config">クリアボーダー表示設定</string>
+    <string name="summary_border_config">ゲーム中に表示するクリアボーダーを選択します</string>
     <string name="summary_no_module">設定されていません</string>
     <string name="summary_applying">設定しています...</string>
     <string name="message_updating">更新しています...</string>

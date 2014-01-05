@@ -8,15 +8,15 @@ import net.diva.browser.service.ServiceClient;
 import android.content.Context;
 import android.content.Intent;
 
-public class ConfigActivationIndividual extends ConfigMultiChoice {
-	public ConfigActivationIndividual(Context context) {
-		super(context, R.array.individual_setting_keys, R.array.individual_setting_names, true,
-				R.string.category_activation_individual, R.string.summary_activation_individual);
+public class ConfigBorder extends ConfigMultiChoice {
+	public ConfigBorder(Context context) {
+		super(context, R.array.border_config_keys, R.array.border_config_names,
+				false, R.string.description_border_config, R.string.summary_border_config);
 	}
 
 	@Override
 	protected Boolean apply(ServiceClient service, LocalStore store, Intent data) throws IOException {
-		service.activateIndividual(m_keys, m_values);
+		service.activateBorder(m_keys, m_values);
 		saveToLocal();
 		return Boolean.TRUE;
 	}

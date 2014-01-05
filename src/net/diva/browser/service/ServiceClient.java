@@ -499,6 +499,15 @@ public class ServiceClient {
 		postTo("/divanet/setting/updateConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
 	}
 
+	public void activateBorder(String[] keys, boolean[] values) throws IOException {
+		List<NameValuePair> params = new ArrayList<NameValuePair>(keys.length);
+		for (int i = 0; i < keys.length; ++i) {
+			if (values[i])
+				params.add(new BasicNameValuePair(keys[i], "on"));
+		}
+		postTo("/divanet/setting/updateBorderConfig/", new UrlEncodedFormEntity(params, "US-ASCII"));
+	}
+
 	public void setSkin(String group_id, String skin_id) throws IOException {
 		setSkin("COMMON", group_id, skin_id);
 	}

@@ -143,4 +143,14 @@
     <item>usePvChainSlideSeEquip</item>
     <item>usePvSliderTouchSeEquip</item>
 </string-array>
+<string-array name="border_config_names">
+    <item>GREAT</item>
+    <item>EXCELLENT</item>
+    <item>ライバル達成率</item>
+</string-array>
+<string-array name="border_config_keys">
+    <item>dispClearGreatBorder</item>
+    <item>dispClearExcellentBorder</item>
+    <item>dispRivalBestBorder</item>
+</string-array>
 </resources>

@@ -11,7 +11,7 @@ import java.util.regex.Pattern;
 import net.diva.browser.model.MyList;
 
 public class MyListParser {
-	private static final Pattern RE_NAME = Pattern.compile("\\[マイリスト名\\]</font><br>\\s+(.+)<br>");
+	private static final Pattern RE_NAME = Pattern.compile("\\[マイリスト名\\]</font><br>\\s+<div[^>]*>(.+)</div>");
 	private static final Pattern RE_MUSIC = Pattern.compile("name=\"cryptoPvIdList\" value=\"(\\w+)\"");
 
 	public static void parseSummary(InputStream content, MyList myList) {

@@ -29,8 +29,22 @@ public class MusicInfo {
 
 	public ScoreRecord[] records;
 
+	private static double maxStatusPoint() {
+		double max = 0;
+		for (double value : STATUS_POINTS)
+			max = Math.max(value, max);
+		return max;
+	}
+
+	private static int maxDifficultyPoint() {
+		int max = 0;
+		for (int value : DIFFICULTY_POINTS)
+			max = Math.max(value, max);
+		return max;
+	}
+
 	public static int maxRankPoint() {
-		return (int) Math.ceil(STATUS_POINTS[STATUS_POINTS.length-1] * DIFFICULTY_POINTS[DIFFICULTY_POINTS.length-1]);
+		return (int) Math.ceil(maxStatusPoint() * maxDifficultyPoint());
 	}
 
 	public MusicInfo(String id_, String title_) {

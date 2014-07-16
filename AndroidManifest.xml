@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.diva.browser"
-      android:versionCode="324" android:versionName="3.24">
+      android:versionCode="325" android:versionName="FT 0.90α">
 
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="14"/>
 

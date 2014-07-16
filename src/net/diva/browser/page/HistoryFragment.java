@@ -553,7 +553,7 @@ public class HistoryFragment extends ListFragment implements LoaderManager.Loade
 
 	private static class HistoryAdapter extends ResourceCursorAdapter {
 		private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("[yyyy/MM/dd]");
-		private static final int[] RANK_COLORS = { R.color.easy, R.color.normal, R.color.hard, R.color.extreme };
+		private static final int[] RANK_COLORS = { R.color.easy, R.color.normal, R.color.hard, R.color.extreme, R.color.ex_extreme };
 		private static final String[] COLUMNS = new String[] {
 			HistoryTable.PLAY_DATE,
 			HistoryTable.RANK,

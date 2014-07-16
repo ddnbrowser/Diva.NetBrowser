@@ -7,6 +7,7 @@ import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.diva.browser.DdN;
 import net.diva.browser.DdNIndex;
 import net.diva.browser.model.CustomizeItem;
 import net.diva.browser.model.MusicInfo;
@@ -14,6 +15,7 @@ import net.diva.browser.model.Ranking;
 import net.diva.browser.model.Role;
 import net.diva.browser.model.ScoreRecord;
 import net.diva.browser.service.ParseException;
+import net.diva.browser.util.CodeMap;
 import net.diva.browser.util.MatchHelper;
 
 public class MusicParser {
@@ -77,20 +79,18 @@ public class MusicParser {
 		return score;
 	}
 
-	private static final String[] DIFFICULTIES = new String[] {
-		"EASY", "NORMAL", "HARD", "EXTREME"
-	};
-
 	public static void parseInfoPage(InputStream content, MusicInfo music) throws ParseException {
 		String body = Parser.read(content);
 		Pattern RE_COVERART = Pattern.compile(Pattern.quote(music.title) + "<br>\\s*\\[(\\d+)人設定\\]\\s*<br>\\s*<img src=\"(.+?)\"");
 		Matcher m = RE_COVERART.matcher(body);
 		if (!m.find())
 			throw new ParseException();
+
+		CodeMap difficulties = DdN.difficulty();
 		music.part = Integer.parseInt(m.group(1));
 		music.coverart = m.group(2);
-		for (int i = 0; i < DIFFICULTIES.length; ++i)
-			music.records[i] = parseScore(m, DIFFICULTIES[i], music.records[i]);
+		for (int i = 0; i < difficulties.count(); ++i)
+			music.records[i] = parseScore(m, difficulties.name(i), music.records[i]);
 	}
 
 	private static final Pattern RE_ROLE = Pattern.compile("\\[(.+?)\\](?:<[^>]+>\\s*)+\\[(?:ボイス|デフォルト)　(.+?)\\](?:<[^>]+>\\s*)+([^<>]+)");
@@ -125,6 +125,7 @@ public class MusicParser {
 	static final Pattern RE_RANKING_TITLE = Pattern.compile("<a href=\".*/(\\w+)/rankingList/\\d+\".*?>(.+)</a>");
 
 	public static String parseRankingList(InputStream content, List<Ranking> list) throws ParseException {
+		CodeMap difficulties = DdN.difficulty();
 		String body = Parser.read(content);
 		Matcher m = RE_RANKING_TITLE.matcher(body);
 		int last = m.regionEnd();
@@ -143,8 +144,8 @@ public class MusicParser {
 				r = null;
 			}
 
-			for (int rank = 3; rank > 1; --rank) {
-				Ranking entry = parseRankIn(m, DIFFICULTIES[rank]);
+			for (int rank = difficulties.count()-1; rank > 1; --rank) {
+				Ranking entry = parseRankIn(m, difficulties.name(rank));
 				if (entry != null) {
 					entry.id = id;
 					entry.title = title;

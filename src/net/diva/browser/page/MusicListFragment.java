@@ -81,6 +81,7 @@ public abstract class MusicListFragment extends ListFragment
 				v.findViewById(R.id.button_normal),
 				v.findViewById(R.id.button_hard),
 				v.findViewById(R.id.button_extreme),
+				v.findViewById(R.id.button_ex_extreme),
 		};
 		for (int i = 0; i < m_buttons.length; ++i) {
 			final int d = i;

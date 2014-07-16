@@ -2,6 +2,8 @@ package net.diva.browser.model;
 
 import java.io.File;
 
+import net.diva.browser.DdN;
+
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -9,7 +11,7 @@ import android.graphics.drawable.Drawable;
 
 public class MusicInfo {
 	private static final double[] STATUS_POINTS = new double[] { 0, 1, 4, 4.5, 6 };
-	private static final int[] DIFFICULTY_POINTS = new int[] { 1, 2, 5, 7 };
+	private static final int[] DIFFICULTY_POINTS = new int[] { 1, 2, 5, 7, 0 };
 
 	public String id;
 	public String title;
@@ -36,7 +38,7 @@ public class MusicInfo {
 		title = title_;
 		publish_order = -1;
 		sounds = new String[ButtonSE.COUNT];
-		records = new ScoreRecord[4];
+		records = new ScoreRecord[DdN.difficulty().count()];
 	}
 
 	public boolean hasIndividualModule() {

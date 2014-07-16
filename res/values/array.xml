@@ -88,6 +88,7 @@
     <item>NORMAL</item>
     <item>HARD</item>
     <item>EXTREME</item>
+    <item>EX EXTREME</item>
 </string-array>
 <string-array name="trial_names">
     <item></item>

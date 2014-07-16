@@ -36,7 +36,7 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="EASY"
+			android:text="Es"
 			style="@style/Button.Difficulty"
 			/>
 		<Button
@@ -44,7 +44,7 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="NORMAL"
+			android:text="Nm"
 			style="@style/Button.Difficulty"
 			/>
 		<Button
@@ -52,7 +52,7 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="HARD"
+			android:text="Hd"
 			style="@style/Button.Difficulty"
 			/>
 		<Button
@@ -60,7 +60,15 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="EXTREME"
+			android:text="Ex"
+			style="@style/Button.Difficulty"
+			/>
+		<Button
+			android:id="@+id/button_ex_extreme"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="EE"
 			style="@style/Button.Difficulty"
 			/>
 	</LinearLayout>

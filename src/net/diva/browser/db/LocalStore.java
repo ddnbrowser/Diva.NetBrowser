@@ -265,8 +265,10 @@ public class LocalStore extends ContentProvider {
 		try {
 			for (MusicInfo music: musics) {
 				if (MusicTable.update(db, music)) {
-					for (int i = 0; i < music.records.length; ++i)
-						ScoreTable.update(db, music.id, i, music.records[i]);
+					for (int i = 0; i < music.records.length; ++i) {
+						if (!ScoreTable.update(db, music.id, i, music.records[i]))
+							ScoreTable.insert(db, music.id, i, music.records[i]);
+					}
 				}
 				else {
 					music.reading = getReading(music.title);
@@ -298,8 +300,10 @@ public class LocalStore extends ContentProvider {
 		db.beginTransaction();
 		try {
 			MusicTable.update(db, music);
-			for (int i = 0; i < music.records.length; ++i)
-				ScoreTable.update(db, music.id, i, music.records[i]);
+			for (int i = 0; i < music.records.length; ++i) {
+				if (!ScoreTable.update(db, music.id, i, music.records[i]))
+					ScoreTable.insert(db, music.id, i, music.records[i]);
+			}
 			db.setTransactionSuccessful();
 		}
 		finally {

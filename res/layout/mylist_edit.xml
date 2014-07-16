@@ -70,7 +70,7 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="EASY"
+			android:text="Es"
 			android:onClick="setDifficulty"
 			style="@style/Button.Difficulty"
 			/>
@@ -79,7 +79,7 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="NORMAL"
+			android:text="Nm"
 			android:onClick="setDifficulty"
 			style="@style/Button.Difficulty"
 			/>
@@ -88,7 +88,7 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="HARD"
+			android:text="Hd"
 			android:onClick="setDifficulty"
 			style="@style/Button.Difficulty"
 			/>
@@ -97,7 +97,16 @@
 			android:layout_width="0dip"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:text="EXTREME"
+			android:text="Ex"
+			android:onClick="setDifficulty"
+			style="@style/Button.Difficulty"
+			/>
+		<Button
+			android:id="@+id/button_ex_extreme"
+			android:layout_width="0dip"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="EE"
 			android:onClick="setDifficulty"
 			style="@style/Button.Difficulty"
 			/>

@@ -28,6 +28,10 @@ public class CodeMap {
 			m_names.append(ids[i], names[i]);
 	}
 
+	public int count() {
+		return m_names.size();
+	}
+
 	public int code(String name) {
 		for (int i = 0; i < m_names.size(); ++i) {
 			if (m_names.valueAt(i).equals(name))

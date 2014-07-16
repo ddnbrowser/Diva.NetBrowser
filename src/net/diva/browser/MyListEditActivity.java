@@ -43,6 +43,7 @@ public class MyListEditActivity extends ListActivity {
 				findViewById(R.id.button_normal),
 				findViewById(R.id.button_hard),
 				findViewById(R.id.button_extreme),
+				findViewById(R.id.button_ex_extreme),
 		};
 
 		Intent intent = getIntent();

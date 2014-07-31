@@ -1,6 +1,10 @@
 package net.diva.browser;
 
 import net.diva.browser.common.DownloadPlayRecord;
+import net.diva.browser.util.CrushReport;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -25,6 +29,8 @@ public class MainActivity extends FragmentActivity {
 		setContentView(R.layout.main);
 
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		if (CrushReport.exists())
+			sendCrushReport();
 
 		Fragment f = getSupportFragmentManager().findFragmentById(R.id.content);
 		if (f instanceof Content)
@@ -102,5 +108,25 @@ public class MainActivity extends FragmentActivity {
 			return m_content.onSearchRequested();
 
 		return super.onSearchRequested();
+	}
+
+	private void sendCrushReport() {
+		final Context context = this;
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setTitle(R.string.crush_report_title);
+		builder.setMessage(R.string.crush_report_message);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				CrushReport.sendByMail(context, getString(R.string.report_address));
+			}
+		});
+		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				CrushReport.clear();
+			}
+		});
+		builder.show();
 	}
 }

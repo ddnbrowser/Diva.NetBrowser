@@ -227,4 +227,6 @@
     <string name="category_se">SE設定</string>
     <string name="no_setting">未設定</string>
     <string name="initialize">初期化</string>
+    <string name="crush_report_title">エラーを報告</string>
+    <string name="crush_report_message">前回起動時に強制終了しています。よろしければ、今後の改善のためにエラー情報を開発者へ送信して下さい。</string>
 </resources>

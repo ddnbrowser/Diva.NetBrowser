@@ -11,6 +11,7 @@ import net.diva.browser.model.MyList;
 import net.diva.browser.model.PlayRecord;
 import net.diva.browser.service.ServiceClient;
 import net.diva.browser.util.CodeMap;
+import net.diva.browser.util.CrushReport;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Notification;
@@ -58,6 +59,7 @@ public class DdN extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		CrushReport.setup(this);
 		PreferenceManager.setDefaultValues(this, R.xml.settings, true);
 		CookieSyncManager.createInstance(this);
 		RANK_POINTS = getResources().getIntArray(R.array.rank_points);

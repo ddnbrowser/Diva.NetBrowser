@@ -2,6 +2,7 @@ package net.diva.browser.service.parser;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -42,6 +43,18 @@ public final class Parser {
 			throw new ParseException("No such span with: " +id);
 
 		return m.group(1);
+	}
+
+	private static final Pattern RE_HIDDEN = Pattern.compile("<input type=\"hidden\" name=\"(.*)\" value=\"(.*)\">");
+
+	public static List<NameValuePair> parseLoginToken(InputStream content) throws ParseException {
+		String body = read(content);
+		Matcher m = RE_HIDDEN.matcher(body);
+
+		List<NameValuePair> tokens = new ArrayList<NameValuePair>(2);
+		while (m.find())
+			tokens.add(new BasicNameValuePair(m.group(1), m.group(2)));
+		return tokens;
 	}
 
 	private static final Pattern RE_NEWS = Pattern.compile("DIVA.NETニュース\\((.+)\\)</a>\\s*<br>");

@@ -83,15 +83,18 @@ public class ServiceClient {
 		return builder.substring(2).toString();
 	}
 
+	private static String replaceScheme(String url, String scheme) {
+		return Uri.parse(url).buildUpon().scheme(scheme).build().toString();
+	}
+
 	public PlayRecord login() throws LoginFailedException {
-		Uri url = Uri.parse(DdN.url("/divanet/login/")).buildUpon().scheme("https").build();
-		HttpPost request = new HttpPost(url.toString());
+		HttpPost request = new HttpPost(replaceScheme(DdN.url("/divanet/login/"), "https"));
 		try {
 			request.setHeader("Referer", DdN.URL.toString());
 			request.setHeader("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.0; Trident/5.0)");
 			request.setHeader("Cache-Control", "no-cache");
 
-			List<NameValuePair> params = new ArrayList<NameValuePair>(2);
+			List<NameValuePair> params = getLoginTokens();
 			params.add(new BasicNameValuePair("accessCode", m_access_code));
 			params.add(new BasicNameValuePair("password", m_password));
 			request.setEntity(new UrlEncodedFormEntity(params, "US-ASCII"));
@@ -107,6 +110,14 @@ public class ServiceClient {
 		catch (Exception e) {
 			throw new LoginFailedException(e);
 		}
+	}
+
+	private List<NameValuePair> getLoginTokens() throws IOException, ParseException {
+		HttpResponse response = m_client.execute(new HttpGet(replaceScheme(DdN.url("/divanet/"), "https")));
+		if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK)
+			throw new IOException();
+
+		return Parser.parseLoginToken(response.getEntity().getContent());
 	}
 
 	private List<MusicInfo> getMusics(String path) throws IOException {
